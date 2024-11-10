@@ -9,6 +9,7 @@ type SuccessResponse = {
 	firstName: string;
 	lastName: string;
 	studentId?: string;
+	major: string;
 };
 
 type ErrorResponse = {
@@ -43,6 +44,7 @@ export async function GET() {
 			firstName: decoded.firstName,
 			lastName: decoded.lastName,
 			studentId: decoded.studentId,
+			major: decoded.major,
 		});
 	} catch (error) {
 		console.log(error);
