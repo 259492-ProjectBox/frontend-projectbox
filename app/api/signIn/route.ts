@@ -49,6 +49,9 @@ async function getCMUBasicInfoAsync(accessToken: string) {
 				headers: { Authorization: "Bearer " + accessToken },
 			}
 		);
+
+		console.log(response.data);
+
 		return response.data as CmuOAuthBasicInfo;
 	} catch (err) {
 		console.log(err);
@@ -95,6 +98,7 @@ export async function POST(req: Request) {
 			firstName: cmuBasicInfo.firstname_EN,
 			lastName: cmuBasicInfo.lastname_EN,
 			studentId: cmuBasicInfo.student_id,
+			major: cmuBasicInfo.organization_name_EN,
 		},
 		process.env.JWT_SECRET,
 		{ expiresIn: "1h" }
