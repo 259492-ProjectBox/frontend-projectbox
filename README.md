@@ -7,14 +7,22 @@ First,
 
 Install axios
 
-`npm axios`
+`npm i axios`
 
 Install to set up cookies
 `npm i cookies-next`
+Already not use please uninstall
 
 JWTToken
 `npm i jsonwebtoken`
 `npm i @types/jsonwebtoken`
+
+MUI component
+
+`npm install @mui/material @emotion/react @emotion/styled`
+Install
+`npm install @mui/icons-material @mui/material @emotion/styled @emotion/react`
+
 run the development server:
 
 ```bash
