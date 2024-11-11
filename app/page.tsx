@@ -1,6 +1,10 @@
 import Image from "next/image";
+import { redirect } from "next/navigation";
+import { serverGetCookie } from "./utils/helpFunction";
 
 export default function Home() {
+	const token = serverGetCookie();
+	if (token) redirect("/dashboard");
 	return (
 		<>
 			<div className="h-screen w-full flex justify-center items-center bg-gradient-to-r from-blue-500 to-teal-500">
