@@ -1,17 +1,12 @@
-import { redirect } from "next/navigation";
 import React, { PropsWithChildren } from "react";
+import SideBar from "../components/SideBar";
 
-function AuthLayout({
-    children,
-  }: PropsWithChildren) {
-    redirect('/')
-    
-
-  return (
-    <>
-    {children}
-    </>
-  )
+function AuthLayout({ children }: PropsWithChildren) {
+	return (
+		<>
+			<SideBar>{children}</SideBar>
+		</>
+	);
 }
 
-export default AuthLayout
+export default AuthLayout;

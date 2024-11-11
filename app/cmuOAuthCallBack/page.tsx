@@ -19,7 +19,7 @@ export default function CMUOAuthCallback() {
 			.post<SignInResponse>("/api/signIn", { authorizationCode: code })
 			.then((resp) => {
 				if (resp.data.ok) {
-					router.push("/me");
+					router.push("/dashboard");
 				}
 			})
 			.catch((error: AxiosError<SignInResponse>) => {
