@@ -1,0 +1,47 @@
+// utils/fetchUserInfo.ts
+import axios, { AxiosError } from "axios";
+import { WhoAmIResponse } from "../dtos/WhoAmIResponse";
+import { FetchUserInfoResult, UserInfo } from "../types/UserInfo";
+
+export async function fetchUserInfo(): Promise<FetchUserInfoResult> {
+	try {
+		const response = await axios.get<WhoAmIResponse>("/api/whoAmI");
+
+		if (response.data.ok) {
+			// Destructure and map the response data to UserInfo type
+			const userInfo: UserInfo = {
+				cmuAccount: response.data.cmuAccount,
+				firstName: response.data.firstName,
+				lastName: response.data.lastName,
+				studentId: response.data.studentId, // Optional, so it's fine if undefined
+				major: response.data.major,
+			};
+			return {
+				user: userInfo,
+				error: null,
+				isLoading: false,
+			};
+		} else {
+			return {
+				user: null,
+				error: response.data.message,
+				isLoading: false,
+			};
+		}
+	} catch (error) {
+		const axiosError = error as AxiosError<WhoAmIResponse>;
+		let errorMessage = "Unknown error occurred. Please try again later";
+
+		if (!axiosError.response) {
+			errorMessage = "Cannot connect to the network. Please try again later.";
+		} else if (axiosError.response.status === 401) {
+			errorMessage = "Authentication failed";
+		}
+
+		return {
+			user: null,
+			error: errorMessage,
+			isLoading: false,
+		};
+	}
+}

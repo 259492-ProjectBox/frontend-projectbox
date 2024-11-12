@@ -3,31 +3,84 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 ## Getting Started
 
 First,
-``npm install`
+
+```bash
+npm install
+```
+
+## Library that' use in project
 
 Install axios
 
-`npm i axios`
+```
+npm i axios
+```
 
 Install to set up cookies
-`npm i cookies-next`
+
+```
+npm i cookies-next
+```
+
 Already not use please uninstall
 
 JWTToken
-`npm i jsonwebtoken`
-`npm i @types/jsonwebtoken`
+
+```
+npm i jsonwebtoken
+npm i @types/jsonwebtoken
+```
 
 MUI component
 
-`npm install @mui/material @emotion/react @emotion/styled`
-Install
-`npm install @mui/icons-material @mui/material @emotion/styled @emotion/react`
+```
+npm install @mui/material @emotion/react @emotion/styled
+npm install @mui/icons-material @mui/material @emotion/styled @emotion/react
+```
 
 run the development server:
 
 ```bash
 npm run dev
 ```
+
+# Project structure
+
+- types
+
+  - folder for general-purpose types that represent data models or shapes used throughout the application.
+  - Define TypeScript interfaces and types used throughout your application
+  - Represent your application's domain models
+  - More comprehensive than DTOs and include internal application state
+    Example: User, AuthState
+
+- dtos
+
+  - folder for structured input/output objects specific to data transfer across an API or service boundaries, especially if your project involves request/response validation or transformation.
+  - Define the shape of data being sent to and received from the server
+  - Used for API requests and responses
+  - Usually matches the backend API contract
+
+- utils
+
+  - Contains reusable utility functions
+  - API calls and helper functions
+  - Pure functions that don't depend on React
+  - Example: API functions, date formatting, calculations
+
+- hooks
+
+  - Custom React hooks that handle state and side effects
+  - Combine utils, types, and React features
+  - Reusable across multiple components
+  - Example: useAuth, useForm
+
+# In summary
+
+    - DTOs: Server communication ↔️
+    - Types: Application data structure 📝
+    - Utils: Reusable functions 🔧
+    - Hooks: React state & effects 🎣
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 

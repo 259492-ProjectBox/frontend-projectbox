@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import { serverGetCookie } from "./utils/helpFunction";
+import { serverGetCookie } from "../utils/helpFunction";
 
 export default function Home() {
 	const token = serverGetCookie();

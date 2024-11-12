@@ -1,7 +1,7 @@
 import axios from "axios";
 import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
-import { CmuOAuthBasicInfo } from "../../types/CmuOAuthBasicInfo";
+import { CmuOAuthBasicInfo } from "../../../types/CmuOAuthBasicInfo";
 
 type SuccessResponse = {
 	ok: true;
@@ -49,8 +49,6 @@ async function getCMUBasicInfoAsync(accessToken: string) {
 				headers: { Authorization: "Bearer " + accessToken },
 			}
 		);
-
-		console.log(response.data);
 
 		return response.data as CmuOAuthBasicInfo;
 	} catch (err) {

@@ -1,13 +1,7 @@
-import React from 'react'
+import React from "react";
 
 function MyProjectPage() {
-    console.log("my project");
-    
-  return (
-    <div>
-        test
-    </div>
-  )
+	return <div>test</div>;
 }
 
-export default MyProjectPage
+export default MyProjectPage;
