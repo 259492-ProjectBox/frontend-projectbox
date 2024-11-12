@@ -1,23 +1,7 @@
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
-import { JWTPayload } from "../../types/JWTPayload";
-
-type SuccessResponse = {
-	ok: true;
-	cmuAccount: string;
-	firstName: string;
-	lastName: string;
-	studentId?: string;
-	major: string;
-};
-
-type ErrorResponse = {
-	ok: false;
-	message: string;
-};
-
-export type WhoAmIResponse = SuccessResponse | ErrorResponse;
+import { JWTPayload } from "../../../types/JWTPayload";
 
 export async function GET() {
 	// Get the cookie from the request

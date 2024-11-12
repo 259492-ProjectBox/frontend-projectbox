@@ -16,7 +16,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import GroupsIcon from "@mui/icons-material/Groups";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { useRouter, usePathname } from "next/navigation";
-import axios from "axios";
+import { useAuth } from "@/hooks/useAuth";
 
 const drawerWidth = 200;
 
@@ -24,18 +24,13 @@ export default function SideBar({ children }: React.PropsWithChildren) {
 	const router = useRouter();
 	const pathname = usePathname();
 
+	const { user, signOut } = useAuth();
 	const menuItems = [
 		{ text: "My Project", icon: <PersonIcon />, path: "/me" },
 		{ text: "Search Project", icon: <SearchIcon />, path: "/search-project" },
 		{ text: "Advisor Stats", icon: <GroupsIcon />, path: "/advisor-stats" },
 		{ text: "Logout", icon: <LogoutIcon />, path: "/logout" },
 	];
-
-	function signOut() {
-		axios.post("/api/signOut").finally(() => {
-			router.push("/");
-		});
-	}
 
 	return (
 		<Box sx={{ display: "flex" }}>
@@ -54,8 +49,17 @@ export default function SideBar({ children }: React.PropsWithChildren) {
 					<Typography variant="h6" noWrap sx={{ fontWeight: "bold" }}>
 						CMU ENG Project
 					</Typography>
-					<Typography variant="h6" noWrap sx={{ fontWeight: "normal" }}>
-						CMU ENG Project
+					<Typography
+						variant="h6"
+						noWrap
+						sx={{ fontWeight: "normal", fontSize: "14px" }}
+					>
+						<Typography>
+							{user?.firstName} {user?.lastName}
+						</Typography>
+						<Typography sx={{ textAlign: "right" }}>
+							{user?.studentId}
+						</Typography>
 					</Typography>
 				</Toolbar>
 			</AppBar>
