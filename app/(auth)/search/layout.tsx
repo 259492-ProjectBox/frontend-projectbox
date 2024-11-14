@@ -1,17 +1,10 @@
-import { redirect } from "next/navigation";
+// import { redirect } from "next/navigation";
 import React, { PropsWithChildren } from "react";
 
-function AuthLayout({
-    children,
-  }: PropsWithChildren) {
-    redirect('/')
-    
+function AuthLayout({ children }: PropsWithChildren) {
+	// redirect("/");
 
-  return (
-    <>
-    {children}
-    </>
-  )
+	return <>{children}</>;
 }
 
-export default AuthLayout
+export default AuthLayout;
