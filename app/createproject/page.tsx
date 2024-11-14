@@ -6,40 +6,30 @@ import {
 	Typography,
 	TextField,
 	Container,
-	AppBar,
 	Select,
 	MenuItem,
 	FormControl,
 	InputLabel,
-	Grid,
 	IconButton,
+	Input,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useRouter } from "next/navigation";
+import Grid2 from "@mui/material/Grid2"; // Import Grid2
 
 const CreateProject: React.FC = () => {
 	const router = useRouter();
 
 	return (
-		<Box sx={{ flexGrow: 1 }}>
-			<AppBar
-				position="static"
-				sx={{
-					bgcolor: "white",
-					color: "black",
-					boxShadow: 1,
-				}}
-			/>
-
-			<Container maxWidth="lg" sx={{ mt: 9 }}>
-				{/* Back Button */}
-				<Box sx={{ mb: 2 }}>
+		<Box sx={{ flexGrow: 1, minHeight: "100vh" }}>
+			<Box sx={{ position: "sticky" }}>
+				<Box sx={{ mb: 2, mt: 9, ml: 3 }}>
 					<IconButton
 						onClick={() => router.back()}
 						sx={{
-							color: "black",
+							color: "blue",
 							"&:hover": {
-								backgroundColor: "rgba(0, 0, 0, 0.04)",
+								backgroundColor: "rgba(0, 0, 0, 0.09)",
 							},
 						}}
 					>
@@ -47,12 +37,13 @@ const CreateProject: React.FC = () => {
 						<Typography sx={{ ml: 1 }}>Back</Typography>
 					</IconButton>
 				</Box>
+			</Box>
 
+			<Container maxWidth="lg">
 				<Typography variant="h5" sx={{ mb: 3, fontWeight: "bold" }}>
 					Create Project
 				</Typography>
 
-				{/* Rest of your components remain the same */}
 				<Paper
 					elevation={0}
 					sx={{
@@ -66,40 +57,40 @@ const CreateProject: React.FC = () => {
 						<Typography variant="h6">ภาควิชา</Typography>
 					</Box>
 
-					<Grid container spacing={3}>
-						<Grid item xs={3}>
+					<Grid2 container spacing={3} sx={{ display: "flex" }}>
+						<Grid2 sx={{ flexBasis: 0, flexGrow: 1 }}>
 							<FormControl fullWidth>
 								<InputLabel>รหัสวิชา</InputLabel>
 								<Select label="รหัสวิชา" value="">
 									<MenuItem value="">Select</MenuItem>
 								</Select>
 							</FormControl>
-						</Grid>
-						<Grid item xs={3}>
+						</Grid2>
+						<Grid2 sx={{ flexBasis: 0, flexGrow: 1 }}>
 							<FormControl fullWidth>
 								<InputLabel>Section</InputLabel>
 								<Select label="Section" value="">
 									<MenuItem value="">Select</MenuItem>
 								</Select>
 							</FormControl>
-						</Grid>
-						<Grid item xs={3}>
+						</Grid2>
+						<Grid2 sx={{ flexBasis: 0, flexGrow: 1 }}>
 							<FormControl fullWidth>
 								<InputLabel>เทอม</InputLabel>
 								<Select label="เทอม" value="">
 									<MenuItem value="">Select</MenuItem>
 								</Select>
 							</FormControl>
-						</Grid>
-						<Grid item xs={3}>
+						</Grid2>
+						<Grid2 sx={{ flexBasis: 0, flexGrow: 1 }}>
 							<FormControl fullWidth>
 								<InputLabel>ปีการศึกษา</InputLabel>
 								<Select label="ปีการศึกษา" value="">
 									<MenuItem value="">Select</MenuItem>
 								</Select>
 							</FormControl>
-						</Grid>
-					</Grid>
+						</Grid2>
+					</Grid2>
 				</Paper>
 
 				<Paper
@@ -137,6 +128,7 @@ const CreateProject: React.FC = () => {
 						<Typography variant="body2" sx={{ mb: 1 }}>
 							คำนำ
 						</Typography>
+						<Input />
 					</Box>
 				</Paper>
 			</Container>
