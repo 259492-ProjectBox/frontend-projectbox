@@ -1,5 +1,4 @@
-// app/components/create-project.tsx
-
+"use client";
 import React from "react";
 import {
 	Paper,
@@ -7,69 +6,53 @@ import {
 	Typography,
 	TextField,
 	Container,
-	// AppBar,
-	// Toolbar,
+	AppBar,
 	Select,
 	MenuItem,
 	FormControl,
 	InputLabel,
 	Grid,
-	// TextareaAutosize,
-	// styled,
+	IconButton,
 } from "@mui/material";
-
-// const StyledTextArea = styled(TextareaAutosize)(({ theme }) => ({
-// 	width: "100%",
-// 	minHeight: "150px",
-// 	padding: "12px",
-// 	borderRadius: "4px",
-// 	border: "1px solid #ccc",
-// 	fontFamily: theme.typography.fontFamily,
-// 	fontSize: "16px",
-// 	"&:focus": {
-// 		outline: "none",
-// 		borderColor: theme.palette.primary.main,
-// 	},
-// }));
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useRouter } from "next/navigation";
 
 const CreateProject: React.FC = () => {
+	const router = useRouter();
+
 	return (
 		<Box sx={{ flexGrow: 1 }}>
-			{/* Navigation Bar */}
-			{/* <AppBar
+			<AppBar
 				position="static"
 				sx={{
 					bgcolor: "white",
 					color: "black",
 					boxShadow: 1,
 				}}
-			>
-				<Toolbar sx={{ justifyContent: "space-between" }}>
-					<Typography variant="h6" component="div" sx={{ fontWeight: "bold" }}>
-						CMU ENG Project
-					</Typography>
+			/>
 
-					<Box sx={{ display: "flex", gap: 2 }}>
-						<Typography>Search Project</Typography>
-						<Typography>My Project</Typography>
-						<Typography>Advisor Stats</Typography>
-					</Box>
+			<Container maxWidth="lg" sx={{ mt: 9 }}>
+				{/* Back Button */}
+				<Box sx={{ mb: 2 }}>
+					<IconButton
+						onClick={() => router.back()}
+						sx={{
+							color: "black",
+							"&:hover": {
+								backgroundColor: "rgba(0, 0, 0, 0.04)",
+							},
+						}}
+					>
+						<ArrowBackIcon />
+						<Typography sx={{ ml: 1 }}>Back</Typography>
+					</IconButton>
+				</Box>
 
-					<Box sx={{ textAlign: "right" }}>
-						<Typography variant="body2">Pichayoot Hunchainao</Typography>
-						<Typography variant="body2" color="text.secondary">
-							CPE64061053
-						</Typography>
-					</Box>
-				</Toolbar>
-			</AppBar> */}
-
-			<Container maxWidth="lg" sx={{ mt: 4 }}>
 				<Typography variant="h5" sx={{ mb: 3, fontWeight: "bold" }}>
 					Create Project
 				</Typography>
 
-				{/* Course Information Section */}
+				{/* Rest of your components remain the same */}
 				<Paper
 					elevation={0}
 					sx={{
@@ -119,7 +102,6 @@ const CreateProject: React.FC = () => {
 					</Grid>
 				</Paper>
 
-				{/* Project Title Section */}
 				<Paper
 					elevation={0}
 					sx={{
@@ -139,7 +121,6 @@ const CreateProject: React.FC = () => {
 					</Box>
 				</Paper>
 
-				{/* Project Details Section */}
 				<Paper
 					elevation={0}
 					sx={{
@@ -156,10 +137,6 @@ const CreateProject: React.FC = () => {
 						<Typography variant="body2" sx={{ mb: 1 }}>
 							คำนำ
 						</Typography>
-						{/* <StyledTextArea
-							placeholder="Enter project details..."
-							minRows={6}
-						/> */}
 					</Box>
 				</Paper>
 			</Container>
