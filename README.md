@@ -77,10 +77,10 @@ npm run dev
 
 # In summary
 
-    - DTOs: Server communication ↔️
-    - Types: Application data structure 📝
-    - Utils: Reusable functions 🔧
-    - Hooks: React state & effects 🎣
+- DTOs: Server communication ↔️
+- Types: Application data structure 📝
+- Utils: Reusable functions 🔧
+- Hooks: React state & effects 🎣
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 

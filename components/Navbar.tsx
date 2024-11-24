@@ -27,7 +27,10 @@ export default function Navbar() {
 					<Typography variant="subtitle1">
 						{user?.firstName} {user?.lastName}
 					</Typography>
-					<Typography variant="subtitle2" sx={{ color: "gray" }}>
+					<Typography
+						variant="subtitle2"
+						sx={{ color: "gray", textAlign: "right" }}
+					>
 						{user?.studentId}
 					</Typography>
 				</div>
