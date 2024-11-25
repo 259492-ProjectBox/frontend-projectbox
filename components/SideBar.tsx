@@ -17,6 +17,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import Navbar from "./Navbar";
+import { DynamicForm } from "@mui/icons-material";
 
 const drawerWidth = 200;
 
@@ -30,6 +31,7 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
 		{ text: "Search Project", icon: <SearchIcon />, path: "/search" },
 		{ text: "Advisor Stats", icon: <GroupsIcon />, path: "/advisor-stats" },
 		{ text: "Logout", icon: <LogoutIcon />, path: "/logout" },
+		{ text: "Form", icon: <DynamicForm />, path: "/form" },
 	];
 
 	return (
