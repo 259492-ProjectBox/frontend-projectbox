@@ -1,86 +1,115 @@
 // components/Sidebar.tsx
 "use client";
 import * as React from "react";
-import Box from "@mui/material/Box";
-import Drawer from "@mui/material/Drawer";
-import CssBaseline from "@mui/material/CssBaseline";
-import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
+import { useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
+import FlowbiteNavbar from "./FlowbiteNavbar";
 import PersonIcon from "@mui/icons-material/Person";
 import SearchIcon from "@mui/icons-material/Search";
 import GroupsIcon from "@mui/icons-material/Groups";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { useRouter, usePathname } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
-import Navbar from "./Navbar";
-
-const drawerWidth = 200;
+import InventoryIcon from "@mui/icons-material/Inventory";
+import EventIcon from "@mui/icons-material/Event";
+import SettingsIcon from "@mui/icons-material/Settings";
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 
 export default function Sidebar({ children }: React.PropsWithChildren) {
-	const router = useRouter();
-	const pathname = usePathname();
-	const { signOut } = useAuth();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
+  const { signOut } = useAuth();
 
-	const menuItems = [
-		{ text: "My Project", icon: <PersonIcon />, path: "/dashboard" },
-		{ text: "Search Project", icon: <SearchIcon />, path: "/search" },
-		{ text: "Advisor Stats", icon: <GroupsIcon />, path: "/advisor-stats" },
-		{ text: "Logout", icon: <LogoutIcon />, path: "/logout" },
-	];
+  const menuItems = [
+    { text: "My Project", icon: <PersonIcon />, path: "/dashboard" },
+    { text: "Search Project", icon: <SearchIcon />, path: "/search" },
+    { text: "Advisor Stats", icon: <GroupsIcon />, path: "/advisorstats" },
+    { text: "Assets", icon: <InventoryIcon />, path: "/assetspage" },
+    { text: "Event Calendar", icon: <EventIcon />, path: "/eventcalendar" },
+  ];
 
-	return (
-		<Box sx={{ display: "flex" }}>
-			<CssBaseline />
-			<Navbar />
-			<Drawer
-				variant="permanent"
-				sx={{
-					width: drawerWidth,
-					flexShrink: 0,
-					[`& .MuiDrawer-paper`]: {
-						width: drawerWidth,
-						boxSizing: "border-box",
-					},
-				}}
-			>
-				<Toolbar />
-				<Box sx={{ overflow: "auto" }}>
-					<List>
-						{menuItems.map((item) => (
-							<ListItem key={item.text} disablePadding>
-								<ListItemButton
-									onClick={() => {
-										if (item.text === "Logout") {
-											signOut();
-										} else {
-											router.push(item.path);
-										}
-									}}
-									sx={{
-										backgroundColor:
-											pathname === item.path ? "#D9D9D9" : "transparent",
-										"&:hover": {
-											backgroundColor:
-												pathname === item.path ? "#D9D9D9" : undefined,
-										},
-									}}
-								>
-									<ListItemIcon>{item.icon}</ListItemIcon>
-									<ListItemText primary={item.text} />
-								</ListItemButton>
-							</ListItem>
-						))}
-					</List>
-				</Box>
-			</Drawer>
-			<Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-				<Toolbar />
-				{children}
-			</Box>
-		</Box>
-	);
+  const configMenuItems = [
+    { text: "Config Form", icon: <SettingsIcon />, path: "/configform" },
+    { text: "Config Calendar", icon: <SettingsIcon />, path: "/configcalendar" },
+    { text: "Config Advisor", icon: <SettingsIcon />, path: "/configadvisor" },
+    { text: "Admin Manage", icon: <SupervisorAccountIcon />, path: "/adminmanage" },
+  ];
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  return (
+    <div className="flex">
+      {/* Navbar */}
+      <FlowbiteNavbar toggleSidebar={toggleSidebar} />
+
+      {/* Sidebar */}
+      <aside
+        id="logo-sidebar"
+        className={`fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform bg-white border-r border-gray-200 ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } sm:translate-x-0`}
+        aria-label="Sidebar"
+      >
+        <div className="h-full px-3 pb-4 overflow-y-auto">
+          <ul className="space-y-2 font-medium">
+            {menuItems.map((item) => (
+              <li key={item.text}>
+                <button
+                  onClick={() => router.push(item.path)}
+                  className={`flex items-center w-full p-2 rounded-lg hover:bg-gray-100 ${
+                    pathname === item.path ? "bg-gray-200" : ""
+                  }`}
+                >
+                  <div className="text-gray-500 group-hover:text-gray-900">
+                    {item.icon}
+                  </div>
+                  <span className="ml-3">{item.text}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          {/* Divider */}
+          <hr className="my-4 border-gray-300" />
+
+          {/* Config Section */}
+          <ul className="space-y-2 font-medium">
+            {configMenuItems.map((item) => (
+              <li key={item.text}>
+                <button
+                  onClick={() => router.push(item.path)}
+                  className={`flex items-center w-full p-2 rounded-lg hover:bg-gray-100 ${
+                    pathname === item.path ? "bg-gray-200" : ""
+                  }`}
+                >
+                  <div className="text-gray-500 group-hover:text-gray-900">
+                    {item.icon}
+                  </div>
+                  <span className="ml-3">{item.text}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          {/* Logout Section */}
+          <div className="mt-4">
+            <button
+              onClick={signOut}
+              className="flex items-center w-full p-2 rounded-lg hover:bg-gray-100"
+            >
+              <div className="text-gray-500 group-hover:text-gray-900">
+                <LogoutIcon />
+              </div>
+              <span className="ml-3">Logout</span>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* Content Area */}
+      <main className="flex-grow p-4 mt-16 sm:ml-64">{children}</main>
+    </div>
+  );
 }
