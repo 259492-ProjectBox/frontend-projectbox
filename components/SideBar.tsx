@@ -21,18 +21,18 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
   const { signOut } = useAuth();
 
   const menuItems = [
-    { text: "My Project", icon: <PersonIcon />, path: "/dashboard" },
-    { text: "Search Project", icon: <SearchIcon />, path: "/search" },
-    { text: "Advisor Stats", icon: <GroupsIcon />, path: "/advisorstats" },
-    { text: "Assets", icon: <InventoryIcon />, path: "/assetspage" },
-    { text: "Event Calendar", icon: <EventIcon />, path: "/eventcalendar" },
+    { text: "My Project", icon: <PersonIcon className="w-4 h-4" />, path: "/dashboard" },
+    { text: "Search Project", icon: <SearchIcon className="w-4 h-4" />, path: "/search" },
+    { text: "Advisor Stats", icon: <GroupsIcon className="w-4 h-4" />, path: "/advisorstats" },
+    { text: "Assets", icon: <InventoryIcon className="w-4 h-4" />, path: "/assetspage" },
+    { text: "Event Calendar", icon: <EventIcon className="w-4 h-4" />, path: "/eventcalendar" },
   ];
 
   const configMenuItems = [
-    { text: "Config Form", icon: <SettingsIcon />, path: "/configform" },
-    { text: "Config Calendar", icon: <SettingsIcon />, path: "/configcalendar" },
-    { text: "Config Advisor", icon: <SettingsIcon />, path: "/configadvisor" },
-    { text: "Admin Manage", icon: <SupervisorAccountIcon />, path: "/adminmanage" },
+    { text: "Config Form", icon: <SettingsIcon className="w-4 h-4" />, path: "/configform" },
+    { text: "Config Calendar", icon: <SettingsIcon className="w-4 h-4" />, path: "/configcalendar" },
+    { text: "Config Advisor", icon: <SettingsIcon className="w-4 h-4" />, path: "/configadvisor" },
+    { text: "Admin Manage", icon: <SupervisorAccountIcon className="w-4 h-4" />, path: "/adminmanage" },
   ];
 
   const toggleSidebar = () => {
@@ -53,7 +53,7 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
         aria-label="Sidebar"
       >
         <div className="h-full px-3 pb-4 overflow-y-auto">
-          <ul className="space-y-2 font-medium">
+          <ul className="space-y-2 font-medium text-sm"> {/* Decreased text size to 'text-sm' */}
             {menuItems.map((item) => (
               <li key={item.text}>
                 <button
@@ -75,7 +75,7 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
           <hr className="my-4 border-gray-300" />
 
           {/* Config Section */}
-          <ul className="space-y-2 font-medium">
+          <ul className="space-y-2 font-medium text-sm"> {/* Decreased text size to 'text-sm' */}
             {configMenuItems.map((item) => (
               <li key={item.text}>
                 <button
@@ -100,9 +100,9 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
               className="flex items-center w-full p-2 rounded-lg hover:bg-gray-100"
             >
               <div className="text-gray-500 group-hover:text-gray-900">
-                <LogoutIcon />
+                <LogoutIcon className="w-4 h-4" /> {/* Decreased icon size */}
               </div>
-              <span className="ml-3">Logout</span>
+              <span className="ml-3 text-sm">Logout</span> {/* Decreased text size */}
             </button>
           </div>
         </div>
