@@ -47,7 +47,7 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
       {/* Sidebar */}
       <aside
         id="logo-sidebar"
-        className={`fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform bg-white border-r border-gray-200 ${
+        className={`fixed top-0 left-0 z-40 w-52 h-screen pt-20 transition-transform bg-white border-r border-gray-200 ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         } sm:translate-x-0`}
         aria-label="Sidebar"
@@ -109,7 +109,7 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
       </aside>
 
       {/* Content Area */}
-      <main className="flex-grow p-4 mt-16 sm:ml-64">{children}</main>
+      <main className="flex-grow mt-16 sm:ml-52">{children}</main>
     </div>
   );
 }
