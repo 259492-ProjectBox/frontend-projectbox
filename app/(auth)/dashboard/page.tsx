@@ -2,7 +2,6 @@
 import React from "react";
 import ProjectList from "../../../components/ProjectList";
 import { CustomTooltip } from "@/components/CustomTooltip";
-import { Box, Button, Card, CardContent, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import AddIcon from "@mui/icons-material/Add"; // Import Add icon
 
@@ -15,8 +14,8 @@ const projects = [
       "Survey and Analysis of Power Quality Issues in Local Electrical Grids. Power quality is a critical aspect of modern electrical systems, affecting both residential and industrial consumers. Common issues like voltage sags, swells, harmonic distortions, and interruptions can lead to equipment malfunctions, increased energy consumption, and operational costs.",
     students: [
       { id: "640610999", name: "ประยุทธ์ จันทร์โอชา" },
-      { id: "640611000", name: "ประวิตร วงศ์สุวรรณ" },
-      { id: "640611001", name: "ประเสริฐ จิระจันทน์" },
+      { id: "640611000", name: "ประวิตร วงศุวรรณ" },
+      { id: "640611001", name: "ประเศริฐ จิระจันทน์" },
     ],
     committees: [
       { name: "ผศ. โดม โพธิกานนท์" },
@@ -31,153 +30,76 @@ function Dashboard() {
   const router = useRouter();
 
   return (
-    <Box
-      sx={{
-        backgroundColor: "#f9fafb", // Equivalent to tailwind 'gray-50'
-        minHeight: "100vh",
-        padding: "2em",
-      }}
-    >
+    <div className="bg-stone-100 min-h-screen p-8">
       {/* Header Section */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "1em",
-        }}
-      >
-        <Box>
-          <Typography variant="h4" sx={{ marginBottom: "0.3em" }}>
-            Welcome, <span style={{ color: "#A10000" }}>Pichayoot</span>
-          </Typography>
-          <Typography variant="h6" sx={{ color: "#5B5B5B" }}>
-            You have{" "}
-            <span style={{ color: "#A10000", fontWeight: "bold" }}>
-              {projects.length}
-            </span>{" "}
-            projects in your plate
-          </Typography>
-        </Box>
+      <div className="flex justify-between items-center mb-4">
+        <div>
+          <h1 className="text-4xl mb-1">
+            Welcome, <span className="text-widwa">Pichayoot</span>
+          </h1>
+          <h2 className="text-xl text-gray-600">
+            You have <span className="text-widwa font-bold">{projects.length}</span> projects in your plate
+          </h2>
+        </div>
         <CustomTooltip title="Create a new project" arrow>
-          <Button
+          <button
             onClick={() => {
               router.push("../../createproject");
             }}
-            variant="contained"
-            sx={{
-              color: "#A10000",
-              backgroundColor: "white",
-              boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-              "&:hover": {
-                backgroundColor: "#f0f0f0",
-                boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)",
-              },
-              fontWeight: "bold",
-              padding: "0.5em 1.5em",
-            }}
-            startIcon={<AddIcon sx={{ color: "#A10000" }} />}
+            className="bg-white text-red-700 font-bold px-6 py-2 rounded shadow-md hover:bg-gray-100 focus:outline-none flex items-center gap-2"
           >
-            Create Project
-          </Button>
+            <AddIcon className="text-red-700" /> Create Project
+          </button>
         </CustomTooltip>
-      </Box>
+      </div>
 
       {/* Projects List Section */}
       {projects.map((project, index) => (
-        <Card
+        <div
           key={index}
-          sx={{
-            marginBottom: "1.5em",
-            border: "1px solid #d3d3d3", // 1px gray border
-            borderRadius: "8px",
-            boxShadow: "none", // Remove any shadow
-          }}
+          className="mb-6 border border-gray-200 rounded-lg shadow-none bg-white"
         >
-          <CardContent>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: { xs: "column", md: "row" },
-                justifyContent: "space-between",
-                marginBottom: "1em",
-              }}
-            >
-              <Box sx={{ flex: 1, marginBottom: { xs: "1em", md: 0 } }}>
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: "bold", color: "#A10000" }}
-                >
+          <div className="p-4">
+            <div className="flex flex-col md:flex-row justify-between mb-4">
+              <div className="flex-1 mb-4 md:mb-0">
+                <h3 className="text-xl font-bold text-widwa">
                   Project No: {project.projectNo}
-                </Typography>
-                <Typography variant="h5">
+                </h3>
+                <h4 className="text-2xl">
                   {project.projectId} - {project.projectName}
-                </Typography>
-                <Typography variant="body1" sx={{ color: "#5B5B5B", marginTop: "0.5em" }}>
+                </h4>
+                <p className="text-gray-600 mt-2">
                   Survey and Analysis of Power Quality Issues in Local Electrical Grids
-                </Typography>
-              </Box>
-              <Box sx={{ flex: 1, marginBottom: { xs: "1em", md: 0 } }}>
-                <Typography
-                  variant="subtitle1"
-                  sx={{ fontWeight: "bold", color: "#148282" }}
-                >
-                  Student
-                </Typography>
+                </p>
+              </div>
+              <div className="flex-1 mb-4 md:mb-0">
+                <h4 className="font-bold text-teal-600">Students</h4>
                 {project.students.map((student) => (
-                  <Typography key={student.id} variant="body2">
-                    👤 {student.id} - {student.name}
-                  </Typography>
+                  <p key={student.id} className="text-sm">
+                    {student.id} - {student.name}
+                  </p>
                 ))}
-              </Box>
-              <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-                <Typography
-                  variant="subtitle1"
-                  sx={{ fontWeight: "bold", color: "#148282" }}
-                >
-                  Committees
-                </Typography>
+              </div>
+              <div className="flex-1 flex flex-col">
+                <h4 className="font-bold text-teal-600">Committees</h4>
                 {project.committees.map((committee, idx) => (
-                  <Box key={idx} sx={{ display: "flex", alignItems: "center" }}>
-                    <Typography variant="body2">
-                      👤 {committee.name}
-                    </Typography>
+                  <div key={idx} className="flex items-center">
+                    <p className="text-sm"> {committee.name}</p>
                     {idx === project.committees.length - 1 && (
-                      <Button
-                        variant="text"
-                        size="small"
-                        sx={{ marginLeft: "0.5em", minWidth: "auto", padding: "0" }}
-                      >
-                        ✎
-                      </Button>
+                      <button className="ml-2 text-xs focus:outline-none">✎</button>
                     )}
-                  </Box>
+                  </div>
                 ))}
-              </Box>
-            </Box>
-            <Box
-              sx={{
-                backgroundColor: "#e0f2f1", // Equivalent to 'teal-50'
-                padding: "1em",
-                borderRadius: "8px",
-                // border: "1px solid #d3d3d3", 
-                marginTop: "1em",
-              }}
-            >
-              <Typography
-                variant="subtitle1"
-                sx={{ fontWeight: "bold", color: "#148282" }}
-              >
-                Project Description
-              </Typography>
-              <Typography variant="body1" color="textSecondary">
-                {project.description}
-              </Typography>
-            </Box>
-          </CardContent>
-        </Card>
+              </div>
+            </div>
+            <div className="bg-teal-50 p-4 rounded-lg mt-4">
+              <h4 className="font-bold text-teal-600">Project Description</h4>
+              <p className="text-gray-600 mt-2">{project.description}</p>
+            </div>
+          </div>
+        </div>
       ))}
-    </Box>
+    </div>
   );
 }
 
