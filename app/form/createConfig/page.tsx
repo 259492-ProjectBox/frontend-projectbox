@@ -3,7 +3,7 @@ import axiosInstance from "@/utils/axiosInstance";
 import React, { useState, useEffect } from "react";
 
 const CreateConfigPage = () => {
-	const [formConfig, setFormConfig] = useState<any>(null);
+	const [formConfig, setFormConfig] = useState<JSON | null>(null);
 	const [error, setError] = useState<string | null>(null);
 
 	// Local state for creating a new form
@@ -37,29 +37,17 @@ const CreateConfigPage = () => {
 
 	const createFormConfig = async () => {
 		try {
-			const response = await fetch(`/api/form-config`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
+			const response = await axiosInstance.post(`/api/formConfig`, {
+				courseId: 1, // Ensure courseId is a number
+				formData: {
+					title: formTitle,
+					fields,
 				},
-				body: JSON.stringify({
-					courseId: 1,
-					formData: {
-						title: formTitle,
-						fields,
-					},
-				}),
 			});
 
-			if (!response.ok) {
-				throw new Error("Failed to create form configuration");
-			}
-
-			const data = await response.json();
-			console.log("Form configuration created:", data);
-			setFormConfig(data); // Optionally update the displayed config
+			console.log("Form configuration created:", response.data);
 		} catch (err) {
-			console.error(err);
+			console.error("Error creating form configuration:", err);
 			setError("Error creating form configuration");
 		}
 	};

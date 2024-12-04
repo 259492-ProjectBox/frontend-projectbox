@@ -79,6 +79,7 @@ export async function POST(req: Request) {
 
 	// Get CMU basic info
 	const cmuBasicInfo = await getCMUBasicInfoAsync(accessToken);
+
 	if (!cmuBasicInfo) {
 		return NextResponse.json(
 			{ ok: false, message: "Cannot get CMU basic info" },

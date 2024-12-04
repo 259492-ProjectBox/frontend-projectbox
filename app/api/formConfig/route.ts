@@ -4,8 +4,6 @@ export async function GET(req: Request) {
 	const courseId = searchParams.get("courseId");
 	const version = searchParams.get("version");
 
-	console.log("course", courseId);
-
 	if (!courseId) {
 		return new Response(JSON.stringify({ error: "courseId is required" }), {
 			status: 400,
