@@ -1,20 +1,37 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { fetchRecords } from "@/utils/airtable";
+import SearchControls from "@/components/SearchControls";
+import DetailedSearchControls from "@/components/DetailedSearchControls";
 
 const SearchPage = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [searchAllMajor, setSearchAllMajor] = useState<boolean>(false);
   const [records, setRecords] = useState<any[]>([]);
   const [filteredRecords, setFilteredRecords] = useState<any[]>([]);
+  const [selectedFields, setSelectedFields] = useState<string[]>([
+    "ProjectTitle(EN)",
+    "ProjectTitle(TH)",
+    "Abstract",
+    "ProjectAdvisor",
+    "Student",
+    "ID",
+  ]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [useDetailedSearch, setUseDetailedSearch] = useState<boolean>(false);
+  const [searchFields, setSearchFields] = useState({
+    courseNo: "",
+    projectTitle: "",
+    studentNo: "",
+    advisorName: "",
+    committeeName: "",
+  });
 
   useEffect(() => {
     const fetchAllRecords = async () => {
       try {
-        const data = await fetchRecords("Project"); // Fetch all records from Airtable
+        const data = await fetchRecords("Project");
         setRecords(data);
-        setFilteredRecords(data); // Initialize filtered records
       } catch (error) {
         console.error("Error fetching records:", error);
       } finally {
@@ -25,36 +42,61 @@ const SearchPage = () => {
     fetchAllRecords();
   }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchTerm(value);
+  const handleSearch = () => {
+    if (useDetailedSearch) {
+      const filtered = records.filter((record) => {
+        const { fields } = record;
 
-    if (!value) {
-      setFilteredRecords(records); // Reset to all records if input is empty
-      return;
+        return (
+          (!searchFields.courseNo ||
+            fields["CourseNo"]?.toLowerCase().includes(
+              searchFields.courseNo.toLowerCase()
+            )) &&
+          (!searchFields.projectTitle ||
+            fields["ProjectTitle(EN)"]?.toLowerCase().includes(
+              searchFields.projectTitle.toLowerCase()
+            )) &&
+          (!searchFields.studentNo ||
+            fields["StudentNo"]?.toLowerCase().includes(
+              searchFields.studentNo.toLowerCase()
+            )) &&
+          (!searchFields.advisorName ||
+            fields["ProjectAdvisor"]?.toLowerCase().includes(
+              searchFields.advisorName.toLowerCase()
+            )) &&
+          (!searchFields.committeeName ||
+            fields["CommitteeName"]?.toLowerCase().includes(
+              searchFields.committeeName.toLowerCase()
+            ))
+        );
+      });
+
+      setFilteredRecords(filtered);
+    } else {
+      if (!searchTerm) {
+        setFilteredRecords([]);
+        return;
+      }
+
+      const lowerCaseValue = searchTerm.toLowerCase();
+
+      const filtered = records.filter((record) => {
+        const { fields } = record;
+        return selectedFields.some((field) =>
+          String(fields[field])?.toLowerCase().includes(lowerCaseValue)
+        );
+      });
+
+      setFilteredRecords(filtered);
     }
-
-    const lowerCaseValue = value.toLowerCase();
-
-    // Filter records based on multiple fields
-    const filtered = records.filter((record) => {
-      const { fields } = record;
-      return (
-        fields["ProjectTitle(EN)"]?.toLowerCase().includes(lowerCaseValue) ||
-        fields["ProjectTitle(TH)"]?.toLowerCase().includes(lowerCaseValue) ||
-        fields.Abstract?.toLowerCase().includes(lowerCaseValue) ||
-        fields.ProjectAdvisor?.toLowerCase().includes(lowerCaseValue) ||
-        fields.Student?.toLowerCase().includes(lowerCaseValue) ||
-        String(fields.ID)?.toLowerCase().includes(lowerCaseValue)
-      );
-    });
-
-    setFilteredRecords(filtered);
   };
 
-  const handleCheckboxChange = () => {
-    setSearchAllMajor(!searchAllMajor);
-    // Logic for searching across majors can be added here
+  const toggleFieldSelection = (field: string) => {
+    setSelectedFields((prevFields) =>
+      prevFields.includes(field)
+        ? prevFields.filter((f) => f !== field)
+        : [...prevFields, field]
+    );
   };
 
   if (loading) {
@@ -64,36 +106,36 @@ const SearchPage = () => {
   return (
     <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-stone-100">
       <div className="w-full max-w-3xl mt-8">
-        <h1 className="text-lg font-semibold mb-4 text-gray-800 text-center">
-          What are you looking for?
+        <h1 className="text-lg font-semibold mb-2 text-gray-800 text-center">
+          {useDetailedSearch ? "Detailed Search" : "Quick Search"}
         </h1>
-        <div className="flex items-center mb-3">
-          <input
-            type="text"
-            placeholder="Enter search term..."
-            value={searchTerm}
-            onChange={handleInputChange}
-            className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-teal-500 text-sm"
+        <button
+          onClick={() => setUseDetailedSearch(!useDetailedSearch)}
+          className="block text-teal-600 text-sm font-medium mx-auto hover:underline focus:outline-none focus:underline"
+          aria-label="Switch Search Method"
+        >
+          Switch Search Mode
+        </button>
+      </div>
+      <div className="w-full max-w-3xl mt-4">
+        {useDetailedSearch ? (
+          <DetailedSearchControls
+            searchFields={searchFields}
+            setSearchFields={setSearchFields}
+            handleSearch={handleSearch}
           />
-          <button
-            className="bg-teal-500 text-white py-2 px-4 rounded-r-md hover:bg-teal-600 focus:outline-none focus:bg-teal-700 text-sm"
-          >
-            Search
-          </button>
-        </div>
-        <div className="flex items-center justify-center mb-4">
-          <input
-            type="checkbox"
-            checked={searchAllMajor}
-            onChange={handleCheckboxChange}
-            id="searchAllMajor"
-            className="w-3.5 h-3.5 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+        ) : (
+          <SearchControls
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            handleSearch={handleSearch}
+            selectedFields={selectedFields}
+            toggleFieldSelection={toggleFieldSelection}
+            searchAllMajor={searchAllMajor}
+            setSearchAllMajor={setSearchAllMajor}
           />
-          <label htmlFor="searchAllMajor" className="ml-2 text-gray-700 text-sm">
-            Search All Major
-          </label>
-        </div>
-        <div className="bg-white rounded-lg shadow p-4">
+        )}
+        <div className="bg-white rounded-lg shadow p-4 mt-4">
           <h2 className="text-lg font-semibold mb-4">Search Results</h2>
           {filteredRecords.length > 0 ? (
             <ul>
@@ -126,7 +168,11 @@ const SearchPage = () => {
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-gray-500">No records found.</p>
+            <p className="text-sm text-gray-500">
+              {searchTerm || useDetailedSearch
+                ? "No records found."
+                : "Enter a search term to see results."}
+            </p>
           )}
         </div>
       </div>
