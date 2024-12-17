@@ -1,12 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import ProjectList from "../../../components/ProjectList";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { useRouter } from "next/navigation";
-import AddIcon from "@mui/icons-material/Add"; // Import Add icon
-import { fetchProjects } from "@/utils/airtableCreateProject"; // Import Airtable fetch function
+import AddIcon from "@mui/icons-material/Add";
+import { fetchProjects } from "@/utils/airtableCreateProject";
 
-// Define TypeScript interfaces for better type safety
 interface Student {
   id: string;
   name: string;
@@ -42,7 +40,7 @@ function Dashboard() {
           students: record.fields.Student
             ? record.fields.Student.split(",").map((id: string) => ({
                 id: id.trim(),
-                name: "Unknown Student", // Replace with actual student name if available
+                name: "Unknown Student",
               }))
             : [],
           committees: record.fields.ProjectAdvisor
@@ -62,13 +60,63 @@ function Dashboard() {
     loadProjects();
   }, []);
 
-  if (loading) {
-    return <div>Loading projects...</div>;
-  }
+  if (loading) return <div>Loading projects...</div>;
+
+  const LimitedList = ({
+    items,
+    title,
+  }: {
+    items: { name?: string; id?: string }[];
+    title: string;
+  }) => {
+    const [seeMore, setSeeMore] = useState(false);
+    const visibleItems = seeMore ? items : items.slice(0, 3);
+
+    return (
+      <div>
+        <h4 className="font-bold text-teal-600">{title}</h4>
+        {visibleItems.map((item, index) => (
+          <p key={index} className="text-sm">
+            {item.id ? `${item.id} - ` : ""}
+            {item.name || "Unknown"}
+          </p>
+        ))}
+        {items.length > 3 && (
+          <p
+            className="text-sm text-teal-600 underline cursor-pointer mt-2"
+            onClick={() => setSeeMore(!seeMore)}
+          >
+            {seeMore ? "See Less" : "See More"}
+          </p>
+        )}
+      </div>
+    );
+  };
+
+  const LimitedText = ({ text }: { text: string }) => {
+    const [seeMore, setSeeMore] = useState(false);
+    const isLongText = text.length > 150; // Set threshold for long text
+
+    return (
+      <div>
+        <p className="text-gray-600">
+          {isLongText && !seeMore ? `${text.slice(0, 150)}...` : text}
+        </p>
+        {isLongText && (
+          <p
+            className="text-sm text-teal-600 underline cursor-pointer mt-2"
+            onClick={() => setSeeMore(!seeMore)}
+          >
+            {seeMore ? "See Less" : "See More"}
+          </p>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="bg-stone-100 min-h-screen p-8">
-      {/* Header Section */}
+      {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <div>
           <h1 className="text-4xl mb-1">
@@ -82,9 +130,7 @@ function Dashboard() {
         </div>
         <CustomTooltip title="Create a new project" arrow>
           <button
-            onClick={() => {
-              router.push("../../createproject");
-            }}
+            onClick={() => router.push("../../createproject")}
             className="bg-white text-red-700 font-bold px-6 py-2 rounded shadow-md hover:bg-gray-100 focus:outline-none flex items-center gap-2"
           >
             <AddIcon className="text-red-700" /> Create Project
@@ -92,7 +138,7 @@ function Dashboard() {
         </CustomTooltip>
       </div>
 
-      {/* Projects List Section */}
+      {/* Projects */}
       {projects.map((project, index) => (
         <div
           key={index}
@@ -107,28 +153,14 @@ function Dashboard() {
                 <h4 className="text-2xl">
                   {project.projectId} - {project.projectName}
                 </h4>
-                <p className="text-gray-600 mt-2">{project.description}</p>
+                <LimitedText text={project.description} />
               </div>
               <div className="flex-1 mb-4 md:mb-0">
-                <h4 className="font-bold text-teal-600">Students</h4>
-                {project.students.map((student: Student) => (
-                  <p key={student.id} className="text-sm">
-                    {student.id} - {student.name}
-                  </p>
-                ))}
+                <LimitedList items={project.students} title="Students" />
               </div>
-              <div className="flex-1 flex flex-col">
-                <h4 className="font-bold text-teal-600">Committees</h4>
-                {project.committees.map((committee: Committee, idx: number) => (
-                  <div key={idx} className="flex items-center">
-                    <p className="text-sm">{committee.name}</p>
-                  </div>
-                ))}
+              <div className="flex-1">
+                <LimitedList items={project.committees} title="Committees" />
               </div>
-            </div>
-            <div className="bg-teal-50 p-4 rounded-lg mt-4">
-              <h4 className="font-bold text-teal-600">Project Description</h4>
-              <p className="text-gray-600 mt-2">{project.description}</p>
             </div>
           </div>
         </div>
