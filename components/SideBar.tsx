@@ -32,6 +32,7 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
     { text: "Config Form", icon: <SettingsIcon className="w-4 h-4" />, path: "/configform" },
     { text: "Config Calendar", icon: <SettingsIcon className="w-4 h-4" />, path: "/configcalendar" },
     { text: "Config Advisor", icon: <SettingsIcon className="w-4 h-4" />, path: "/configadvisor" },
+    { text: "Config Assets", icon: <SettingsIcon className="w-4 h-4" />, path: "/configassets" },
     { text: "Admin Manage", icon: <SupervisorAccountIcon className="w-4 h-4" />, path: "/adminmanage" },
   ];
 
