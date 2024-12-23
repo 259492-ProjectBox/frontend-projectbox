@@ -1,31 +1,37 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { fetchRecords } from "@/utils/airtable";
+import Spinner from "@/components/Spinner"; // Import Spinner Component
 
 const monthColors: { [key: string]: { bg: string; text: string } } = {
-  January: { bg: "bg-[#F4B2A3]", text: "text-[#7A3D2C]" }, // Soft Peach background, Dark Brown text
-  February: { bg: "bg-[#C49AC8]", text: "text-[#5F3A64]" }, // (unchanged)
-  March: { bg: "bg-[#C6E6E4]", text: "text-[#3D6261]" }, // (unchanged)
-  April: { bg: "bg-[#FF6B6B]", text: "text-[#8C2E2E]" }, // Vibrant Coral background, Dark Red text
-  May: { bg: "bg-[#73B75B]", text: "text-[#2C4E1C]" }, // (unchanged)
-  June: { bg: "bg-[#F7D455]", text: "text-[#8C6A11]" }, // (unchanged)
-  July: { bg: "bg-[#F5C1CB]", text: "text-[#7A4C52]" }, // (unchanged)
-  August: { bg: "bg-[#F68A4B]", text: "text-[#8C4A24]" }, // (unchanged)
-  September: { bg: "bg-[#496FC2]", text: "text-[#1E3466]" }, // (unchanged)
-  October: { bg: "bg-[#8BB7D8]", text: "text-[#3A5B77]" }, // (unchanged)
-  November: { bg: "bg-[#F27891]", text: "text-[#7A2E3E]" }, // Light Salmon background, Dark Pink text
-  December: { bg: "bg-[#49C5D6]", text: "text-[#2A5E66]" }, // Light Cyan background, Deep Teal text
+  January: { bg: "bg-[#F4B2A3]", text: "text-[#7A3D2C]" },
+  February: { bg: "bg-[#C49AC8]", text: "text-[#5F3A64]" },
+  March: { bg: "bg-[#C6E6E4]", text: "text-[#3D6261]" },
+  April: { bg: "bg-[#FF6B6B]", text: "text-[#8C2E2E]" },
+  May: { bg: "bg-[#73B75B]", text: "text-[#2C4E1C]" },
+  June: { bg: "bg-[#F7D455]", text: "text-[#8C6A11]" },
+  July: { bg: "bg-[#F5C1CB]", text: "text-[#7A4C52]" },
+  August: { bg: "bg-[#F68A4B]", text: "text-[#8C4A24]" },
+  September: { bg: "bg-[#496FC2]", text: "text-[#1E3466]" },
+  October: { bg: "bg-[#8BB7D8]", text: "text-[#3A5B77]" },
+  November: { bg: "bg-[#F27891]", text: "text-[#7A2E3E]" },
+  December: { bg: "bg-[#49C5D6]", text: "text-[#2A5E66]" },
 };
-
-
 
 const EventCalendarPage = () => {
   const [events, setEvents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true); // Add loading state
 
   useEffect(() => {
     const fetchEvents = async () => {
-      const records = await fetchRecords("ConfigCalendar");
-      setEvents(records);
+      try {
+        const records = await fetchRecords("ConfigCalendar");
+        setEvents(records);
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      } finally {
+        setLoading(false); // Set loading to false after fetching data
+      }
     };
     fetchEvents();
   }, []);
@@ -49,6 +55,9 @@ const EventCalendarPage = () => {
     acc[month].push(event.fields);
     return acc;
   }, {});
+
+  // Show spinner while loading
+  if (loading) return <Spinner />;
 
   return (
     <div className="min-h-screen p-4 bg-stone-100">
