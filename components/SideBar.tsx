@@ -1,10 +1,10 @@
-// components/Sidebar.tsx
 "use client";
 import * as React from "react";
 import { useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import FlowbiteNavbar from "./FlowbiteNavbar";
+import SidebarMenuSection from "./sidebar/SidebarMenuSection";
+import LogoutButton from "./sidebar/LogoutButton";
 import PersonIcon from "@mui/icons-material/Person";
 import SearchIcon from "@mui/icons-material/Search";
 import GroupsIcon from "@mui/icons-material/Groups";
@@ -13,31 +13,33 @@ import InventoryIcon from "@mui/icons-material/Inventory";
 import EventIcon from "@mui/icons-material/Event";
 import SettingsIcon from "@mui/icons-material/Settings";
 import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import ChecklistRtlIcon from "@mui/icons-material/ChecklistRtl";
+import EditCalendarIcon from "@mui/icons-material/EditCalendar";
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
+import EditNoteIcon from "@mui/icons-material/EditNote";
 
 export default function Sidebar({ children }: React.PropsWithChildren) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const router = useRouter();
-  const pathname = usePathname();
   const { signOut } = useAuth();
 
   const menuItems = [
-    { text: "My Project", icon: <PersonIcon className="w-4 h-4" />, path: "/dashboard" },
-    { text: "Search Project", icon: <SearchIcon className="w-4 h-4" />, path: "/search" },
-    { text: "Advisor Stats", icon: <GroupsIcon className="w-4 h-4" />, path: "/advisorstats" },
-    { text: "Assets", icon: <InventoryIcon className="w-4 h-4" />, path: "/assetspage" },
-    { text: "Event Calendar", icon: <EventIcon className="w-4 h-4" />, path: "/eventcalendar" },
+    { text: "My Project", icon: <PersonIcon className="w-4 h-4 text-blue-500" />, path: "/dashboard" },
+    { text: "Search Project", icon: <SearchIcon className="w-4 h-4 text-teal-500" />, path: "/search" },
+    { text: "Advisor Stats", icon: <GroupsIcon className="w-4 h-4 text-purple-500" />, path: "/advisorstats" },
+    { text: "Event Calendar", icon: <EventIcon className="w-4 h-4 text-red-500" />, path: "/eventcalendar" },
+    { text: "Assets", icon: <InventoryIcon className="w-4 h-4 text-orange-500" />, path: "/assetspage" },
   ];
 
   const configMenuItems = [
-    { text: "Config Form", icon: <SettingsIcon className="w-4 h-4" />, path: "/configform" },
-    { text: "Config Calendar", icon: <SettingsIcon className="w-4 h-4" />, path: "/configcalendar" },
-    { text: "Config Advisor", icon: <SettingsIcon className="w-4 h-4" />, path: "/configadvisor" },
-    { text: "Admin Manage", icon: <SupervisorAccountIcon className="w-4 h-4" />, path: "/adminmanage" },
+    { text: "Manage Status", icon: <ChecklistRtlIcon className="w-4 h-4 text-green-500" />, path: "/managestatus" },
+    { text: "Config Calendar", icon: <EditCalendarIcon className="w-4 h-4 text-yellow-500" />, path: "/configcalendar" },
+    { text: "Config Form", icon: <EditNoteIcon className="w-4 h-4 text-indigo-500" />, path: "/configform" },
+    { text: "Config Advisor", icon: <ManageAccountsIcon className="w-4 h-4 text-pink-500" />, path: "/configadvisor" },
+    { text: "Config Assets", icon: <SettingsIcon className="w-4 h-4 text-cyan-500" />, path: "/configassets" },
+    { text: "Admin Manage", icon: <SupervisorAccountIcon className="w-4 h-4 text-rose-500" />, path: "/adminmanage" },
   ];
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   return (
     <div className="flex">
@@ -53,57 +55,18 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
         aria-label="Sidebar"
       >
         <div className="h-full px-3 pb-4 overflow-y-auto">
-          <ul className="space-y-2 font-medium text-sm"> {/* Decreased text size to 'text-sm' */}
-            {menuItems.map((item) => (
-              <li key={item.text}>
-                <button
-                  onClick={() => router.push(item.path)}
-                  className={`flex items-center w-full p-2 rounded-lg hover:bg-gray-100 ${
-                    pathname === item.path ? "bg-gray-200" : ""
-                  }`}
-                >
-                  <div className="text-gray-500 group-hover:text-gray-900">
-                    {item.icon}
-                  </div>
-                  <span className="ml-3">{item.text}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
+          {/* Menu Items */}
+          <SidebarMenuSection items={menuItems} />
 
           {/* Divider */}
           <hr className="my-4 border-gray-300" />
 
           {/* Config Section */}
-          <ul className="space-y-2 font-medium text-sm"> {/* Decreased text size to 'text-sm' */}
-            {configMenuItems.map((item) => (
-              <li key={item.text}>
-                <button
-                  onClick={() => router.push(item.path)}
-                  className={`flex items-center w-full p-2 rounded-lg hover:bg-gray-100 ${
-                    pathname === item.path ? "bg-gray-200" : ""
-                  }`}
-                >
-                  <div className="text-gray-500 group-hover:text-gray-900">
-                    {item.icon}
-                  </div>
-                  <span className="ml-3">{item.text}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
+          <SidebarMenuSection items={configMenuItems} />
 
           {/* Logout Section */}
           <div className="mt-4">
-            <button
-              onClick={signOut}
-              className="flex items-center w-full p-2 rounded-lg hover:bg-gray-100"
-            >
-              <div className="text-gray-500 group-hover:text-gray-900">
-                <LogoutIcon className="w-4 h-4" /> {/* Decreased icon size */}
-              </div>
-              <span className="ml-3 text-sm">Logout</span> {/* Decreased text size */}
-            </button>
+            <LogoutButton onLogout={signOut} />
           </div>
         </div>
       </aside>
