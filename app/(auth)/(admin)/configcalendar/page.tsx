@@ -6,6 +6,7 @@ import {
   deleteRecords,
   createRecords,
 } from "@/utils/airtable";
+import Spinner from "@/components/Spinner";
 
 const ConfigCalendar = () => {
   const [events, setEvents] = useState<any[]>([]);
@@ -15,11 +16,19 @@ const ConfigCalendar = () => {
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false); // Add loading state
 
   useEffect(() => {
     const fetchEvents = async () => {
-      const records = await fetchRecords("ConfigCalendar");
-      setEvents(records);
+      setLoading(true); // Start loading
+      try {
+        const records = await fetchRecords("ConfigCalendar");
+        setEvents(records);
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      } finally {
+        setLoading(false); // End loading
+      }
     };
     fetchEvents();
   }, []);
@@ -30,33 +39,56 @@ const ConfigCalendar = () => {
   };
 
   const handleUpdateEvent = async () => {
-    const updatedRecords = await updateRecords("ConfigCalendar", [
-      { id: editEvent.id, fields: editEvent.fields },
-    ]);
-    setEvents((prev) =>
-      prev.map((event) =>
-        event.id === updatedRecords[0].id ? updatedRecords[0] : event
-      )
-    );
-    setIsModalOpen(false);
-    setEditEvent(null);
+    setLoading(true); // Start loading
+    try {
+      const updatedRecords = await updateRecords("ConfigCalendar", [
+        { id: editEvent.id, fields: editEvent.fields },
+      ]);
+      setEvents((prev) =>
+        prev.map((event) =>
+          event.id === updatedRecords[0].id ? updatedRecords[0] : event
+        )
+      );
+    } catch (error) {
+      console.error("Error updating event:", error);
+    } finally {
+      setLoading(false); // End loading
+      setIsModalOpen(false);
+      setEditEvent(null);
+    }
   };
 
-  const handleDeleteEvent = async (event: any) => {
-    await deleteRecords("ConfigCalendar", [editEvent.id]);
-    setEvents((prev) => prev.filter((event) => event.id !== editEvent.id));
-    setIsModalOpen(false);
-    setEditEvent(null);
+  const handleDeleteEvent = async () => {
+    setLoading(true); // Start loading
+    try {
+      await deleteRecords("ConfigCalendar", [editEvent.id]);
+      setEvents((prev) => prev.filter((event) => event.id !== editEvent.id));
+    } catch (error) {
+      console.error("Error deleting event:", error);
+    } finally {
+      setLoading(false); // End loading
+      setIsModalOpen(false);
+      setEditEvent(null);
+    }
   };
 
   const handleAddEvent = async () => {
-    const createdRecords = await createRecords("ConfigCalendar", [newEvent]);
-    setEvents((prev) => [...prev, ...createdRecords]);
-    setIsAddModalOpen(false);
-    setNewEvent({
-      fields: { Description: "", "Start Date": "", "End Date": "" },
-    });
+    setLoading(true); // Start loading
+    try {
+      const createdRecords = await createRecords("ConfigCalendar", [newEvent]);
+      setEvents((prev) => [...prev, ...createdRecords]);
+    } catch (error) {
+      console.error("Error adding event:", error);
+    } finally {
+      setLoading(false); // End loading
+      setIsAddModalOpen(false);
+      setNewEvent({
+        fields: { Description: "", "Start Date": "", "End Date": "" },
+      });
+    }
   };
+
+  if (loading) return <Spinner />; // Show spinner during loading
 
   return (
     <div className="min-h-screen p-4 bg-gray-50">
