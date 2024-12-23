@@ -159,7 +159,7 @@ function Dashboard() {
             {/* Edit Button - Top Right */}
             <button
               onClick={() => console.log("Edit", project.projectNo)}
-              className="absolute top-4 right-4 p-2 rounded-full bg-gray-100 hover:bg-gray-200"
+              className="absolute top-4 right-4 p-2 rounded-full bg-red-100 hover:bg-red-200"
               aria-label="Edit Project"
             >
               <EditIcon />
@@ -167,7 +167,7 @@ function Dashboard() {
 
             {/* Project Title */}
             <div>
-              <h3 className="text-sm font-semibold text-red-500">
+              <h3 className="text-sm font-semibold text-red-700">
                 Project No: {project.projectNo}
               </h3>
               <h4 className="text-xl font-bold text-gray-800 mb-2">
