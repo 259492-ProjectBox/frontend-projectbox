@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { fetchRecords } from "@/utils/airtable";
 import Spinner from "@/components/Spinner"; // Import Spinner Component
+import PowerPointIcon from "@/public/Svg/PowerPointIcon";
 
 const monthColors: { [key: string]: { bg: string; text: string } } = {
   January: { bg: "bg-[#F4B2A3]", text: "text-[#7A3D2C]" },
