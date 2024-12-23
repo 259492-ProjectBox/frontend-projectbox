@@ -59,11 +59,11 @@ export default function AdminManagePage(): JSX.Element {
             placeholder="CMU Account"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-96 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm"
+            className="w-96 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-800 text-sm"
           />
           <button
             onClick={handleAddAdmin}
-            className="px-4 py-1 bg-teal-500 text-white font-medium rounded hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm"
+            className="px-4 py-1 bg-red-700 text-white font-medium rounded hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-900 text-sm"
           >
             Add
           </button>

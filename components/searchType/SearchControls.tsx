@@ -29,11 +29,11 @@ const SearchControls: React.FC<SearchControlsProps> = ({
           placeholder="Enter search term..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-teal-500 text-sm"
+          className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-red-800 text-sm"
         />
         <button
           onClick={handleSearch}
-          className="bg-teal-500 text-white py-2 px-4 rounded-r-md hover:bg-teal-600 focus:outline-none focus:bg-teal-700 text-sm"
+          className="bg-red-700 text-white py-2 px-4 rounded-r-md hover:bg-red-800 focus:outline-none focus:bg-red-900 text-sm"
         >
           Search
         </button>
@@ -64,7 +64,7 @@ const SearchControls: React.FC<SearchControlsProps> = ({
           checked={searchAllMajor}
           onChange={() => setSearchAllMajor(!searchAllMajor)}
           id="searchAllMajor"
-          className="w-3.5 h-3.5 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+          className="w-3.5 h-3.5 text-red-600 border-gray-300 rounded focus:ring-red-500"
         />
         <label htmlFor="searchAllMajor" className="ml-2 text-gray-700 text-sm">
           Search All Major

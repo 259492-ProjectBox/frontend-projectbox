@@ -54,7 +54,7 @@ const DetailedSearchControls: React.FC<DetailedSearchControlsProps> = ({
           },
         ].map(({ label, placeholder, value, key }) => (
           <div key={key} className="mb-2">
-            <label className="block mb-1 text-teal-800 text-xs font-medium">
+            <label className="block mb-1  text-xs font-medium">
               {label}
             </label>
             <input
@@ -64,7 +64,7 @@ const DetailedSearchControls: React.FC<DetailedSearchControlsProps> = ({
               onChange={(e) =>
                 setSearchFields({ ...searchFields, [key]: e.target.value })
               }
-              className="w-full p-1.5 border border-gray-300 rounded focus:outline-none focus:border-teal-500 text-sm"
+              className="w-full p-1.5 border border-gray-300 rounded focus:outline-none focus:border-red-800 text-sm"
             />
           </div>
         ))}
@@ -72,7 +72,7 @@ const DetailedSearchControls: React.FC<DetailedSearchControlsProps> = ({
       <div className="flex justify-end mt-4">
         <button
           onClick={handleSearch}
-          className="bg-teal-500 text-white py-1.5 px-6 rounded-md hover:bg-teal-600 focus:outline-none focus:bg-teal-700 text-sm"
+          className="bg-red-700 text-white py-1.5 px-6 rounded-md hover:bg-red-800 focus:outline-none focus:bg-red-900 text-sm"
         >
           Search
         </button>

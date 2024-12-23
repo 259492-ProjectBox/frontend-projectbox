@@ -40,7 +40,7 @@ export default function ConfigAssets() {
         </div>
         <div className="relative overflow-x-auto shadow-md rounded-lg">
           <table className="w-full text-sm text-left text-gray-600">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-200">
+            <thead className="text-xs text-gray-700 bg-gray-200">
               <tr>
                 <th scope="col" className="px-6 py-3">
                   ID

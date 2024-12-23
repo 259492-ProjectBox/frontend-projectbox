@@ -112,7 +112,7 @@ const SearchPage = () => {
         </h1>
         <button
           onClick={() => setUseDetailedSearch(!useDetailedSearch)}
-          className="block text-teal-600 text-sm font-medium mx-auto hover:underline focus:outline-none focus:underline"
+          className="block text-red-700 text-sm font-medium mx-auto hover:underline focus:outline-none focus:underline"
           aria-label="Switch Search Method"
         >
           Switch Search Mode
@@ -145,7 +145,7 @@ const SearchPage = () => {
                   key={record.id}
                   className="mb-4 border-b border-gray-200 pb-4"
                 >
-                  <h3 className="text-teal-600 font-bold">
+                  <h3 className="text-red-700 font-bold">
                     {record.fields["ProjectTitle(EN)"] || "No Title (EN)"}
                   </h3>
                   <h4 className="text-gray-700">
