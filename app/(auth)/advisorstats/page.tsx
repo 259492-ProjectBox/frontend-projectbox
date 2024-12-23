@@ -41,7 +41,7 @@ export default function AdvisorStatsPage() {
                   alt="guest user"
                 />
                 <div className="ps-3">
-                  <span className="text-base font-semibold text-teal-600 hover:underline">
+                  <span className="text-base font-semibold text-red-700 hover:underline">
                     Pichayoot Hunchainao
                   </span>
                   <div className="font-normal text-gray-500">
@@ -63,7 +63,7 @@ export default function AdvisorStatsPage() {
                   alt="guest user"
                 />
                 <div className="ps-3">
-                  <span className="text-base font-semibold text-teal-600 hover:underline">
+                  <span className="text-base font-semibold text-red-700 hover:underline">
                     Nathapong Phongsawaleesri
                   </span>
                   <div className="font-normal text-gray-500">
@@ -85,7 +85,7 @@ export default function AdvisorStatsPage() {
                   alt="guest user"
                 />
                 <div className="ps-3">
-                  <span className="text-base font-semibold text-teal-600 hover:underline">
+                  <span className="text-base font-semibold text-red-700 hover:underline">
                     Thanawin Saithong
                   </span>
                   <div className="font-normal text-gray-500">
@@ -107,7 +107,7 @@ export default function AdvisorStatsPage() {
                   alt="guest user"
                 />
                 <div className="ps-3">
-                  <span className="text-base font-semibold text-teal-600 hover:underline">
+                  <span className="text-base font-semibold text-red-700 hover:underline">
                     Nirand Pisutha-Arnond
                   </span>
                   <div className="font-normal text-gray-500">
