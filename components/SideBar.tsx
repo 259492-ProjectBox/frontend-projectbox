@@ -1,86 +1,78 @@
-// components/Sidebar.tsx
 "use client";
 import * as React from "react";
-import Box from "@mui/material/Box";
-import Drawer from "@mui/material/Drawer";
-import CssBaseline from "@mui/material/CssBaseline";
-import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
+import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import FlowbiteNavbar from "./FlowbiteNavbar";
+import SidebarMenuSection from "./sidebar/SidebarMenuSection";
+import LogoutButton from "./sidebar/LogoutButton";
 import PersonIcon from "@mui/icons-material/Person";
 import SearchIcon from "@mui/icons-material/Search";
 import GroupsIcon from "@mui/icons-material/Groups";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { useRouter, usePathname } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
-import Navbar from "./Navbar";
-
-const drawerWidth = 200;
+import InventoryIcon from "@mui/icons-material/Inventory";
+import EventIcon from "@mui/icons-material/Event";
+import SettingsIcon from "@mui/icons-material/Settings";
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import ChecklistRtlIcon from "@mui/icons-material/ChecklistRtl";
+import EditCalendarIcon from "@mui/icons-material/EditCalendar";
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
+import EditNoteIcon from "@mui/icons-material/EditNote";
 
 export default function Sidebar({ children }: React.PropsWithChildren) {
-	const router = useRouter();
-	const pathname = usePathname();
-	const { signOut } = useAuth();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { signOut } = useAuth();
 
-	const menuItems = [
-		{ text: "My Project", icon: <PersonIcon />, path: "/dashboard" },
-		{ text: "Search Project", icon: <SearchIcon />, path: "/search" },
-		{ text: "Advisor Stats", icon: <GroupsIcon />, path: "/advisor-stats" },
-		{ text: "Logout", icon: <LogoutIcon />, path: "/logout" },
-	];
+  const menuItems = [
+    { text: "My Project", icon: <PersonIcon className="w-4 h-4 text-blue-500" />, path: "/dashboard" },
+    { text: "Search Project", icon: <SearchIcon className="w-4 h-4 text-teal-500" />, path: "/search" },
+    { text: "Advisor Stats", icon: <GroupsIcon className="w-4 h-4 text-purple-500" />, path: "/advisorstats" },
+    { text: "Event Calendar", icon: <EventIcon className="w-4 h-4 text-red-500" />, path: "/eventcalendar" },
+    { text: "Assets", icon: <InventoryIcon className="w-4 h-4 text-orange-500" />, path: "/assetspage" },
+  ];
 
-	return (
-		<Box sx={{ display: "flex" }}>
-			<CssBaseline />
-			<Navbar />
-			<Drawer
-				variant="permanent"
-				sx={{
-					width: drawerWidth,
-					flexShrink: 0,
-					[`& .MuiDrawer-paper`]: {
-						width: drawerWidth,
-						boxSizing: "border-box",
-					},
-				}}
-			>
-				<Toolbar />
-				<Box sx={{ overflow: "auto" }}>
-					<List>
-						{menuItems.map((item) => (
-							<ListItem key={item.text} disablePadding>
-								<ListItemButton
-									onClick={() => {
-										if (item.text === "Logout") {
-											signOut();
-										} else {
-											router.push(item.path);
-										}
-									}}
-									sx={{
-										backgroundColor:
-											pathname === item.path ? "#D9D9D9" : "transparent",
-										"&:hover": {
-											backgroundColor:
-												pathname === item.path ? "#D9D9D9" : undefined,
-										},
-									}}
-								>
-									<ListItemIcon>{item.icon}</ListItemIcon>
-									<ListItemText primary={item.text} />
-								</ListItemButton>
-							</ListItem>
-						))}
-					</List>
-				</Box>
-			</Drawer>
-			<Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-				<Toolbar />
-				{children}
-			</Box>
-		</Box>
-	);
+  const configMenuItems = [
+    { text: "Manage Status", icon: <ChecklistRtlIcon className="w-4 h-4 text-green-500" />, path: "/managestatus" },
+    { text: "Config Calendar", icon: <EditCalendarIcon className="w-4 h-4 text-yellow-500" />, path: "/configcalendar" },
+    { text: "Config Form", icon: <EditNoteIcon className="w-4 h-4 text-indigo-500" />, path: "/configform" },
+    { text: "Config Advisor", icon: <ManageAccountsIcon className="w-4 h-4 text-pink-500" />, path: "/configadvisor" },
+    { text: "Config Assets", icon: <SettingsIcon className="w-4 h-4 text-cyan-500" />, path: "/configassets" },
+    { text: "Admin Manage", icon: <SupervisorAccountIcon className="w-4 h-4 text-rose-500" />, path: "/adminmanage" },
+  ];
+
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
+  return (
+    <div className="flex">
+      {/* Navbar */}
+      <FlowbiteNavbar toggleSidebar={toggleSidebar} />
+
+      {/* Sidebar */}
+      <aside
+        id="logo-sidebar"
+        className={`fixed top-0 left-0 z-40 w-52 h-screen pt-20 transition-transform bg-white border-r border-gray-200 ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } sm:translate-x-0`}
+        aria-label="Sidebar"
+      >
+        <div className="h-full px-3 pb-4 overflow-y-auto">
+          {/* Menu Items */}
+          <SidebarMenuSection items={menuItems} />
+
+          {/* Divider */}
+          <hr className="my-4 border-gray-300" />
+
+          {/* Config Section */}
+          <SidebarMenuSection items={configMenuItems} />
+
+          {/* Logout Section */}
+          <div className="mt-4">
+            <LogoutButton onLogout={signOut} />
+          </div>
+        </div>
+      </aside>
+
+      {/* Content Area */}
+      <main className="flex-grow mt-16 sm:ml-52">{children}</main>
+    </div>
+  );
 }

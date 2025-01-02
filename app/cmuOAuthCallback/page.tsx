@@ -1,5 +1,6 @@
 "use client";
 
+import Spinner from "@/components/Spinner";
 import { useOAuthCallback } from "@/hooks/useOAuthCallback";
 
 export default function CMUOAuthCallback() {
@@ -10,7 +11,9 @@ export default function CMUOAuthCallback() {
 	}
 
 	if (isLoading) {
-		return <div className="p-3">Redirecting...</div>;
+		return (
+			<Spinner/>
+		);
 	}
 
 	return null;
