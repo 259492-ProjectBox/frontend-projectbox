@@ -84,7 +84,7 @@ function Dashboard() {
 
     return (
       <div>
-        <h4 className="font-bold text-teal-600">{title}</h4>
+        <h4 className="font-bold text-red-800">{title}</h4>
         {visibleItems.map((item, index) => (
           <p key={index} className="text-sm">
             {item.id ? `${item.id} - ` : ""}
@@ -93,7 +93,7 @@ function Dashboard() {
         ))}
         {items.length > 3 && (
           <p
-            className="text-sm text-teal-600 underline cursor-pointer mt-2"
+            className="text-sm text-red-800 underline cursor-pointer mt-2"
             onClick={() => setSeeMore(!seeMore)}
           >
             {seeMore ? "See Less" : "See More"}
@@ -108,14 +108,14 @@ function Dashboard() {
     const isLongText = text.length > 150;
 
     return (
-      <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
-        <h4 className="text-teal-600 font-bold mb-2">Project Description</h4>
+      <div className="bg-stone-50 border border-stone-200 rounded-lg p-4">
+        <h4 className="text-red-800 font-bold mb-2">Project Description</h4>
         <p className="text-gray-700 leading-relaxed">
           {isLongText && !seeMore ? `${text.slice(0, 150)}...` : text}
         </p>
         {isLongText && (
           <button
-            className="text-sm text-teal-600 underline cursor-pointer mt-2"
+            className="text-sm text-red-800 underline cursor-pointer mt-2"
             onClick={() => setSeeMore(!seeMore)}
           >
             {seeMore ? "Show Less" : "Show More"}
@@ -178,42 +178,42 @@ function Dashboard() {
             {/* Icons - Below Project Title */}
             <div className="flex flex-wrap gap-4 mb-4">
               {/* File Icon */}
-              <button className="p-2 bg-sky-100 rounded hover:bg-sky-200">
+              <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
                 <FileIcon />
               </button>
 
               {/* YouTube Icon */}
-              <button className="p-2 bg-red-100 rounded hover:bg-red-200">
+              <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
                 <YouTubeIcon />
               </button>
 
               {/* GitHub Icon */}
-              <button className="p-2 bg-gray-100 rounded hover:bg-gray-200">
+              <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
                 <GitHubIcon />
               </button>
 
               {/* PowerPoint Icon */}
-              <button className="p-2 bg-orange-100 rounded hover:bg-orange-200">
+              <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
                 <PowerPointIcon />
               </button>
 
               {/* Picture Icon */}
-              <button className="p-2 bg-blue-100 rounded hover:bg-blue-200">
+              <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
                 <PictureIcon />
               </button>
 
               {/* AutoCAD Icon */}
-              <button className="p-2 bg-red-100 rounded hover:bg-red-200">
+              <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
                 <AutoCADIcon />
               </button>
 
               {/* Sketchup Icon */}
-              <button className="p-2 bg-blue-100 rounded hover:bg-blue-200">
+              <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
                 <SketchupIcon />
               </button>
 
               {/* Link Icon */}
-              <button className="p-2 bg-green-100 rounded hover:bg-green-200">
+              <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
                 <LinkIcon />
               </button>
             </div>
