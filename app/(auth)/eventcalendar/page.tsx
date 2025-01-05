@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { fetchRecords } from "@/utils/airtable";
-import Spinner from "@/components/Spinner"; // Import Spinner Component
-import PowerPointIcon from "@/public/Svg/PowerPointIcon";
+import getEventsByMajorId from "@/utils/eventCalendar/getEventsByMajorId";
+import { Event } from "@/models/Event";
+import Spinner from "@/components/Spinner";
 
 const monthColors: { [key: string]: { bg: string; text: string } } = {
   January: { bg: "bg-[#F4B2A3]", text: "text-[#7A3D2C]" },
@@ -20,18 +20,18 @@ const monthColors: { [key: string]: { bg: string; text: string } } = {
 };
 
 const EventCalendarPage = () => {
-  const [events, setEvents] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [events, setEvents] = useState<Event[]>([]); // Ensure events is initialized as an empty array
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const records = await fetchRecords("ConfigCalendar");
-        setEvents(records);
+        const records = await getEventsByMajorId(2); // Change `1` to the desired major ID
+        setEvents(records || []); // Ensure that records is never null
       } catch (error) {
         console.error("Error fetching events:", error);
       } finally {
-        setLoading(false); // Set loading to false after fetching data
+        setLoading(false);
       }
     };
     fetchEvents();
@@ -43,54 +43,44 @@ const EventCalendarPage = () => {
     return date.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
   };
 
-  const sortedEvents = events.sort((a, b) => {
-    const endDateA = a.fields["End Date"] ? new Date(a.fields["End Date"]) : new Date(a.fields["Start Date"]);
-    const endDateB = b.fields["End Date"] ? new Date(b.fields["End Date"]) : new Date(b.fields["Start Date"]);
-    return endDateA.getTime() - endDateB.getTime();
+  const sortedEvents = (events || []).sort((a, b) => {
+    const dateA = new Date(a.end_date || a.start_date);
+    const dateB = new Date(b.end_date || b.start_date);
+    return dateA.getTime() - dateB.getTime();
   });
 
-  const groupedEvents = sortedEvents.reduce((acc: any, event: any) => {
-    const date = event.fields["End Date"] || event.fields["Start Date"];
+  const groupedEvents = sortedEvents.reduce((acc: Record<string, Event[]>, event: Event) => {
+    const date = event.end_date || event.start_date;
     const month = new Date(date).toLocaleString("default", { month: "long" });
     acc[month] = acc[month] || [];
-    acc[month].push(event.fields);
+    acc[month].push(event);
     return acc;
   }, {});
 
-  // Show spinner while loading
   if (loading) return <Spinner />;
 
   return (
     <div className="min-h-screen p-4 bg-stone-100">
       <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-md p-6">
         <h1 className="text-2xl font-bold text-gray-800 mb-4 text-center">Event Calendar</h1>
-        {Object.entries(groupedEvents).map(([month, events]: any) => (
+        {Object.entries(groupedEvents).map(([month, events]) => (
           <div key={month} className="p-4 mb-6 rounded-lg shadow-sm bg-white">
             <h2 className="text-lg font-bold mb-2 uppercase text-gray-700">{month}</h2>
-            {events.map((event: any, index: number) => {
-              const startDate = event["Start Date"];
-              const endDate = event["End Date"];
+            {events.map((event, index) => {
               const colorTheme =
-                monthColors[
-                  new Date(endDate || startDate).toLocaleString("default", { month: "long" })
-                ] || { bg: "bg-gray-300", text: "text-gray-700" };
+                monthColors[new Date(event.end_date || event.start_date).toLocaleString("default", { month: "long" })] ||
+                { bg: "bg-gray-300", text: "text-gray-700" };
 
               return (
                 <div key={index} className="flex items-center mb-3">
-                  {/* Date Section with Background and Matched Text Color */}
                   <div
                     className={`ml-6 px-3 py-1 rounded-lg text-sm font-semibold mr-4 shadow ${colorTheme.bg} ${colorTheme.text}`}
                   >
-                    {startDate && endDate
-                      ? `${formatDate(startDate)} - ${formatDate(endDate)}`
-                      : startDate
-                      ? formatDate(startDate)
-                      : endDate
-                      ? formatDate(endDate)
-                      : "No Date"}
+                    {event.start_date && event.end_date
+                      ? `${formatDate(event.start_date)} - ${formatDate(event.end_date)}`
+                      : formatDate(event.start_date || event.end_date)}
                   </div>
-                  {/* Description */}
-                  <p className="text-gray-600">{event.Description || "No Description"}</p>
+                  <p className="text-gray-600">{event.description || "No Description"}</p>
                 </div>
               );
             })}
