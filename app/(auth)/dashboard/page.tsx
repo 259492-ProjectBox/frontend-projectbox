@@ -15,6 +15,7 @@ import PowerPointIcon from "@/public/Svg/PowerPointIcon";
 import SketchupIcon from "@/public/Svg/SketchupIcon";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 function Dashboard() {
   const router = useRouter();
@@ -102,7 +103,9 @@ function Dashboard() {
           </h1>
           <h2 className="text-xl text-gray-600">
             You have{" "}
-            <span className="text-widwa font-bold">{projects.length || "No"}</span>{" "}
+            <span className="text-widwa font-bold">
+              {projects.length || "No"}
+            </span>{" "}
             projects on your plate
           </h2>
         </div>
@@ -134,13 +137,13 @@ function Dashboard() {
 
             {/* Project Title */}
             <div>
-              <h3 className="text-sm font-semibold text-red-700">
+              <h3 className="text-sm font-semibold text-black">
                 Project No: {project.project_no || "No Data"}
               </h3>
-              <h4 className="text-xl font-bold text-gray-800 mb-2">
-                {/* {project.course?.course_no || "No Course"} —{" "} */}
-                {project.title_th || "No Title"} —{" "}
-                {project.title_en || "No Title"}
+              <h4 className="text-xl font-bold text-red-800 hover:underline cursor-pointer mb-2">
+              <Link href={`/projectdetail/${project.id}`}>
+      {project.title_th || "No Title"} — {project.title_en || "No Title"}
+    </Link>
               </h4>
             </div>
 
