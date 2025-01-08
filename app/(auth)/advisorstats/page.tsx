@@ -14,6 +14,7 @@ export default function AdvisorStatsPage() {
       try {
         const data = await getEmployeeByMajorId(1);
         setAdvisors(data);
+        console.log(data);
       } catch (error) {
         console.error("Error fetching advisor data:", error);
       } finally {

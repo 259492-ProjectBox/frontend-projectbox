@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import getEventsByMajorId from "@/utils/eventCalendar/getEventsByMajorId";
 import { Event } from "@/models/Event";
@@ -20,13 +21,13 @@ const monthColors: { [key: string]: { bg: string; text: string } } = {
 };
 
 const EventCalendarPage = () => {
-  const [events, setEvents] = useState<Event[]>([]); // Ensure events is initialized as an empty array
+  const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const records = await getEventsByMajorId(2); // Change `1` to the desired major ID
+        const records = await getEventsByMajorId(4); // Change `4` to the desired major ID
         setEvents(records || []); // Ensure that records is never null
       } catch (error) {
         console.error("Error fetching events:", error);
@@ -37,21 +38,31 @@ const EventCalendarPage = () => {
     fetchEvents();
   }, []);
 
-  const formatDate = (dateString: string | undefined) => {
-    if (!dateString) return "No Date";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  // Utility to parse `DD-MM-YYYY` date strings into `Date` objects
+  const parseDate = (dateString: string | undefined): Date | null => {
+    if (!dateString) return null;
+    const [day, month, year] = dateString.split("-").map((part) => parseInt(part, 10));
+    return new Date(year, month - 1, day); // Adjust month (0-based in JavaScript)
   };
 
-  const sortedEvents = (events || []).sort((a, b) => {
-    const dateA = new Date(a.end_date || a.start_date);
-    const dateB = new Date(b.end_date || b.start_date);
-    return dateA.getTime() - dateB.getTime();
+  const formatDate = (dateString: string | undefined) => {
+    const parsedDate = parseDate(dateString);
+    if (!parsedDate) return "No Date";
+    return parsedDate.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  };
+
+  const sortedEvents = events.sort((a, b) => {
+    const dateA = parseDate(a.end_date || a.start_date)?.getTime() || 0;
+    const dateB = parseDate(b.end_date || b.start_date)?.getTime() || 0;
+    return dateA - dateB;
   });
 
   const groupedEvents = sortedEvents.reduce((acc: Record<string, Event[]>, event: Event) => {
     const date = event.end_date || event.start_date;
-    const month = new Date(date).toLocaleString("default", { month: "long" });
+    const parsedDate = parseDate(date);
+    const month = parsedDate
+      ? parsedDate.toLocaleString("default", { month: "long" })
+      : "Unknown Month";
     acc[month] = acc[month] || [];
     acc[month].push(event);
     return acc;
@@ -68,8 +79,9 @@ const EventCalendarPage = () => {
             <h2 className="text-lg font-bold mb-2 uppercase text-gray-700">{month}</h2>
             {events.map((event, index) => {
               const colorTheme =
-                monthColors[new Date(event.end_date || event.start_date).toLocaleString("default", { month: "long" })] ||
-                { bg: "bg-gray-300", text: "text-gray-700" };
+                monthColors[
+                  parseDate(event.end_date || event.start_date)?.toLocaleString("default", { month: "long" }) || "Unknown Month"
+                ] || { bg: "bg-gray-300", text: "text-gray-700" };
 
               return (
                 <div key={index} className="flex items-center mb-3">

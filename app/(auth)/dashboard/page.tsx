@@ -141,9 +141,10 @@ function Dashboard() {
                 Project No: {project.project_no || "No Data"}
               </h3>
               <h4 className="text-xl font-bold text-red-800 hover:underline cursor-pointer mb-2">
-              <Link href={`/projectdetail/${project.id}`}>
-      {project.title_th || "No Title"} — {project.title_en || "No Title"}
-    </Link>
+                <Link href={`/projectdetail/${project.id}`}>
+                  {project.title_th || "No Title"} —{" "}
+                  {project.title_en || "No Title"}
+                </Link>
               </h4>
             </div>
 
@@ -179,7 +180,7 @@ function Dashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <LimitedList
                 items={project.members.map((member) => ({
-                  name: `${member.prefix} ${member.first_name} ${member.last_name}`,
+                  name: `${member.prefix} ${member.first_name} ${member.last_name} (${member.id})`,
                 }))}
                 title="Members"
               />
