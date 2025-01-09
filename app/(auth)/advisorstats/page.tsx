@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import getEmployeeByMajorId from "@/utils/advisorstats/getEmployeebyMajorId";
 import { Advisor } from "@/models/Advisor"; // Import the Advisor interface
 import Spinner from "@/components/Spinner"; // Import the Spinner component
+import Link from "next/link"; // Import Link for navigation
 
 export default function AdvisorStatsPage() {
   const [advisors, setAdvisors] = useState<Advisor[]>([]);
@@ -54,9 +55,11 @@ export default function AdvisorStatsPage() {
                       alt={advisor.first_name}
                     />
                     <div className="ps-3">
-                      <span className="text-base font-semibold text-red-700 hover:underline">
-                        {advisor.first_name} {advisor.last_name}
-                      </span>
+                      <Link href={`/advisorprofile/${advisor.id}`}>
+                        <span className="text-base font-semibold text-red-700 hover:underline cursor-pointer">
+                          {advisor.first_name} {advisor.last_name}
+                        </span>
+                      </Link>
                       <div className="font-normal text-gray-500">{advisor.email}</div>
                     </div>
                   </th>
