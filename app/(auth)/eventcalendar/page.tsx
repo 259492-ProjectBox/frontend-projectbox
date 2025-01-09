@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import getEventsByMajorId from "@/utils/eventCalendar/getEventsByMajorId";
+import getEventsByMajorId from "@/utils/calendar/getEventsByMajorId";
 import { Event } from "@/models/Event";
 import Spinner from "@/components/Spinner";
 
@@ -29,6 +29,7 @@ const EventCalendarPage = () => {
       try {
         const records = await getEventsByMajorId(4); // Change `4` to the desired major ID
         setEvents(records || []); // Ensure that records is never null
+        console.log(records);
       } catch (error) {
         console.error("Error fetching events:", error);
       } finally {
@@ -38,31 +39,15 @@ const EventCalendarPage = () => {
     fetchEvents();
   }, []);
 
-  // Utility to parse `DD-MM-YYYY` date strings into `Date` objects
-  const parseDate = (dateString: string | undefined): Date | null => {
-    if (!dateString) return null;
-    const [day, month, year] = dateString.split("-").map((part) => parseInt(part, 10));
-    return new Date(year, month - 1, day); // Adjust month (0-based in JavaScript)
-  };
-
-  const formatDate = (dateString: string | undefined) => {
-    const parsedDate = parseDate(dateString);
-    if (!parsedDate) return "No Date";
-    return parsedDate.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
-  };
-
   const sortedEvents = events.sort((a, b) => {
-    const dateA = parseDate(a.end_date || a.start_date)?.getTime() || 0;
-    const dateB = parseDate(b.end_date || b.start_date)?.getTime() || 0;
+    const dateA = new Date(a.end_date || a.start_date).getTime();
+    const dateB = new Date(b.end_date || b.start_date).getTime();
     return dateA - dateB;
   });
 
   const groupedEvents = sortedEvents.reduce((acc: Record<string, Event[]>, event: Event) => {
     const date = event.end_date || event.start_date;
-    const parsedDate = parseDate(date);
-    const month = parsedDate
-      ? parsedDate.toLocaleString("default", { month: "long" })
-      : "Unknown Month";
+    const month = new Date(date.split("-").reverse().join("-")).toLocaleString("default", { month: "long" });
     acc[month] = acc[month] || [];
     acc[month].push(event);
     return acc;
@@ -76,23 +61,28 @@ const EventCalendarPage = () => {
         <h1 className="text-2xl font-bold text-gray-800 mb-4 text-center">Event Calendar</h1>
         {Object.entries(groupedEvents).map(([month, events]) => (
           <div key={month} className="p-4 mb-6 rounded-lg shadow-sm bg-white">
-            <h2 className="text-lg font-bold mb-2 uppercase text-gray-700">{month}</h2>
+            <h2 className="text-lg font-bold mb-4 uppercase text-gray-700">{month}</h2>
             {events.map((event, index) => {
               const colorTheme =
                 monthColors[
-                  parseDate(event.end_date || event.start_date)?.toLocaleString("default", { month: "long" }) || "Unknown Month"
+                  new Date((event.end_date || event.start_date).split("-").reverse().join("-")).toLocaleString("default", { month: "long" })
                 ] || { bg: "bg-gray-300", text: "text-gray-700" };
 
               return (
-                <div key={index} className="flex items-center mb-3">
-                  <div
-                    className={`ml-6 px-3 py-1 rounded-lg text-sm font-semibold mr-4 shadow ${colorTheme.bg} ${colorTheme.text}`}
-                  >
-                    {event.start_date && event.end_date
-                      ? `${formatDate(event.start_date)} - ${formatDate(event.end_date)}`
-                      : formatDate(event.start_date || event.end_date)}
+                <div key={index} className="mb-4">
+                  <div className="flex items-start">
+                    <div
+                      className={`px-4 py-2 rounded-lg text-sm font-semibold shadow ${colorTheme.bg} ${colorTheme.text}`}
+                    >
+                      {event.start_date && event.end_date
+                        ? `${event.start_date} - ${event.end_date}`
+                        : event.start_date || event.end_date}
+                    </div>
+                    <div className="ml-4 flex-1">
+                      <p className="font-bold text-gray-800">{event.title}</p>
+                      <p className="text-gray-600 mt-1">{event.description || "No Description"}</p>
+                    </div>
                   </div>
-                  <p className="text-gray-600">{event.description || "No Description"}</p>
                 </div>
               );
             })}

@@ -5,6 +5,6 @@ export interface Event {
     description: string;
     start_date: string;
     end_date: string;
-    major_name: string;
+    major_id: number;
   }
   
