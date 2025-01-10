@@ -21,7 +21,6 @@ export default function MePage() {
 					setFullName(response.data.firstName + " " + response.data.lastName);
 					setCmuAccount(response.data.cmuAccount);
 					setStudentId(response.data.studentId ?? "No Student Id");
-					setMajor(response.data.major);
 				}
 			})
 			.catch((error: AxiosError<WhoAmIResponse>) => {
