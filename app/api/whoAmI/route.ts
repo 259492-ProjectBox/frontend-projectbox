@@ -28,7 +28,8 @@ export async function GET() {
 			firstName: decoded.firstName,
 			lastName: decoded.lastName,
 			studentId: decoded.studentId,
-			major: decoded.major,
+			orgName: decoded.orgName,
+			isAdmin: decoded.isAdmin,
 		});
 	} catch (error) {
 		console.log(error);

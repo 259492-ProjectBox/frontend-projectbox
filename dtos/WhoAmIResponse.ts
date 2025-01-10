@@ -1,10 +1,12 @@
 export type SuccessResponse = {
+	major(major: any): unknown;
 	ok: true;
 	cmuAccount: string;
 	firstName: string;
 	lastName: string;
 	studentId?: string;
-	major: string;
+	orgName: string;
+	isAdmin: boolean;
 };
 
 export type ErrorResponse = {
