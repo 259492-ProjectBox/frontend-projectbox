@@ -17,7 +17,7 @@ const ProjectDetails = ({
 
       {/* Project Fields */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {['Course', 'Section', 'Term', 'Academic Year'].map((field) =>
+        {['Course', 'Section', 'Semester', 'Academic Year'].map((field) =>
           formConfig[field] && (
             <div key={field}>
               <label className="block mb-1 text-sm font-medium text-gray-700">

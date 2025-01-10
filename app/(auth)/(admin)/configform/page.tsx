@@ -1,146 +1,120 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { fetchConfigForm } from '@/utils/airtableConfigForm';
-import { createProject } from '@/utils/airtableCreateProject';
 import Spinner from '@/components/Spinner';
+import { FormData } from '@/models/configform';
+import Section from '@/components/configform/Section';
+import getProjectConfig from '@/utils/configform/getProjectConfig';
+import postProjectConfig from '@/utils/configform/postProjectConfig';
 
 const CreateProject: React.FC = () => {
-  const [formConfig, setFormConfig] = useState<any>({});
-  const [formData, setFormData] = useState<any>({});
-  const [loading, setLoading] = useState(true);
+  const [formData, setFormData] = useState<FormData>({});
+  const [loading, setLoading] = useState<boolean>(true);
+  const [apiData, setApiData] = useState<any[]>([]); // Store the original API response
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const config = await fetchConfigForm();
-        setFormConfig(config);
-      } catch (error) {
-        console.error('Error fetching form config:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  const handleDropdownChange = (fieldName: string, value: string) => {
-    setFormData({ ...formData, [fieldName]: value });
-  };
-
-  const getStatusDot = (status: string) => {
-    const color = status === 'Active' ? 'bg-green-500' : status === 'Inactive' ? 'bg-red-500' : 'bg-gray-300';
-    return <span className={`inline-block w-3 h-3 rounded-full ${color} mr-2`}></span>;
-  };
-
-  const handleSubmit = async () => {
+  const fetchConfig = async () => {
     try {
-      await createProject(formData);
-      alert('Project created successfully!');
+      setLoading(true);
+      const data = await getProjectConfig(2); // Fetch project config for major ID 2
+
+      // Map API response to formData
+      const initialFormData = data.reduce((acc: Record<string, boolean>, item: any) => {
+        acc[item.title] = item.is_active;
+        return acc;
+      }, {});
+
+      setFormData(initialFormData);
+      setApiData(data); // Save the original API data
     } catch (error) {
-      console.error('Error creating project:', error);
-      alert('Failed to create project.');
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (loading) return <Spinner />; 
+  useEffect(() => {
+    fetchConfig();
+  }, []);
+
+  const handleToggleChange = (fieldName: string) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [fieldName]: !prevData[fieldName],
+    }));
+  };
+
+  const handleSubmit = async () => {
+    // Convert formData back into the API format
+    const updatedConfigs = apiData.map((item) => ({
+      id: item.id,
+      is_active: formData[item.title], // Use the updated state
+      major_id: item.major_id,
+      title: item.title, // Keep the original title from the API response
+    }));
+
+    try {
+      await postProjectConfig(updatedConfigs); // Post updated config
+      alert('Configuration saved successfully!');
+    } catch (error) {
+      alert('Failed to save configuration. Please try again.');
+    }
+  };
+
+  if (loading) return <Spinner />;
 
   return (
     <div className="flex flex-col min-h-screen bg-stone-100 py-6">
       <div className="container mx-auto max-w-3xl">
-        <h6 className="mb-4 text-lg font-bold">Config Form</h6>
+        <h6 className="mb-4 text-lg font-bold">Create Project Form</h6>
 
-        {/* Project Details Section */}
-        <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
-          <h6 className="text-lg font-bold mb-4">Project Details</h6>
-          {['Course', 'Section', 'Term', 'Academic Year', 'ProjectTitle(TH)', 'ProjectTitle(EN)', 'Abstract'].map(field =>
-            formConfig[field] && (
-              <div key={field} className="flex items-center justify-between mb-4">
-                <label className="flex items-center text-sm font-medium text-gray-700">
-                  {getStatusDot(formData[field])}
-                  {field}
-                </label>
-                <select
-                  value={formData[field] || ''}
-                  onChange={e => handleDropdownChange(field, e.target.value)}
-                  className="w-2/3 p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-widwa"
-                >
-                  <option value="">Select Status</option>
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                </select>
-              </div>
-            )
-          )}
-        </div>
+        {/* Section 1: Project Details */}
+        <Section
+          title="Project Details"
+          fields={['title_th', 'title_en', 'abstract_text', 'academic_year', 'semester', 'section_id', 'course_id']}
+          formData={formData}
+          onToggle={handleToggleChange}
+        />
 
-        {/* Student(s) Section */}
-        {formConfig.Student && (
-          <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
-            <h6 className="text-lg font-bold mb-4">Student(s)</h6>
-            <div className="flex items-center justify-between">
-              <label className="flex items-center text-sm font-medium text-gray-700">
-                {getStatusDot(formData.Student)}
-                Student
-              </label>
-              <select
-                value={formData.Student || ''}
-                onChange={e => handleDropdownChange('Student', e.target.value)}
-                className="w-2/3 p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-widwa"
-              >
-                <option value="">Select Status</option>
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-            </div>
-          </div>
-        )}
+        {/* Section 2: Advisor */}
+        <Section
+          title="Advisor"
+          fields={['advisor']}
+          formData={formData}
+          onToggle={handleToggleChange}
+        />
 
-        {/* Advisor(s) Section */}
-        {formConfig.ProjectAdvisor && (
-          <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
-            <h6 className="text-lg font-bold mb-4">Advisor(s)</h6>
-            <div className="flex items-center justify-between">
-              <label className="flex items-center text-sm font-medium text-gray-700">
-                {getStatusDot(formData.ProjectAdvisor)}
-                Advisor
-              </label>
-              <select
-                value={formData.ProjectAdvisor || ''}
-                onChange={e => handleDropdownChange('ProjectAdvisor', e.target.value)}
-                className="w-2/3 p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-widwa"
-              >
-                <option value="">Select Status</option>
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-            </div>
-          </div>
-        )}
+        {/* Section 3: Committee */}
+        <Section
+          title="Committee"
+          fields={['committee']}
+          formData={formData}
+          onToggle={handleToggleChange}
+        />
 
-        {/* Upload(s) Section */}
-        <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
-          <h6 className="text-lg font-bold mb-4">Upload(s)</h6>
-          {['Poster', 'Draft Report', 'Final Report', 'Final Presentation'].map(field =>
-            formConfig[field] && (
-              <div key={field} className="flex items-center justify-between mb-4">
-                <label className="flex items-center text-sm font-medium text-gray-700">
-                  {getStatusDot(formData[field])}
-                  {field}
-                </label>
-                <select
-                  value={formData[field] || ''}
-                  onChange={e => handleDropdownChange(field, e.target.value)}
-                  className="w-2/3 p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-widwa"
-                >
-                  <option value="">Select Status</option>
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                </select>
-              </div>
-            )
-          )}
-        </div>
+        {/* Section 4: Student */}
+        <Section
+          title="Student"
+          fields={['student']}
+          formData={formData}
+          onToggle={handleToggleChange}
+        />
+
+        {/* Section 5: Uploads */}
+        <Section
+          title="Uploads"
+          fields={[
+            'report_pdf',
+            'poster_picture',
+            'presentation_ppt',
+            'presentation_pdf',
+            'youtube_link',
+            'github_link',
+            'autocad_file',
+            'sketchup_file',
+            'optional_link',
+          ]}
+          formData={formData}
+          onToggle={handleToggleChange}
+        />
 
         {/* Submit Button */}
         <button
