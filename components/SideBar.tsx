@@ -17,6 +17,7 @@ import ChecklistRtlIcon from "@mui/icons-material/ChecklistRtl";
 import EditCalendarIcon from "@mui/icons-material/EditCalendar";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import EditNoteIcon from "@mui/icons-material/EditNote";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 
 export default function Sidebar({ children }: React.PropsWithChildren) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -31,12 +32,15 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
   ];
 
   const configMenuItems = [
-    // { text: "Manage Status", icon: <ChecklistRtlIcon className="w-4 h-4 text-green-500" />, path: "/managestatus" },
     { text: "Config Calendar", icon: <EditCalendarIcon className="w-4 h-4 text-yellow-500" />, path: "/configcalendar" },
     { text: "Config Form", icon: <EditNoteIcon className="w-4 h-4 text-indigo-500" />, path: "/configform" },
     { text: "Config Advisor", icon: <ManageAccountsIcon className="w-4 h-4 text-pink-500" />, path: "/configadvisor" },
     { text: "Config Assets", icon: <SettingsIcon className="w-4 h-4 text-cyan-500" />, path: "/configassets" },
     { text: "Admin Manage", icon: <SupervisorAccountIcon className="w-4 h-4 text-rose-500" />, path: "/adminmanage" },
+  ];
+
+  const superAdminMenuItems = [
+    { text: "SUPER ADMIN", icon: <AdminPanelSettingsIcon className="w-4 h-4 text-black" />, path: "/superadmin" },
   ];
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
@@ -63,6 +67,12 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
 
           {/* Config Section */}
           <SidebarMenuSection items={configMenuItems} />
+
+          {/* Divider */}
+          <hr className="my-4 border-gray-300" />
+
+          {/* SUPER ADMIN Section */}
+          <SidebarMenuSection items={superAdminMenuItems} />
 
           {/* Logout Section */}
           <div className="mt-4">
