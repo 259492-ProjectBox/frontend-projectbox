@@ -1,10 +1,9 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { CustomTooltip } from "@/components/CustomTooltip";
-import { useRouter } from "next/navigation";
-import AddIcon from "@mui/icons-material/Add";
-import { fetchProjects } from "@/utils/airtableCreateProject";
+import getProjectByStudentId from "@/utils/dasboard/getProjectByStudentId";
+import { Project } from "@/models/Project";
 import Spinner from "@/components/Spinner";
+import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@/public/Svg/EditIcon";
 import FileIcon from "@/public/Svg/FileIcon";
 import YouTubeIcon from "@/public/Svg/YouTubeIcon";
@@ -14,24 +13,9 @@ import LinkIcon from "@/public/Svg/LinkIcon";
 import PictureIcon from "@/public/Svg/PictureIcon";
 import PowerPointIcon from "@/public/Svg/PowerPointIcon";
 import SketchupIcon from "@/public/Svg/SketchupIcon";
-
-interface Student {
-  id: string;
-  name: string;
-}
-
-interface Committee {
-  name: string;
-}
-
-interface Project {
-  projectNo: string;
-  projectId: string;
-  projectName: string;
-  description: string;
-  students: Student[];
-  committees: Committee[];
-}
+import { CustomTooltip } from "@/components/CustomTooltip";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 function Dashboard() {
   const router = useRouter();
@@ -41,25 +25,9 @@ function Dashboard() {
   useEffect(() => {
     const loadProjects = async () => {
       try {
-        const records = await fetchProjects();
-        const formattedProjects: Project[] = records.map((record: any) => ({
-          projectNo: record.fields.ID || "N/A",
-          projectId: record.fields.Course || "N/A",
-          projectName: record.fields["ProjectTitle(EN)"] || "Untitled",
-          description: record.fields.Abstract || "No description available.",
-          students: record.fields.Student
-            ? record.fields.Student.split(",").map((id: string) => ({
-                id: id.trim(),
-                name: "Unknown Student",
-              }))
-            : [],
-          committees: record.fields.ProjectAdvisor
-            ? record.fields.ProjectAdvisor.split(",").map((name: string) => ({
-                name: name.trim(),
-              }))
-            : [],
-        }));
-        setProjects(formattedProjects);
+        const records = await getProjectByStudentId("640610304"); // Replace with the desired student ID
+        console.log("API Response:", records);
+        setProjects(records || []);
       } catch (error) {
         console.error("Error fetching projects:", error);
       } finally {
@@ -88,7 +56,7 @@ function Dashboard() {
         {visibleItems.map((item, index) => (
           <p key={index} className="text-sm">
             {item.id ? `${item.id} - ` : ""}
-            {item.name || "Unknown"}
+            {item.name || "No Data"}
           </p>
         ))}
         {items.length > 3 && (
@@ -135,7 +103,9 @@ function Dashboard() {
           </h1>
           <h2 className="text-xl text-gray-600">
             You have{" "}
-            <span className="text-widwa font-bold">{projects.length}</span>{" "}
+            <span className="text-widwa font-bold">
+              {projects.length || "No"}
+            </span>{" "}
             projects on your plate
           </h2>
         </div>
@@ -158,7 +128,7 @@ function Dashboard() {
           <div className="p-4">
             {/* Edit Button - Top Right */}
             <button
-              onClick={() => console.log("Edit", project.projectNo)}
+              onClick={() => console.log("Edit", project.project_no)}
               className="absolute top-4 right-4 p-2 rounded-full bg-red-100 hover:bg-red-200"
               aria-label="Edit Project"
             >
@@ -167,52 +137,40 @@ function Dashboard() {
 
             {/* Project Title */}
             <div>
-              <h3 className="text-sm font-semibold text-red-700">
-                Project No: {project.projectNo}
+              <h3 className="text-sm font-semibold text-black">
+                Project No: {project.project_no || "No Data"}
               </h3>
-              <h4 className="text-xl font-bold text-gray-800 mb-2">
-                {project.projectId} — {project.projectName}
+              <h4 className="text-xl font-bold text-red-800 hover:underline cursor-pointer mb-2">
+                <Link href={`/projectdetail/${project.id}`}>
+                  {project.title_th || "No Title"} —{" "}
+                  {project.title_en || "No Title"}
+                </Link>
               </h4>
             </div>
 
             {/* Icons - Below Project Title */}
             <div className="flex flex-wrap gap-4 mb-4">
-              {/* File Icon */}
               <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
                 <FileIcon />
               </button>
-
-              {/* YouTube Icon */}
               <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
                 <YouTubeIcon />
               </button>
-
-              {/* GitHub Icon */}
               <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
                 <GitHubIcon />
               </button>
-
-              {/* PowerPoint Icon */}
               <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
                 <PowerPointIcon />
               </button>
-
-              {/* Picture Icon */}
               <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
                 <PictureIcon />
               </button>
-
-              {/* AutoCAD Icon */}
               <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
                 <AutoCADIcon />
               </button>
-
-              {/* Sketchup Icon */}
               <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
                 <SketchupIcon />
               </button>
-
-              {/* Link Icon */}
               <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
                 <LinkIcon />
               </button>
@@ -220,13 +178,23 @@ function Dashboard() {
 
             {/* Students and Committees */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <LimitedList items={project.students} title="Students" />
-              <LimitedList items={project.committees} title="Committees" />
+              <LimitedList
+                items={project.members.map((member) => ({
+                  name: `${member.prefix} ${member.first_name} ${member.last_name} (${member.id})`,
+                }))}
+                title="Members"
+              />
+              <LimitedList
+                items={project.employees.map((employee) => ({
+                  name: `${employee.prefix} ${employee.first_name} ${employee.last_name}`,
+                }))}
+                title="Employees"
+              />
             </div>
 
             {/* Project Description */}
             <div className="w-full">
-              <LimitedText text={project.description} />
+              <LimitedText text={project.abstract_text || "No Description"} />
             </div>
           </div>
         </div>
