@@ -31,15 +31,13 @@ export default function FlowbiteNavbar({
             </a>
           </div>
           <div className="flex items-center">
-            <div className="flex items-center ms-3">
-              <div className="text-sm">
+            <div className="flex items-center justify-end ms-3">
+              <div className="text-sm text-right">
                 {/* User Details */}
-                <div className="flex items-center">
+                <div className="flex flex-col">
                   <p className="font-semibold text-gray-800">
                     {user?.firstName} {user?.lastName}
                   </p>
-                </div>
-                <div>
                   <p className="text-gray-500">{user?.studentId}</p>
                 </div>
               </div>
