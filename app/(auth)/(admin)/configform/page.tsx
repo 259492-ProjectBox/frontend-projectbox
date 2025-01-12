@@ -5,6 +5,7 @@ import { FormData } from '@/models/configform';
 import Section from '@/components/configform/Section';
 import getProjectConfig from '@/utils/configform/getProjectConfig';
 import postProjectConfig from '@/utils/configform/postProjectConfig';
+import { log } from 'console';
 
 const CreateProject: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({});
@@ -23,6 +24,7 @@ const CreateProject: React.FC = () => {
       }, {});
 
       setFormData(initialFormData);
+      console.log(data);
       setApiData(data); // Save the original API data
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -108,9 +110,9 @@ const CreateProject: React.FC = () => {
             'presentation_pdf',
             'youtube_link',
             'github_link',
+            'optional_link',
             'autocad_file',
             'sketchup_file',
-            'optional_link',
           ]}
           formData={formData}
           onToggle={handleToggleChange}
