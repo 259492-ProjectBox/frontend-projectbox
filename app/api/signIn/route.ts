@@ -1,7 +1,7 @@
-import axios from "axios";
-import jwt from "jsonwebtoken";
+// import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
 import { CmuOAuthBasicInfo } from "../../../types/CmuOAuthBasicInfo";
+import axiosInstance from "@/utils/axiosInstance";
 
 type SuccessResponse = {
 	ok: true;
@@ -14,49 +14,6 @@ type ErrorResponse = {
 
 export type SignInResponse = SuccessResponse | ErrorResponse;
 
-async function getOAuthAccessTokenAsync(
-	authorizationCode: string
-): Promise<string | null> {
-	try {
-		const response = await axios.post(
-			process.env.CMU_OAUTH_GET_TOKEN_URL as string,
-			{},
-			{
-				params: {
-					code: authorizationCode,
-					redirect_uri: process.env.CMU_OAUTH_REDIRECT_URL,
-					client_id: process.env.CMU_OAUTH_CLIENT_ID,
-					client_secret: process.env.CMU_OAUTH_CLIENT_SECRET,
-					grant_type: "authorization_code",
-				},
-				headers: {
-					"content-type": "application/x-www-form-urlencoded",
-				},
-			}
-		);
-		return response.data.access_token;
-	} catch (err) {
-		console.log(err);
-		return null;
-	}
-}
-
-async function getCMUBasicInfoAsync(accessToken: string) {
-	try {
-		const response = await axios.get(
-			process.env.CMU_OAUTH_GET_BASIC_INFO as string,
-			{
-				headers: { Authorization: "Bearer " + accessToken },
-			}
-		);
-
-		return response.data as CmuOAuthBasicInfo;
-	} catch (err) {
-		console.log(err);
-		return null;
-	}
-}
-
 export async function POST(req: Request) {
 	const body = await req.json();
 	const authorizationCode = body.authorizationCode;
@@ -68,39 +25,50 @@ export async function POST(req: Request) {
 		);
 	}
 
+	
 	// Get access token
-	const accessToken = await getOAuthAccessTokenAsync(authorizationCode);
-	if (!accessToken) {
-		return NextResponse.json(
-			{ ok: false, message: "Cannot get OAuth access token" },
-			{ status: 400 }
-		);
-	}
+	// const accessToken = await getOAuthAccessTokenAsync(authorizationCode);
+	// if (!accessToken) {
+	// 	return NextResponse.json(
+	// 		{ ok: false, message: "Cannot get OAuth access token" },
+	// 		{ status: 400 }
+	// 	);
+	// }
 
-	// Get CMU basic info
-	const cmuBasicInfo = await getCMUBasicInfoAsync(accessToken);
-	if (!cmuBasicInfo) {
-		return NextResponse.json(
-			{ ok: false, message: "Cannot get CMU basic info" },
-			{ status: 400 }
-		);
-	}
+	// // Get CMU basic info
+	// const cmuBasicInfo = await getCMUBasicInfoAsync(accessToken);
+	// if (!cmuBasicInfo) {
+	// 	return NextResponse.json(
+	// 		{ ok: false, message: "Cannot get CMU basic info" },
+	// 		{ status: 400 }
+	// 	);
+	// }
 
 	if (typeof process.env.JWT_SECRET !== "string") {
 		throw new Error("Please assign JWT_SECRET in .env!");
 	}
 
-	const token = jwt.sign(
-		{
-			cmuAccount: cmuBasicInfo.cmuitaccount,
-			firstName: cmuBasicInfo.firstname_EN,
-			lastName: cmuBasicInfo.lastname_EN,
-			studentId: cmuBasicInfo.student_id,
-			major: cmuBasicInfo.organization_name_EN,
-		},
-		process.env.JWT_SECRET,
-		{ expiresIn: "1h" }
-	);
+	// const payload: JWTPayload = {
+    //     cmuAccount: cmuBasicInfo.cmuitaccount,
+    //     firstName: cmuBasicInfo.firstname_EN,
+    //     lastName: cmuBasicInfo.lastname_EN,
+    //     studentId: cmuBasicInfo.student_id,
+    //     orgName: cmuBasicInfo.organization_name_EN,
+    //     isAdmin: cmuBasicInfo.cmuitaccount === "admin" // or your admin check logic
+    // };
+
+    // const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+	// make it send to AuthService that is in localhost 3002 
+	// and get the response from there
+	if (typeof process.env.AUTHSERVICE_URL !== "string") {
+		throw new Error("Please assign AUTHSERVICE_URL in .env!");
+	}
+	const tokenResponse = await axiosInstance.post(process.env.AUTHSERVICE_URL + "/api/signin", {
+		authorizationCode: authorizationCode
+	});
+	
+	const token = tokenResponse.data.accessToken;
 
 	// Create response with cookie
 	const response = NextResponse.json({ ok: true });

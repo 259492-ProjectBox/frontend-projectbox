@@ -4,27 +4,49 @@ const ProjectDetails = ({
   formConfig,
   formData,
   onInputChange,
+  labels,
+  requiredFields,
 }: {
   formConfig: any;
   formData: any;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  labels: Record<string, string>;
+  requiredFields: string[];
 }) => {
-  const requiredFields = ['Course', 'ProjectTitle(EN)', 'ProjectTitle(TH)', 'Abstract'];
-
   return (
     <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
       <h6 className="text-lg font-bold mb-4">Project Details</h6>
-
-      {/* Project Fields */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {['Course', 'Section', 'Semester', 'Academic Year'].map((field) =>
+        {/* Render dynamic fields */}
+        {['course_id', 'section_id', 'semester', 'academic_year'].map(
+          (field) =>
+            formConfig[field] && (
+              <div key={field}>
+                <label className="block mb-1 text-sm font-medium text-gray-700">
+                  {labels[field]}{' '}
+                  {requiredFields.includes(field) && <span className="text-red-500 ml-1">*</span>}
+                </label>
+                <input
+                  type="text"
+                  name={field}
+                  value={formData[field] || ''}
+                  onChange={onInputChange}
+                  className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-widwa"
+                  placeholder={`Enter ${labels[field]}`}
+                />
+              </div>
+            )
+        )}
+      </div>
+
+      {/* Project Title Fields */}
+      {['title_en', 'title_th'].map(
+        (field) =>
           formConfig[field] && (
-            <div key={field}>
+            <div key={field} className="mb-6">
               <label className="block mb-1 text-sm font-medium text-gray-700">
-                {field}
-                {requiredFields.includes(field) && (
-                  <span className="text-red-500 ml-1">*</span>
-                )}
+                {labels[field]}{' '}
+                {requiredFields.includes(field) && <span className="text-red-500 ml-1">*</span>}
               </label>
               <input
                 type="text"
@@ -32,50 +54,26 @@ const ProjectDetails = ({
                 value={formData[field] || ''}
                 onChange={onInputChange}
                 className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-widwa"
-                placeholder={`Enter ${field}`}
+                placeholder={`Enter ${labels[field]}`}
               />
             </div>
           )
-        )}
-      </div>
-
-      {/* Title Fields */}
-      {['ProjectTitle(EN)', 'ProjectTitle(TH)'].map((field) =>
-        formConfig[field] && (
-          <div key={field} className="mb-6">
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              {field.replace('ProjectTitle(EN)', 'Project Title (EN)').replace(
-                'ProjectTitle(TH)',
-                'Project Title (TH)'
-              )}
-              <span className="text-red-500 ml-1">*</span>
-            </label>
-            <input
-              type="text"
-              name={field}
-              value={formData[field] || ''}
-              onChange={onInputChange}
-              className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-widwa"
-              placeholder={`Enter ${field}`}
-            />
-          </div>
-        )
       )}
 
       {/* Abstract Field */}
-      {formConfig['Abstract'] && (
+      {formConfig['abstract_text'] && (
         <div className="mb-6">
           <label className="block mb-1 text-sm font-medium text-gray-700">
-            Abstract
-            <span className="text-red-500 ml-1">*</span>
+            {labels['abstract_text']}{' '}
+            {requiredFields.includes('abstract_text') && <span className="text-red-500 ml-1">*</span>}
           </label>
           <textarea
-            name="Abstract"
-            value={formData['Abstract'] || ''}
+            name="abstract_text"
+            value={formData['abstract_text'] || ''}
             onChange={onInputChange}
             rows={3}
             className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-widwa resize-y"
-            placeholder="Enter Abstract"
+            placeholder={`Enter ${labels['abstract_text']}`}
           />
         </div>
       )}

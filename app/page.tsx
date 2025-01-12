@@ -39,10 +39,12 @@ export default function Home() {
               Sign in CMU Account
             </button>
           </a>
-          <p className="text-white text-sm mb-4">Don't have CMU Account?</p>
-          <button className="bg-gray-600 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-gray-700 transition duration-300 w-full">
-            Guest Login
-          </button>
+          <p className="text-white text-sm mb-4">Search project by not login</p>
+          <a href="/search" className="w-full">
+            <button className="bg-teal-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-teal-600 transition duration-300 w-full">
+              Search the Project
+            </button>
+          </a>
         </div>
       </div>
     </>
