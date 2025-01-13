@@ -15,7 +15,7 @@ const EventTable: React.FC<EventTableProps> = ({ events, onEdit, onDelete }) => 
           <tr>
             {/* <th className="px-6 py-3">ID</th> */}
             <th className="px-6 py-3">Title</th>
-            <th className="px-6 py-3">Description</th>
+            <th className="px-6 py-3" style={{ width: "400px" }}>Description</th>
             <th className="px-6 py-3">Start Date</th>
             <th className="px-6 py-3">End Date</th>
             <th className="px-6 py-3 text-right">Actions</th>
@@ -26,7 +26,7 @@ const EventTable: React.FC<EventTableProps> = ({ events, onEdit, onDelete }) => 
             <tr key={event.id} className="bg-white border-b hover:bg-gray-100">
               {/* <td className="px-6 py-4">{event.id}</td> */}
               <td className="px-6 py-4">{event.title}</td>
-              <td className="px-6 py-4">{event.description}</td>
+              <td className="px-6 py-4" style={{ width: "400px" }}>{event.description}</td>
               <td className="px-6 py-4">{event.start_date}</td>
               <td className="px-6 py-4">{event.end_date}</td>
               <td className="px-6 py-4 text-right">
