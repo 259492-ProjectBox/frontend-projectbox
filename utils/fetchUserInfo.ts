@@ -14,8 +14,9 @@ export async function fetchUserInfo(): Promise<FetchUserInfoResult> {
 				firstName: response.data.firstName,
 				lastName: response.data.lastName,
 				studentId: response.data.studentId, // Optional, so it's fine if undefined
-				major: response.data.major,
+				major: "",
 			};
+			console.log("Hello is Me",userInfo);
 			return {
 				user: userInfo,
 				error: null,
