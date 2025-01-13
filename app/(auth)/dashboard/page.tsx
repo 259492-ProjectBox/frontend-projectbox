@@ -25,7 +25,7 @@ function Dashboard() {
   useEffect(() => {
     const loadProjects = async () => {
       try {
-        const records = await getProjectByStudentId("640610304"); // Replace with the desired student ID
+        const records = await getProjectByStudentId("640610306"); // Replace with the desired student ID
         console.log("API Response:", records);
         setProjects(records || []);
       } catch (error) {
@@ -188,7 +188,7 @@ function Dashboard() {
                 items={project.employees.map((employee) => ({
                   name: `${employee.prefix} ${employee.first_name} ${employee.last_name}`,
                 }))}
-                title="Employees"
+                title="Advisor"
               />
             </div>
 
