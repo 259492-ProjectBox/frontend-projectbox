@@ -1,10 +1,10 @@
-"use client"
+"use client";
 import CloudUpload from "@/public/Svg/CloudUpload";
 import React, { useState } from "react";
 
 export default function ConfigAssets() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isUploadMode, setIsUploadMode] = useState(true); // Toggle between Upload and Paste Link modes
+  const [isUploadMode, setIsUploadMode] = useState(true);
 
   const handleUpload = () => {
     console.log("File uploaded!");
@@ -15,6 +15,28 @@ export default function ConfigAssets() {
     console.log("Link submitted!");
     setIsModalOpen(false);
   };
+
+  // Mock data for the table
+  const assets = [
+    {
+      id: 1,
+      title: "Report Template",
+      description: "A detailed report template for project documentation.",
+      link: "https://example.com/report-template",
+    },
+    {
+      id: 2,
+      title: "Course Syllabus",
+      description: "Syllabus outline for the engineering course.",
+      link: "https://example.com/course-syllabus",
+    },
+    {
+      id: 3,
+      title: "Grading Criteria",
+      description: "Detailed criteria for project grading.",
+      link: "https://example.com/grading-criteria",
+    },
+  ];
 
   return (
     <div className="min-h-screen p-4 bg-gray-100">
@@ -48,30 +70,37 @@ export default function ConfigAssets() {
                 <th scope="col" className="px-6 py-3">
                   Title
                 </th>
+                <th scope="col" className="px-6 py-3">
+                  Description
+                </th>
                 <th scope="col" className="px-6 py-3 text-right">
                   Action
                 </th>
               </tr>
             </thead>
             <tbody>
-              {/* Mock Data */}
-              {[
-                { id: 1, title: "Report Template" },
-                { id: 2, title: "Course Syllabus" },
-                { id: 3, title: "Grading Criteria" },
-              ].map((asset) => (
+              {assets.map((asset) => (
                 <tr
                   key={asset.id}
                   className="bg-white border-b hover:bg-gray-100 transition-all duration-200"
                 >
                   <td className="px-6 py-4 font-medium text-gray-700">{asset.id}</td>
                   <td className="px-6 py-4">{asset.title}</td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-6 py-4">{asset.description}</td>
+                  <td className="px-6 py-4 text-right space-x-2">
+                    <a
+                      href={asset.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#A71919] hover:underline"
+                    >
+                      Open Link
+                    </a>
                     <button
                       className="text-[#A71919] hover:underline"
-                      onClick={() => console.log(`Delete Asset ID: ${asset.id}`)}
+                      onClick={() => console.log(`Downloading file from: ${asset.link}`)}
                     >
-                      Delete
+                      Download
                     </button>
                   </td>
                 </tr>
@@ -111,7 +140,6 @@ export default function ConfigAssets() {
 
             {isUploadMode ? (
               <div>
-                {/* Upload File Section */}
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center mb-4">
                   <CloudUpload />
                   <p className="text-gray-500 mb-2">Drag & Drop files here</p>
@@ -144,7 +172,6 @@ export default function ConfigAssets() {
               </div>
             ) : (
               <div>
-                {/* Paste Link Section */}
                 <input
                   type="text"
                   className="w-full border border-gray-300 rounded-lg p-2 mb-4"
