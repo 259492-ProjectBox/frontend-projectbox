@@ -32,6 +32,7 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
   ];
 
   const configMenuItems = [
+    { text: "Config Program", icon: <ChecklistRtlIcon className="w-4 h-4 text-green-500" />, path: "/configprogram" },
     { text: "Config Calendar", icon: <EditCalendarIcon className="w-4 h-4 text-yellow-500" />, path: "/configcalendar" },
     { text: "Config Form", icon: <EditNoteIcon className="w-4 h-4 text-indigo-500" />, path: "/configform" },
     { text: "Config Advisor", icon: <ManageAccountsIcon className="w-4 h-4 text-pink-500" />, path: "/configadvisor" },
