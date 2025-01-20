@@ -1,6 +1,8 @@
 "use client";
-import { fetchAdminConfig } from "@/utils/airtableConfigAdmin";
+import { AllProgram } from "@/models/AllPrograms";
+import getAllProgram from "@/utils/getAllProgram";
 import React, { useEffect, useState } from "react";
+import Select from "react-select"; // Importing react-select
 
 type Admin = {
   id: number;
@@ -11,32 +13,44 @@ type Admin = {
 export default function AdminManagePage(): JSX.Element {
   const [admins, setAdmins] = useState<Admin[]>([]);
   const [email, setEmail] = useState<string>("");
-  const [program, setProgram] = useState<string>("Program 1");
+  const [programs, setPrograms] = useState<AllProgram[]>([]); // To hold the programs fetched from API
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedAdmin, setSelectedAdmin] = useState<Admin | null>(null);
+  const [selectedPrograms, setSelectedPrograms] = useState<any[]>([]); // To store selected programs
 
+  // Fetching admin data (mock data used here)
   useEffect(() => {
-    async function loadData() {
-      const data = await fetchAdminConfig();
-      setAdmins(data);
-    }
-    loadData();
+    setAdmins([
+      { id: 1, email: "admin1@cmu.ac.th", program: "Program 1" },
+      { id: 2, email: "admin2@cmu.ac.th", program: "Program 2" },
+    ]);
   }, []);
 
-  const handleAddAdmin = async () => {
-    if (email && program) {
+  // Fetch programs when the page loads (not only when the modal opens)
+  useEffect(() => {
+    const fetchPrograms = async () => {
       try {
-        await addAdminConfig(email, program);
+        const programData = await getAllProgram(); // Call your imported getAllProgram API function
+        setPrograms(programData);
+      } catch (error) {
+        console.error("Error fetching programs:", error);
+      }
+    };
+
+    fetchPrograms();
+  }, []); // This runs once when the component mounts
+
+  const handleAddAdmin = () => {
+    if (email && selectedPrograms.length > 0) {
+      selectedPrograms.forEach((program: any) => {
         setAdmins([
           ...admins,
-          { id: admins.length + 1, email, program },
+          { id: admins.length + 1, email, program: program.label },
         ]);
-        setEmail("");
-        setProgram("Program 1");
-        setIsModalOpen(false);
-      } catch (error) {
-        console.error("Failed to add admin:", error);
-      }
+      });
+      setEmail("");
+      setSelectedPrograms([]);
+      setIsModalOpen(false);
     }
   };
 
@@ -44,14 +58,10 @@ export default function AdminManagePage(): JSX.Element {
     setSelectedAdmin(admin);
   };
 
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = () => {
     if (selectedAdmin) {
-      try {
-        setAdmins(admins.filter((admin) => admin.id !== selectedAdmin.id));
-        setSelectedAdmin(null);
-      } catch (error) {
-        console.error("Failed to delete admin:", error);
-      }
+      setAdmins(admins.filter((admin) => admin.id !== selectedAdmin.id));
+      setSelectedAdmin(null);
     }
   };
 
@@ -136,15 +146,16 @@ export default function AdminManagePage(): JSX.Element {
                 />
               </div>
               <div className="mb-4">
-                <select
-                  value={program}
-                  onChange={(e) => setProgram(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-800 text-sm"
-                >
-                  <option>Program 1</option>
-                  <option>Program 2</option>
-                  <option>Program 3</option>
-                </select>
+                <Select
+                  isMulti
+                  value={selectedPrograms}
+                  // onChange={setSelectedPrograms}
+                  options={programs.map((program) => ({
+                    value: program.id,
+                    label: program.major_name,
+                  }))}
+                  className="w-full"
+                />
               </div>
               <div className="flex justify-end">
                 <button
@@ -229,8 +240,4 @@ export default function AdminManagePage(): JSX.Element {
       )}
     </div>
   );
-}
-
-function addAdminConfig(email: string, program: string) {
-  throw new Error("Function not implemented.");
 }
