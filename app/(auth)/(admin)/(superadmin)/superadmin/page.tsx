@@ -2,7 +2,7 @@
 import { AllProgram } from "@/models/AllPrograms";
 import getAllProgram from "@/utils/getAllProgram";
 import React, { useEffect, useState } from "react";
-import Select from "react-select"; // Importing react-select
+import Select, { MultiValue } from "react-select"; // Importing MultiValue from react-select
 
 type Admin = {
   id: number;
@@ -16,7 +16,7 @@ export default function AdminManagePage(): JSX.Element {
   const [programs, setPrograms] = useState<AllProgram[]>([]); // To hold the programs fetched from API
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedAdmin, setSelectedAdmin] = useState<Admin | null>(null);
-  const [selectedPrograms, setSelectedPrograms] = useState<any[]>([]); // To store selected programs
+  const [selectedPrograms, setSelectedPrograms] = useState<MultiValue<any>>([]); // Correct type for selected programs
 
   // Fetching admin data (mock data used here)
   useEffect(() => {
@@ -49,7 +49,7 @@ export default function AdminManagePage(): JSX.Element {
         ]);
       });
       setEmail("");
-      setSelectedPrograms([]);
+      setSelectedPrograms([]); // Clear the selected programs after adding
       setIsModalOpen(false);
     }
   };
@@ -149,10 +149,12 @@ export default function AdminManagePage(): JSX.Element {
                 <Select
                   isMulti
                   value={selectedPrograms}
-                  // onChange={setSelectedPrograms}
+                  onChange={(newSelectedPrograms: MultiValue<any>) =>
+                    setSelectedPrograms(newSelectedPrograms)
+                  } // Correctly set selected programs
                   options={programs.map((program) => ({
                     value: program.id,
-                    label: program.major_name,
+                    label: program.program_name_en,
                   }))}
                   className="w-full"
                 />
