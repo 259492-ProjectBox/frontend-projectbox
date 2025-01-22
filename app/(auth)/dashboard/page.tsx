@@ -25,8 +25,7 @@ function Dashboard() {
   useEffect(() => {
     const loadProjects = async () => {
       try {
-        const records = await getProjectByStudentId("640610306"); // Replace with the desired student ID
-        console.log("API Response:", records);
+        const records = await getProjectByStudentId("640610304"); // Replace with the desired student ID
         setProjects(records || []);
       } catch (error) {
         console.error("Error fetching projects:", error);
@@ -180,13 +179,13 @@ function Dashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <LimitedList
                 items={project.members.map((member) => ({
-                  name: `${member.prefix} ${member.first_name} ${member.last_name} (${member.id})`,
+                  name: ` ${member.first_name} ${member.last_name} (${member.id})`,
                 }))}
                 title="Members"
               />
               <LimitedList
-                items={project.employees.map((employee) => ({
-                  name: `${employee.prefix} ${employee.first_name} ${employee.last_name}`,
+                items={project.staffs.map((staff) => ({
+                  name: `${staff.prefix} ${staff.first_name} ${staff.last_name}`,
                 }))}
                 title="Advisor"
               />

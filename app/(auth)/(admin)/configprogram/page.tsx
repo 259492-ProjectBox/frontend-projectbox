@@ -2,7 +2,7 @@
 import CloudUpload from "@/public/Svg/CloudUpload";
 import React, { useState } from "react";
 
-export default function ConfigAssets() {
+export default function ConfigProgram() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUploadMode, setIsUploadMode] = useState(true); // Toggle between Upload and Paste Link modes
 
@@ -23,10 +23,9 @@ export default function ConfigAssets() {
         <h1 className="text-lg font-semibold text-gray-800 mb-3">Config Program</h1>
         <p className="text-gray-600 mb-6">
           ฟีเจอร์ที่ใช้สำหรับเก็บรวบรวมทรัพยากรสำคัญ เช่น Report Template, Course Syllabus และเกณฑ์การให้คะแนน 
-          เพื่อให้นักศึกษาสามารถนำไปใช้เป็นต้นแบบหรือแนวทางได้อย่างสะดวก
+          เพื่อให้นักศึกษาสามารถนำไปใช้เป็นต้นแบบหรือแนวทางได้อย่างสะดวกfffff
         </p>
       </div>
-
 
       {/* Modal */}
       {isModalOpen && (
