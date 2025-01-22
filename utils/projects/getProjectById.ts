@@ -4,7 +4,7 @@ import { Project } from "@/models/Project";
 const getProjectById = async (projectId: number): Promise<Project> => {
   try {
     const response = await axios.get<Project>(
-      `https://project-service.kunmhing.me/projects/${projectId}`,
+      `project-service.kunmhing.me/api/v1/projects/${projectId}`,
       {
         headers: { Accept: "application/json" },
       }

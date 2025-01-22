@@ -1,4 +1,5 @@
 export interface AllProgram {
     id: number;
-    major_name: string;
+    program_name_th: string;
+    program_name_en: string;
   }

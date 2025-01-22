@@ -53,7 +53,7 @@ export default function AdvisorProfilePage() {
                 <span className="font-medium">Email:</span> {advisor.email}
               </p>
               <p className="text-sm">
-                <span className="font-medium">Major ID:</span> {advisor.major_id}
+                <span className="font-medium">Major ID:</span> {advisor.program_id}
               </p>
             </div>
           ) : (
@@ -85,18 +85,6 @@ export default function AdvisorProfilePage() {
                     <p className="text-sm text-gray-600">
                       <strong>Academic Year:</strong> {project.academic_year}, 
                       <strong> Semester:</strong> {project.semester}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      <strong>Approved:</strong>{" "}
-                      <span
-                        className={
-                          project.is_approved
-                            ? "text-green-600 font-bold"
-                            : "text-red-600 font-bold"
-                        }
-                      >
-                        {project.is_approved ? "Yes" : "No"}
-                      </span>
                     </p>
                     <p className="text-sm text-gray-600">
                       <strong>Created At:</strong>{" "}

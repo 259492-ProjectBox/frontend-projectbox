@@ -1,15 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import getEmployeeByMajorId from "@/utils/advisorstats/getEmployeebyMajorId";
+import getEmployeeByMajorId from "@/utils/advisorstats/getEmployeebyProgramId";
 import { Advisor } from "@/models/Advisor"; // Import the Advisor interface
 import Spinner from "@/components/Spinner"; // Import the Spinner component
 import Link from "next/link"; // Import Link for navigation
 import getAllProgram from "@/utils/getAllProgram";
+import { AllProgram } from "@/models/AllPrograms";
 
 export default function AdvisorStatsPage() {
-  const [advisors, setAdvisors] = useState<Advisor[]>([]);
-  const [filteredAdvisors, setFilteredAdvisors] = useState<Advisor[]>([]);
+  const [advisors, setAdvisors] = useState<Advisor[]>([]); // Default to empty array
+  const [filteredAdvisors, setFilteredAdvisors] = useState<Advisor[]>([]); // Default to empty array
   const [searchTerm, setSearchTerm] = useState<string>(""); // Search term state
   const [loading, setLoading] = useState<boolean>(true);
   const [majorList, setMajorList] = useState<AllProgram[]>([]); // Store major list
@@ -21,7 +22,7 @@ export default function AdvisorStatsPage() {
         const programData = await getAllProgram(); // Fetch all programs
         setMajorList(programData);
 
-        const data = await getEmployeeByMajorId(selectedMajor || 1); // Default to major id 1 if not selected
+        const data = await getEmployeeByMajorId(selectedMajor || 2); // Default to major id 1 if not selected
         setAdvisors(data);
         setFilteredAdvisors(data); // Initialize filtered data
       } catch (error) {
@@ -34,8 +35,9 @@ export default function AdvisorStatsPage() {
     fetchData();
   }, [selectedMajor]); // Run fetchData when selectedMajor changes
 
-  // Filter advisors based on search term
-  useEffect(() => {
+// Filter advisors based on search term
+useEffect(() => {
+  if (advisors && advisors.length > 0) {  // Make sure advisors is not null and has data
     const lowerCaseSearchTerm = searchTerm.toLowerCase();
     setFilteredAdvisors(
       advisors.filter(
@@ -45,7 +47,9 @@ export default function AdvisorStatsPage() {
           advisor.email.toLowerCase().includes(lowerCaseSearchTerm)
       )
     );
-  }, [searchTerm, advisors]);
+  }
+}, [searchTerm, advisors]);
+
 
   const handleMajorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedMajor(Number(event.target.value));
@@ -68,7 +72,7 @@ export default function AdvisorStatsPage() {
             <option value="">All Majors</option>
             {majorList.map((program) => (
               <option key={program.id} value={program.id}>
-                {program.major_name}
+                {program.program_name_en}
               </option>
             ))}
           </select>
@@ -104,6 +108,8 @@ export default function AdvisorStatsPage() {
 
         {loading ? (
           <Spinner /> // Display spinner while loading
+        ) : filteredAdvisors?.length === 0 ? (
+          <div className="text-center text-gray-500">No advisors found.</div>
         ) : (
           <table className="w-full text-sm text-left text-gray-500 rounded-lg">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50">
@@ -115,7 +121,7 @@ export default function AdvisorStatsPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredAdvisors.map((advisor) => (
+              {filteredAdvisors?.map((advisor) => (
                 <tr key={advisor.id} className="bg-white border-b hover:bg-gray-50">
                   <th
                     scope="row"
@@ -139,13 +145,6 @@ export default function AdvisorStatsPage() {
                   <td className="px-6 py-4">{advisor.program ?? "N/A"}</td>  */}
                 </tr>
               ))}
-              {filteredAdvisors.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
-                    No advisors found.
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
         )}
