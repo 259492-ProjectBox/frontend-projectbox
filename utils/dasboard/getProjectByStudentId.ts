@@ -5,11 +5,13 @@ import { Project } from "@/models/Project";
 const getProjectByStudentId = async (studentId: string): Promise<Project[]> => {
   try {
     const response = await axios.get<Project[]>(
-      `https://project-service.kunmhing.me/projects/student/${studentId}`,
+      `https://project-service.kunmhing.me/api/v1/projects/student/${studentId}`,
       {
         headers: { Accept: "application/json" },
       }
     );
+    console.log(`getProjectByStudentId ${studentId}:`, response.data);
+
     return response.data;
   } catch (error) {
     console.error("Error fetching project data:", error);
