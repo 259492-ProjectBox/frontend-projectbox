@@ -50,7 +50,7 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
               </p>
             )}
             <p>
-              <strong className="text-gray-700">Major:</strong> {project.course?.major?.major_name || "No Data"}
+              <strong className="text-gray-700">Major:</strong> {project.course?.program?.program_name_en || "No Data"}
             </p>
             <p>
               <strong className="text-gray-700">Course:</strong> {project.course?.course_no || "No Data"} -{" "}
@@ -71,9 +71,9 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
         {/* Advisor Section */}
         <div className="border-b pb-6">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Advisor</h2>
-          {project.employees.length > 0 ? (
+          {project.staffs.length > 0 ? (
             <ul className="space-y-4">
-              {project.employees.map((advisor) => (
+              {project.staffs.map((advisor) => (
                 <li key={advisor.id} className="flex items-center space-x-4">
                   <img
                     src="https://www.w3schools.com/w3images/avatar2.png"
@@ -108,7 +108,7 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
                   />
                   <div>
                     <p className="font-semibold text-gray-800">
-                      {member.id} - {member.prefix} {member.first_name} {member.last_name}
+                      {member.id} -  {member.first_name} {member.last_name}
                     </p>
                   </div>
                 </li>
