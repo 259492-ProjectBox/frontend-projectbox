@@ -2,8 +2,9 @@
 import React, { useEffect, useState } from "react";
 import { Advisor } from "@/models/Advisor";
 import Spinner from "@/components/Spinner";
-import postCreateAdvisor from "@/utils/configadvisor/postCreateAdvisor";
-import getEmployeeByMajorId from "@/utils/advisorstats/getEmployeebyMajorId";
+import postCreateEmployee from "@/utils/configemployee/postCreateEmployee";
+import getEmployeeByMajorId from "@/utils/advisorstats/getEmployeebyProgramId";
+import putUpdateEmployee from "@/utils/configemployee/putEditEmployee";
 
 export default function ConfigAdvisorPage() {
   const [advisors, setAdvisors] = useState<Advisor[]>([]);
@@ -56,7 +57,7 @@ export default function ConfigAdvisorPage() {
   const handleSaveAdvisor = async () => {
     try {
       if (isEditMode && selectedAdvisor) {
-        // Update logic (assuming you have a function to update an advisor)
+        // Update logic
         const updatedAdvisor = {
           ...selectedAdvisor,
           prefix,
@@ -64,9 +65,10 @@ export default function ConfigAdvisorPage() {
           last_name: lastName,
           email,
         };
+        const updatedEmployee = await putUpdateEmployee(updatedAdvisor); // Send PUT request for update
         setAdvisors((prev) =>
           prev.map((advisor) =>
-            advisor.id === selectedAdvisor.id ? updatedAdvisor : advisor
+            advisor.id === selectedAdvisor.id ? updatedEmployee : advisor
           )
         );
         alert("Advisor updated successfully!");
@@ -77,9 +79,9 @@ export default function ConfigAdvisorPage() {
           first_name: firstName,
           last_name: lastName,
           email,
-          major_id: 1,
+          program_id: 1,
         };
-        const newAdvisor = await postCreateAdvisor(newAdvisorPayload);
+        const newAdvisor = await postCreateEmployee(newAdvisorPayload);
         setAdvisors((prev) => [...prev, newAdvisor]);
         alert("Advisor created successfully!");
       }
@@ -87,22 +89,6 @@ export default function ConfigAdvisorPage() {
     } catch (err) {
       console.error("Error saving advisor:", err);
       alert("Failed to save advisor.");
-    }
-  };
-
-  const handleDeleteAdvisor = async () => {
-    try {
-      if (selectedAdvisor) {
-        // Assuming you have a function to delete an advisor
-        setAdvisors((prev) =>
-          prev.filter((advisor) => advisor.id !== selectedAdvisor.id)
-        );
-        alert("Advisor deleted successfully!");
-        setIsModalOpen(false);
-      }
-    } catch (err) {
-      console.error("Error deleting advisor:", err);
-      alert("Failed to delete advisor.");
     }
   };
 
@@ -124,7 +110,7 @@ export default function ConfigAdvisorPage() {
             Config Advisor
           </h1>
           <button
-            onClick={() => handleOpenModal()} 
+            onClick={() => handleOpenModal()}
             className="px-4 py-2 bg-red-700 text-white font-medium rounded hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-900"
           >
             Add Advisor
@@ -138,43 +124,67 @@ export default function ConfigAdvisorPage() {
               <h2 className="text-lg font-semibold text-gray-800 mb-4">
                 {isEditMode ? "Edit Advisor" : "Add New Advisor"}
               </h2>
-              <input
-                type="text"
-                placeholder="ตำแหน่ง"
-                value={prefix}
-                onChange={(e) => setPrefix(e.target.value)}
-                className="w-full px-3 py-2 mb-3 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent"
-              />
-              <input
-                type="text"
-                placeholder="First Name"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                className="w-full px-3 py-2 mb-3 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent"
-              />
-              <input
-                type="text"
-                placeholder="Last Name"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                className="w-full px-3 py-2 mb-3 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent"
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 mb-3 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent"
-              />
+              <div className="mb-3">
+                <label
+                  htmlFor="prefix"
+                  className="text-sm text-gray-700 block mb-1"
+                >
+                  ตำแหน่ง
+                </label>
+                <input
+                  id="prefix"
+                  type="text"
+                  value={prefix}
+                  onChange={(e) => setPrefix(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent"
+                />
+              </div>
+              <div className="mb-3">
+                <label
+                  htmlFor="firstName"
+                  className="text-sm text-gray-700 block mb-1"
+                >
+                  First Name
+                </label>
+                <input
+                  id="firstName"
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent"
+                />
+              </div>
+              <div className="mb-3">
+                <label
+                  htmlFor="lastName"
+                  className="text-sm text-gray-700 block mb-1"
+                >
+                  Last Name
+                </label>
+                <input
+                  id="lastName"
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent"
+                />
+              </div>
+              <div className="mb-3">
+                <label
+                  htmlFor="email"
+                  className="text-sm text-gray-700 block mb-1"
+                >
+                  Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent"
+                />
+              </div>
               <div className="flex justify-end gap-2">
-                {isEditMode && (
-                  <button
-                    onClick={handleDeleteAdvisor}
-                    className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                  >
-                    Delete
-                  </button>
-                )}
                 <button
                   onClick={() => setIsModalOpen(false)}
                   className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
@@ -206,9 +216,6 @@ export default function ConfigAdvisorPage() {
                 <th scope="col" className="px-6 py-3">
                   Email
                 </th>
-                <th scope="col" className="px-6 py-3">
-                  Number of Projects
-                </th>
                 <th scope="col" className="px-3 py-3 text-center w-24">
                   Action
                 </th>
@@ -227,7 +234,6 @@ export default function ConfigAdvisorPage() {
                     {item.prefix} {item.first_name} {item.last_name}
                   </td>
                   <td className="px-6 py-4">{item.email}</td>
-                  <td className="px-6 py-4">-</td> {/* Blank project count */}
                   <td className="px-3 py-4 text-center">
                     <button
                       onClick={() => handleOpenModal(item)}
