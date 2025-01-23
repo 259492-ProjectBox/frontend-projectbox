@@ -7,6 +7,7 @@ import Spinner from "@/components/Spinner"; // Import the Spinner component
 import Link from "next/link"; // Import Link for navigation
 import getAllProgram from "@/utils/getAllProgram";
 import { AllProgram } from "@/models/AllPrograms";
+import getAllEmployees from "@/utils/advisorstats/getAllEmployee"; // Import the getAllEmployees function
 
 export default function AdvisorStatsPage() {
   const [advisors, setAdvisors] = useState<Advisor[]>([]); // Default to empty array
@@ -22,7 +23,14 @@ export default function AdvisorStatsPage() {
         const programData = await getAllProgram(); // Fetch all programs
         setMajorList(programData);
 
-        const data = await getEmployeeByMajorId(selectedMajor || 2); // Default to major id 1 if not selected
+        // Fetch all employees by default or by selected major
+        let data: Advisor[];
+        if (selectedMajor) {
+          data = await getEmployeeByMajorId(selectedMajor); // Fetch employees by major
+        } else {
+          data = await getAllEmployees(); // Fetch all employees if no major selected
+        }
+
         setAdvisors(data);
         setFilteredAdvisors(data); // Initialize filtered data
       } catch (error) {
@@ -35,24 +43,24 @@ export default function AdvisorStatsPage() {
     fetchData();
   }, [selectedMajor]); // Run fetchData when selectedMajor changes
 
-// Filter advisors based on search term
-useEffect(() => {
-  if (advisors && advisors.length > 0) {  // Make sure advisors is not null and has data
-    const lowerCaseSearchTerm = searchTerm.toLowerCase();
-    setFilteredAdvisors(
-      advisors.filter(
-        (advisor) =>
-          advisor.first_name.toLowerCase().includes(lowerCaseSearchTerm) ||
-          advisor.last_name.toLowerCase().includes(lowerCaseSearchTerm) ||
-          advisor.email.toLowerCase().includes(lowerCaseSearchTerm)
-      )
-    );
-  }
-}, [searchTerm, advisors]);
-
+  // Filter advisors based on search term
+  useEffect(() => {
+    if (advisors && advisors.length > 0) {
+      // Make sure advisors is not null and has data
+      const lowerCaseSearchTerm = searchTerm.toLowerCase();
+      setFilteredAdvisors(
+        advisors.filter(
+          (advisor) =>
+            advisor.first_name.toLowerCase().includes(lowerCaseSearchTerm) ||
+            advisor.last_name.toLowerCase().includes(lowerCaseSearchTerm) ||
+            advisor.email.toLowerCase().includes(lowerCaseSearchTerm)
+        )
+      );
+    }
+  }, [searchTerm, advisors]);
 
   const handleMajorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedMajor(Number(event.target.value));
+    setSelectedMajor(Number(event.target.value)); // Set selected major
   };
 
   return (
@@ -114,15 +122,27 @@ useEffect(() => {
           <table className="w-full text-sm text-left text-gray-500 rounded-lg">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50">
               <tr>
-                <th scope="col" className="px-6 py-3">Name</th>
-                <th scope="col" className="px-6 py-3">Email</th>
-                <th scope="col" className="px-6 py-3">Program</th>
-                <th scope="col" className="px-6 py-3">Count</th>
+                <th scope="col" className="px-6 py-3">
+                  Name
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Email
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Program
+                </th>{" "}
+                {/* Updated this column to show program name */}
+                <th scope="col" className="px-6 py-3">
+                  Count
+                </th>
               </tr>
             </thead>
             <tbody>
               {filteredAdvisors?.map((advisor) => (
-                <tr key={advisor.id} className="bg-white border-b hover:bg-gray-50">
+                <tr
+                  key={advisor.id}
+                  className="bg-white border-b hover:bg-gray-50"
+                >
                   <th
                     scope="row"
                     className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap"
@@ -135,14 +155,19 @@ useEffect(() => {
                     <div className="pl-3">
                       <Link href={`/advisorprofile/${advisor.id}`}>
                         <span className="text-base font-semibold text-red-700 hover:underline cursor-pointer">
-                          {advisor.prefix} {advisor.first_name} {advisor.last_name}
+                          {advisor.prefix} {advisor.first_name}{" "}
+                          {advisor.last_name}
                         </span>
                       </Link>
                     </div>
                   </th>
                   <td className="px-6 py-4">{advisor.email}</td>
-                  {/* <td className="px-6 py-4">{advisor.count ?? "N/A"}</td> 
-                  <td className="px-6 py-4">{advisor.program ?? "N/A"}</td>  */}
+                  <td className="px-6 py-4">
+                    {majorList.find(
+                      (program) => program.id === advisor.program_id
+                    )?.program_name_en ?? "N/A"}
+                  </td>{" "}
+                  {/* Displaying program name */}
                 </tr>
               ))}
             </tbody>
