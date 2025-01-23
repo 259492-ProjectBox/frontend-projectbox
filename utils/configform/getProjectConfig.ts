@@ -4,7 +4,7 @@ const getProjectConfig = async (majorId: number): Promise<any[]> => {
     if (!response.ok) {
       throw new Error(`Failed to fetch project config: ${response.statusText}`);
     }
-    console.log("ProjectConfig:",response.json)
+    console.log("ProjectConfig:",response)
     return await response.json();
   } catch (error) {
     console.error('Error fetching project config:', error);

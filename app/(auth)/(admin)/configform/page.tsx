@@ -15,7 +15,7 @@ const CreateProject: React.FC = () => {
   const fetchConfig = async () => {
     try {
       setLoading(true);
-      const data: ProjectConfig[] = await getProjectConfig(1); // Fetch project config for major ID 1
+      const data: ProjectConfig[] = await getProjectConfig(2); // Fetch project config for major ID 1
 
       // Map API response to formData
       const initialFormData = data.reduce((acc: Record<string, boolean>, item: ProjectConfig) => {
@@ -77,24 +77,8 @@ const CreateProject: React.FC = () => {
 
         {/* Section 2: Advisor */}
         <Section
-          title="Advisor"
-          fields={["advisor"]}
-          formData={formData}
-          onToggle={handleToggleChange}
-        />
-
-        {/* Section 3: Committee */}
-        <Section
-          title="Committee"
-          fields={["committee"]}
-          formData={formData}
-          onToggle={handleToggleChange}
-        />
-
-        {/* Section 4: Student */}
-        <Section
-          title="Student"
-          fields={["student"]}
+          title="Members"
+          fields={["advisor","co-advisor","external-committee","committee","student"]}
           formData={formData}
           onToggle={handleToggleChange}
         />
