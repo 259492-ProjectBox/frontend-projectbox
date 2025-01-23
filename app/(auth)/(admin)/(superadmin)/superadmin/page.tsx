@@ -115,7 +115,7 @@ export default function AdminManagePage(): JSX.Element {
           </h1>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="px-4 py-2 bg-red-700 text-white font-medium rounded hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-900 text-sm"
+            className="bg-white text-blue-700 font-bold px-6 py-2 rounded shadow-md hover:bg-gray-100 focus:outline-none flex items-center gap-2"
           >
             Add Admin
           </button>
@@ -128,7 +128,7 @@ export default function AdminManagePage(): JSX.Element {
                 <th scope="col" className="px-6 py-3">ID</th>
                 <th scope="col" className="px-6 py-3">CMU Account</th>
                 <th scope="col" className="px-6 py-3">Program</th>
-                <th scope="col" className="px-3 py-3 text-center w-24">Action</th>
+                {/* <th scope="col" className="px-3 py-3 text-center w-24">Action</th> */}
               </tr>
             </thead>
             <tbody>
@@ -137,14 +137,14 @@ export default function AdminManagePage(): JSX.Element {
                   <td className="px-6 py-4 font-medium text-gray-900">{item.id}</td>
                   <td className="px-6 py-4 font-medium text-gray-900">{item.email}</td>
                   <td className="px-6 py-4 font-medium text-gray-900">{item.program}</td>
-                  <td className="px-3 py-4 text-center">
+                  {/* <td className="px-3 py-4 text-center">
                     <button
                       className="text-red-600 hover:underline"
                       onClick={() => handleDeleteClick(item)}
                     >
                       Delete
                     </button>
-                  </td>
+                  </td> */}
                 </tr>
               ))}
             </tbody>
@@ -158,7 +158,7 @@ export default function AdminManagePage(): JSX.Element {
           <h1 className="text-lg font-semibold text-gray-800">Manage Program</h1>
           <button
             onClick={() => setIsProgramModalOpen(true)}
-            className="px-4 py-2 bg-green-700 text-white font-medium rounded hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-900 text-sm"
+            className="bg-white text-blue-700 font-bold px-6 py-2 rounded shadow-md hover:bg-gray-100 focus:outline-none flex items-center gap-2"
           >
             Add Program
           </button>
@@ -171,7 +171,7 @@ export default function AdminManagePage(): JSX.Element {
                 <th scope="col" className="px-6 py-3">ID</th>
                 <th scope="col" className="px-6 py-3">Program Name En</th>
                 <th scope="col" className="px-6 py-3">Program Name Th</th>
-                <th scope="col" className="px-3 py-3 text-center w-24">Action</th>
+                {/* <th scope="col" className="px-3 py-3 text-center w-24">Action</th> */}
               </tr>
             </thead>
             <tbody>
@@ -180,14 +180,14 @@ export default function AdminManagePage(): JSX.Element {
                   <td className="px-6 py-4 font-medium text-gray-900">{program.id}</td>
                   <td className="px-6 py-4 font-medium text-gray-900">{program.program_name_en}</td>
                   <td className="px-6 py-4 font-medium text-gray-900">{program.program_name_th}</td>
-                  <td className="px-3 py-4 text-center">
+                  {/* <td className="px-3 py-4 text-center">
                     <button
                       className="text-red-600 hover:underline"
                       onClick={() => handleDeleteProgram(program.id)}
                     >
                       Delete
                     </button>
-                  </td>
+                  </td> */}
                 </tr>
               ))}
             </tbody>
@@ -207,7 +207,7 @@ export default function AdminManagePage(): JSX.Element {
                   placeholder="CMU Account"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-800 text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-800 text-sm"
                 />
               </div>
               <div className="mb-4">
@@ -227,7 +227,7 @@ export default function AdminManagePage(): JSX.Element {
               <div className="flex justify-end">
                 <button
                   onClick={handleAddAdmin}
-                  className="px-4 py-2 bg-red-600 text-white font-medium rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-900 text-sm"
+                  className="px-4 py-2 bg-blue-600 text-white font-medium rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-900 text-sm"
                 >
                   Add
                 </button>
@@ -255,7 +255,7 @@ export default function AdminManagePage(): JSX.Element {
                   placeholder="Program Name (En)"
                   value={newProgramEn}
                   onChange={(e) => setNewProgramEn(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-800 text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-800 text-sm"
                 />
               </div>
               <div className="mb-4">
@@ -264,13 +264,13 @@ export default function AdminManagePage(): JSX.Element {
                   placeholder="Program Name (Th)"
                   value={newProgramTh}
                   onChange={(e) => setNewProgramTh(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-800 text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-800 text-sm"
                 />
               </div>
               <div className="flex justify-end">
                 <button
                   onClick={handleAddProgram}
-                  className="px-4 py-2 bg-green-600 text-white font-medium rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-900 text-sm"
+                  className="px-4 py-2 bg-blue-600 text-white font-medium rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-900 text-sm"
                 >
                   Add
                 </button>
