@@ -45,7 +45,8 @@ export default function AdvisorStatsPage() {
 
   // Filter advisors based on search term
   useEffect(() => {
-    if (advisors && advisors.length > 0) {  // Make sure advisors is not null and has data
+    if (advisors && advisors.length > 0) {
+      // Make sure advisors is not null and has data
       const lowerCaseSearchTerm = searchTerm.toLowerCase();
       setFilteredAdvisors(
         advisors.filter(
@@ -121,15 +122,27 @@ export default function AdvisorStatsPage() {
           <table className="w-full text-sm text-left text-gray-500 rounded-lg">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50">
               <tr>
-                <th scope="col" className="px-6 py-3">Name</th>
-                <th scope="col" className="px-6 py-3">Email</th>
-                <th scope="col" className="px-6 py-3">Program</th> {/* Updated this column to show program name */}
-                <th scope="col" className="px-6 py-3">Count</th>
+                <th scope="col" className="px-6 py-3">
+                  Name
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Email
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Program
+                </th>{" "}
+                {/* Updated this column to show program name */}
+                <th scope="col" className="px-6 py-3">
+                  Count
+                </th>
               </tr>
             </thead>
             <tbody>
               {filteredAdvisors?.map((advisor) => (
-                <tr key={advisor.id} className="bg-white border-b hover:bg-gray-50">
+                <tr
+                  key={advisor.id}
+                  className="bg-white border-b hover:bg-gray-50"
+                >
                   <th
                     scope="row"
                     className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap"
@@ -142,13 +155,19 @@ export default function AdvisorStatsPage() {
                     <div className="pl-3">
                       <Link href={`/advisorprofile/${advisor.id}`}>
                         <span className="text-base font-semibold text-red-700 hover:underline cursor-pointer">
-                          {advisor.prefix} {advisor.first_name} {advisor.last_name}
+                          {advisor.prefix} {advisor.first_name}{" "}
+                          {advisor.last_name}
                         </span>
                       </Link>
                     </div>
                   </th>
                   <td className="px-6 py-4">{advisor.email}</td>
-                  <td className="px-6 py-4">{advisor.program_id ?? "N/A"}</td> {/* Displaying program name */}
+                  <td className="px-6 py-4">
+                    {majorList.find(
+                      (program) => program.id === advisor.program_id
+                    )?.program_name_en ?? "N/A"}
+                  </td>{" "}
+                  {/* Displaying program name */}
                 </tr>
               ))}
             </tbody>
