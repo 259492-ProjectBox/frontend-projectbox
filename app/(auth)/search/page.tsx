@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { fetchRecords } from "@/utils/airtable";
 import SearchControls from "@/components/searchType/SearchControls";
-import PDFSearchControls from "@/components/searchType/PDFSearchControls";
+// import PDFSearchControls from "@/components/searchType/PDFSearchControls";
 import DetailedSearchControls from "@/components/searchType/DetailedSearchControls";
+import Spinner from "@/components/Spinner";
 
 const SearchPage = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -100,9 +101,9 @@ const SearchPage = () => {
     );
   };
 
-  // if (loading) {
-  //   return <div>Loading records...</div>;
-  // }
+  if (loading) {
+    return <Spinner/>
+  }
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-stone-100">

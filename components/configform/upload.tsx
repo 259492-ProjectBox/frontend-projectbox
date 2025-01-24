@@ -2,6 +2,7 @@ import { fetchProjectResourceConfigs } from "@/utils/configform/getProjectResour
 import updateResourceStatus from "@/utils/configform/updateProjectResourceConfig";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Image from "next/image";
 
 // API controller for creating a project resource
 const createProjectResource = async (data: {
@@ -27,7 +28,7 @@ const createProjectResource = async (data: {
 };
 
 const UploadResourceSection: React.FC = () => {
-  const [formData, setFormData] = useState<Record<string, boolean>>({});
+  // const [formData, setFormData] = useState<Record<string, boolean>>({});
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [tableData, setTableData] = useState<any[]>([]); // State to hold fetched table data
 
@@ -38,7 +39,7 @@ const UploadResourceSection: React.FC = () => {
   // Fetch data using the controller
   const fetchData = async () => {
     try {
-      const data = await fetchProjectResourceConfigs(2); // Fetch data for programId 2
+      const data = await fetchProjectResourceConfigs(1); // Fetch data for programId 2
       setTableData(data); // Set table data from API response
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -107,6 +108,7 @@ const UploadResourceSection: React.FC = () => {
       closeModal(); // Close the modal after successful creation
       fetchData(); // Refresh table data after creation
     } catch (error) {
+      console.log(error);
       alert("Failed to create project resource. Please try again.");
     }
   };
@@ -135,11 +137,14 @@ const UploadResourceSection: React.FC = () => {
             {tableData.map((item: any, index: number) => (
               <tr key={index} className="border-b hover:bg-gray-100">
                 <td className="px-4 py-3">
-                  <img
-                    className="w-8 h-8 rounded-full"
-                    src="https://www.w3schools.com/w3images/avatar2.png"
-                    alt=""
-                  />
+                <Image
+  className="w-8 h-8 rounded-full"
+  src="/logo-engcmu/CMU_LOGO_Crop.jpg"
+  alt={""}
+  width={32}  // Specify width (in px)
+  height={32} // Specify height (in px)
+/>
+
                 </td>
                 <td className="px-4 py-3">{item.title}</td>
                 <td className="px-4 py-3">

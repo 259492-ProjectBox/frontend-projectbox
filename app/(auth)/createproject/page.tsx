@@ -6,6 +6,7 @@ import { fetchProjectResourceConfigs } from '@/utils/configform/getProjectResour
 import getAllEmployees from '@/utils/advisorstats/getAllEmployee';
 import { Advisor } from '@/models/Advisor';
 import Select from 'react-select'; // Import react-select
+import Image from "next/image";
 
 const CreateProject: React.FC = () => {
   const [formConfig, setFormConfig] = useState<any>({});
@@ -182,11 +183,13 @@ const CreateProject: React.FC = () => {
           <div className="flex items-center mb-4">
             {/* Show Icon in front of title */}
             {fileConfig.icon_name && (
-              <img
-                src={fileConfig.icon_name} // Assuming the icon is a URL or base64 data string
-                alt="file icon"
-                className="w-8 h-8 mr-4" // Adjust size as needed
-              />
+              <Image
+              className="w-8 h-8 rounded-full"
+              src="/logo-engcmu/CMU_LOGO_Crop.jpg"
+              alt={""}
+              width={32}  // Specify width (in px)
+              height={32} // Specify height (in px)
+            />
             )}
             <h6 className="text-lg font-bold">{fileConfig.title}</h6>
           </div>

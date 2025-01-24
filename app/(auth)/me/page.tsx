@@ -9,7 +9,7 @@ export default function MePage() {
 	const [studentId, setStudentId] = useState("");
 	const [errorMessage, setErrorMessage] = useState("");
 
-	const [major, setMajor] = useState("");
+	// const [major, setMajor] = useState("");
 	useEffect(() => {
 		//All cookies that belong to the current url will be sent with the request automatically
 		//so we don't have to attach token to the request
@@ -43,7 +43,7 @@ export default function MePage() {
 			<h1>Hi, {fullName}</h1>
 			<p>{cmuAccount}</p>
 			<p>{studentId}</p>
-			<p>{major}</p>
+			{/* <p>{major}</p> */}
 			<p className="text-danger">{errorMessage}</p>
 
 			<p className="text-muted fs-6">

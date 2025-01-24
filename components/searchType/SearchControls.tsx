@@ -1,6 +1,5 @@
 "use client";
-import React, { useState } from "react";
-import ExpandIcon from "@mui/icons-material/Expand";
+import React from "react";
 
 interface SearchControlsProps {
   searchTerm: string;

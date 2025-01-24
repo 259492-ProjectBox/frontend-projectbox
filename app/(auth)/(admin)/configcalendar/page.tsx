@@ -48,6 +48,7 @@
         start_date: event.start_date,
         end_date: event.end_date,
       });
+      console.log(errorMessage);
       setErrorMessage(null);
       setIsModalOpen(true);
     };
@@ -71,13 +72,20 @@
           setIsModalOpen(false);
           setEditEvent(null);
         }
-      } catch (error: any) {
-        setErrorMessage(error.response?.data?.error || "Failed to update event");
+      } catch (error: unknown) {
+        // Type guard: Check if error is an instance of Error
+        if (error instanceof Error && 'response' in error) {
+          setErrorMessage((error as any).response?.data?.error || "Failed to update event");
+        } else {
+          setErrorMessage("Failed to update event");
+        }
         console.error("Error updating event:", error);
       } finally {
         setLoading(false);
       }
     };
+    
+    
 
     const handleDeleteEvent = async (id: number) => {
       setLoading(true);
@@ -119,13 +127,21 @@
             end_date: "",
           });
         }
-      } catch (error: any) {
-        setErrorMessage(error.response?.data?.error || "Failed to create event");
+      } catch (error: unknown) {
+        // Type guard: Check if error is an instance of Error
+        if (error instanceof Error && 'response' in error) {
+          setErrorMessage((error as any).response?.data?.error || "Failed to create event");
+        } else {
+          setErrorMessage("Failed to create event");
+        }
         console.error("Error adding event:", error);
       } finally {
         setLoading(false);
       }
     };
+    
+    
+    
 
     if (loading) return <Spinner />;
 

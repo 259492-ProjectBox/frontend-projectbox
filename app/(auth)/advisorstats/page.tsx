@@ -8,6 +8,7 @@ import Link from "next/link"; // Import Link for navigation
 import getAllProgram from "@/utils/getAllProgram";
 import { AllProgram } from "@/models/AllPrograms";
 import getAllEmployees from "@/utils/advisorstats/getAllEmployee"; // Import the getAllEmployees function
+import Image from "next/image";
 
 export default function AdvisorStatsPage() {
   const [advisors, setAdvisors] = useState<Advisor[]>([]); // Default to empty array
@@ -147,10 +148,12 @@ export default function AdvisorStatsPage() {
                     scope="row"
                     className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap"
                   >
-                    <img
+                    <Image
                       className="w-8 h-8 rounded-full"
-                      src="https://www.w3schools.com/w3images/avatar2.png"
+                      src="/logo-engcmu/CMU_LOGO_Crop.jpg"
                       alt={advisor.first_name}
+                      width={32} // Specify width (in px)
+                      height={32} // Specify height (in px)
                     />
                     <div className="pl-3">
                       <Link href={`/advisorprofile/${advisor.id}`}>

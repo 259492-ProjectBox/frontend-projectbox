@@ -8,13 +8,7 @@ import LogoutButton from "./sidebar/LogoutButton";
 import PersonIcon from "@mui/icons-material/Person";
 import SearchIcon from "@mui/icons-material/Search";
 import GroupsIcon from "@mui/icons-material/Groups";
-import LogoutIcon from "@mui/icons-material/Logout";
-import InventoryIcon from "@mui/icons-material/Inventory";
-import EventIcon from "@mui/icons-material/Event";
-import SettingsIcon from "@mui/icons-material/Settings";
-import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import ChecklistRtlIcon from "@mui/icons-material/ChecklistRtl";
-import EditCalendarIcon from "@mui/icons-material/EditCalendar";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
@@ -35,7 +29,7 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
     { text: "Manage Program", icon: <ChecklistRtlIcon className="w-4 h-4 text-green-500" />, path: "/configprogram" },
     // { text: "Config Calendar", icon: <EditCalendarIcon className="w-4 h-4 text-yellow-500" />, path: "/configcalendar" },
     { text: "Managen Form", icon: <EditNoteIcon className="w-4 h-4 text-indigo-500" />, path: "/configform" },
-    { text: "Manage Employee", icon: <ManageAccountsIcon className="w-4 h-4 text-cyan-500" />, path: "/configemployee" },
+    { text: "Manage Staff", icon: <ManageAccountsIcon className="w-4 h-4 text-cyan-500" />, path: "/configemployee" },
     // { text: "Config Assets", icon: <SettingsIcon className="w-4 h-4 text-cyan-500" />, path: "/configassets" },
     // { text: "Admin Manage", icon: <SupervisorAccountIcon className="w-4 h-4 text-rose-500" />, path: "/adminmanage" },
   ];
