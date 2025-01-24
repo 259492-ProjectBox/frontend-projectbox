@@ -16,7 +16,7 @@ const CreateProject: React.FC = () => {
   const fetchConfig = async () => {
     try {
       setLoading(true);
-      const data: ProjectConfig[] = await getProjectConfig(2); // Fetch project config for major ID 2
+      const data: ProjectConfig[] = await getProjectConfig(1); // Fetch project config for major ID 2
 
       // Map API response to formData
       const initialFormData = data.reduce(
