@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import Spinner from '@/components/Spinner';
 import getProjectConfig from '@/utils/configform/getProjectConfig';
+import { fetchProjectResourceConfigs } from '@/utils/configform/getProjectResourceConfig';
 
 const CreateProject: React.FC = () => {
   const [formConfig, setFormConfig] = useState<any>({});
@@ -26,17 +27,26 @@ const CreateProject: React.FC = () => {
 
   const requiredFields: string[] = ['course_id', 'title_en', 'student', 'committee', 'report_pdf'];
 
+  // Fetch form configuration and project resource configs
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Fetch the form config from your existing getProjectConfig function
         const config = await getProjectConfig(2); // Replace '2' with the appropriate `majorId`
         const activeFields = config.reduce((acc, field) => {
           if (field.is_active) acc[field.title] = true;
           return acc;
         }, {});
         setFormConfig(activeFields);
+
+        // Fetch project resource configs using the new API function
+        const projectResourceConfigs = await fetchProjectResourceConfigs(2); // Replace with actual programId
+        setFormConfig((prevConfig: any) => ({
+          ...prevConfig,
+          report_pdf: projectResourceConfigs, // Assuming report_pdf is part of the API response
+        }));
       } catch (error) {
-        console.error('Error fetching form config:', error);
+        console.error('Error fetching form config or project resource configs:', error);
       } finally {
         setLoading(false);
       }
@@ -114,6 +124,59 @@ const CreateProject: React.FC = () => {
     }
   };
 
+  // Function to render file upload section based on API data
+  const renderFileUploadSections = () => {
+    const fileConfigs = formConfig['report_pdf'];
+
+    if (!fileConfigs || !Array.isArray(fileConfigs)) return null;
+
+    return fileConfigs.map((fileConfig: any) => {
+      // Only render if the item is active (is_active === true)
+      if (!fileConfig.is_active) return null;
+
+      return (
+        <div key={fileConfig.id} className="p-4 mb-4 rounded-lg border border-gray-300 bg-white">
+          <div className="flex items-center mb-4">
+            {/* Show Icon in front of title */}
+            {fileConfig.icon_name && (
+              <img
+                src={fileConfig.icon_name} // Assuming the icon is a URL or base64 data string
+                alt="file icon"
+                className="w-8 h-8 mr-4" // Adjust size as needed
+              />
+            )}
+            <h6 className="text-lg font-bold">{fileConfig.title}</h6>
+          </div>
+
+          {/* Show file upload or link input based on resource type */}
+          {fileConfig.resource_type.type_name === 'url' ? (
+            <div>
+              <label className="block text-sm font-semibold mb-2">Paste Link</label>
+              <input
+                type="text"
+                name={`file_link_${fileConfig.id}`}
+                value={formData[`file_link_${fileConfig.id}`] || ''}
+                onChange={handleInputChange}
+                className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-widwa"
+                placeholder="Paste the URL here"
+              />
+            </div>
+          ) : (
+            <div>
+              <label className="block text-sm font-semibold mb-2">Upload File</label>
+              <input
+                type="file"
+                name={`file_upload_${fileConfig.id}`}
+                onChange={(e) => handleFileChange(e, `file_upload_${fileConfig.id}`)}
+                className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-widwa"
+              />
+            </div>
+          )}
+        </div>
+      );
+    });
+  };
+
   if (loading) return <Spinner />;
 
   return (
@@ -137,18 +200,11 @@ const CreateProject: React.FC = () => {
           {renderFields(['student', 'advisor', 'co_advisor', 'committee', 'external_committee'])}
         </div>
 
-        {/* File Uploads Section */}
-        {formConfig['report_pdf'] && (
-          <div className="p-4 mb-4 rounded-lg border border-gray-300 bg-white">
-            <h6 className="text-lg font-bold mb-4">{labels['report_pdf']}</h6>
-            <input
-              type="file"
-              name="report_pdf"
-              onChange={(e) => handleFileChange(e, 'report_pdf')}
-              className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-widwa"
-            />
-          </div>
-        )}
+        {/* Uploads Section */}
+        <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
+          <h6 className="text-lg font-bold mb-4">Uploads</h6>
+          {renderFileUploadSections()}
+        </div>
 
         {/* Submit Button */}
         <button
