@@ -1,30 +1,113 @@
 "use client"
-import CloudUpload from "@/public/Svg/CloudUpload";
-import React, { useState } from "react";
+import { ConfigProgramSetting } from "@/models/ConfigProgram";
+import { useConfigProgram } from "@/utils/configprogram/configProgram";
+import getAllProgram from "@/utils/getAllProgram"; // Import the function
+import React, { useState, useEffect } from "react";
 
 export default function ConfigProgram() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isUploadMode, setIsUploadMode] = useState(true); // Toggle between Upload and Paste Link modes
+  const [isEditMode, setIsEditMode] = useState(false); // State to toggle edit mode
+  const [semester, setSemester] = useState<string>("1"); // State for the selected semester
+  const [academicYear, setAcademicYear] = useState<string>("2025"); // State for academic year
+  const configData = useConfigProgram(); // Use the hook to fetch config data
+  
+  const [programData, setProgramData] = useState<any[]>([]); // Initialize programData state
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleUpload = () => {
-    console.log("File uploaded!");
-    setIsModalOpen(false);
-  };
+  // Fetch program data on component mount
+  useEffect(() => {
+    const fetchPrograms = async () => {
+      try {
+        const programs = await getAllProgram();  // Call the async getAllProgram function
+        setProgramData(programs);  // Set the fetched programs to state
+        setLoading(false);  // Set loading to false once data is fetched
+      } catch (err) {
+        setError("Failed to load program data.");  // Set error if something goes wrong
+        setLoading(false);
+      }
+    };
 
-  const handlePasteLink = () => {
-    console.log("Link submitted!");
-    setIsModalOpen(false);
+    fetchPrograms();
+  }, []); // Empty dependency array means this runs only once when the component mounts
+
+  // Filter program data to only include the current program
+  const filteredProgram = programData.filter(program =>
+    configData.some(config => config.program_id === program.id)
+  );
+
+  const handleSave = () => {
+    // Here, you can handle the logic to save the updated values
+    console.log("Saved values - Academic Year:", academicYear, "Semester:", semester);
+
+    // After saving, you can toggle off the edit mode
+    setIsEditMode(false);
   };
 
   return (
     <div className="min-h-screen p-4 bg-gray-100">
-      {/* Section 1 */}
+      {/* Displaying Program Name and Description Above Config Data */}
       <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-md p-4">
-        <h1 className="text-lg font-semibold text-gray-800 mb-3">Config Program</h1>
-        <p className="text-gray-600 mb-6">
-          ฟีเจอร์ที่ใช้สำหรับเก็บรวบรวมทรัพยากรสำคัญ เช่น Report Template, Course Syllabus และเกณฑ์การให้คะแนน 
-          เพื่อให้นักศึกษาสามารถนำไปใช้เป็นต้นแบบหรือแนวทางได้อย่างสะดวกfffff
-        </p>
+        <h2 className="text-lg font-semibold text-gray-800 mt-6">{filteredProgram[0]?.program_name_en}</h2> {/* Program Name */}
+        <p className="text-gray-600">{filteredProgram[0]?.description}</p> {/* Program Description */}
+
+        {/* Displaying Config Data (Semester, Academic Year) in 2 columns */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+          {configData.length > 0 ? (
+            configData.map((item: ConfigProgramSetting, index) => (
+              <div key={index} className="bg-white p-4 rounded-lg shadow-md">
+                <h2 className="text-gray-800 font-semibold">{item.config_name}</h2>
+                {isEditMode && item.config_name === "semester" ? (
+                  // Displaying input field for semester if in edit mode
+                  <select
+                    value={semester}
+                    onChange={(e) => setSemester(e.target.value)}
+                    className="mt-2 p-2 border border-gray-300 rounded"
+                  >
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3 (Summer)</option>
+                  </select>
+                ) : item.config_name === "semester" ? (
+                  <p className="text-gray-600">{semester}</p>
+                ) : item.config_name === "academic year" ? (
+                  isEditMode ? (
+                    <input
+                      type="text"
+                      value={academicYear}
+                      onChange={(e) => setAcademicYear(e.target.value)}
+                      className="mt-2 p-2 border border-gray-300 rounded"
+                    />
+                  ) : (
+                    <p className="text-gray-600">{academicYear}</p>
+                  )
+                ) : (
+                  <p className="text-gray-600">{item.value}</p>
+                )}
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-600">Loading config data...</p>
+          )}
+        </div>
+
+        {/* Button to toggle edit mode */}
+        <div className="mt-4">
+          <button
+            onClick={() => setIsEditMode((prev) => !prev)}
+            className="text-white bg-[#A71919] py-2 px-4 rounded-lg hover:bg-[#7F1313]"
+          >
+            {isEditMode ? "Cancel" : "Edit"}
+          </button>
+          {isEditMode && (
+            <button
+              onClick={handleSave}
+              className="ml-4 text-white bg-green-600 py-2 px-4 rounded-lg hover:bg-green-500"
+            >
+              Save
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Modal */}
@@ -34,89 +117,12 @@ export default function ConfigProgram() {
             <h2 className="text-lg font-semibold mb-4">Add Asset</h2>
             <div className="flex justify-between mb-4">
               <button
-                className={`w-1/2 text-center py-2 rounded-lg ${
-                  isUploadMode
-                    ? "bg-[#A71919] text-white"
-                    : "bg-gray-100 text-gray-700"
-                }`}
-                onClick={() => setIsUploadMode(true)}
+                className={`w-1/2 text-center py-2 rounded-lg bg-[#A71919] text-white`}
+                onClick={() => setIsModalOpen(false)}
               >
-                Upload File
-              </button>
-              <button
-                className={`w-1/2 text-center py-2 rounded-lg ${
-                  !isUploadMode
-                    ? "bg-[#A71919] text-white"
-                    : "bg-gray-100 text-gray-700"
-                }`}
-                onClick={() => setIsUploadMode(false)}
-              >
-                Paste Link
+                Close
               </button>
             </div>
-
-            {isUploadMode ? (
-              <div>
-                {/* Upload File Section */}
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center mb-4">
-                  <CloudUpload />
-                  <p className="text-gray-500 mb-2">Drag & Drop files here</p>
-                  <button
-                    className="text-[#A71919] hover:underline"
-                    onClick={() => console.log("Browse files clicked")}
-                  >
-                    Browse Files
-                  </button>
-                </div>
-                <textarea
-                  className="w-full border border-gray-300 rounded-lg p-2 mb-4"
-                  placeholder="Description"
-                  rows={3}
-                ></textarea>
-                <div className="flex justify-end gap-2">
-                  <button
-                    className="text-gray-600 bg-white border border-gray-300 rounded-lg px-4 py-2 hover:bg-gray-100"
-                    onClick={() => setIsModalOpen(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="text-white bg-[#A71919] hover:bg-[#7F1313] rounded-lg px-4 py-2"
-                    onClick={handleUpload}
-                  >
-                    Upload
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div>
-                {/* Paste Link Section */}
-                <input
-                  type="text"
-                  className="w-full border border-gray-300 rounded-lg p-2 mb-4"
-                  placeholder="Paste your link here"
-                />
-                <textarea
-                  className="w-full border border-gray-300 rounded-lg p-2 mb-4"
-                  placeholder="Description"
-                  rows={3}
-                ></textarea>
-                <div className="flex justify-end gap-2">
-                  <button
-                    className="text-gray-600 bg-white border border-gray-300 rounded-lg px-4 py-2 hover:bg-gray-100"
-                    onClick={() => setIsModalOpen(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="text-white bg-[#A71919] hover:bg-[#7F1313] rounded-lg px-4 py-2"
-                    onClick={handlePasteLink}
-                  >
-                    Submit
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       )}
