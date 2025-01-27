@@ -11,7 +11,7 @@ export async function fetchPdfProjects(searchInput: string): Promise<Project[]> 
         // Pass the search input as a query parameter
         params: {
           searchInput: searchInput,
-        },
+        }
       }
     );
 
