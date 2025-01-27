@@ -3,6 +3,7 @@ import updateResourceStatus from "@/utils/configform/updateProjectResourceConfig
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Image from "next/image";
+import { ProjectResourceConfig } from "@/models/ProjectRespurceConfig";
 
 // API controller for creating a project resource
 const createProjectResource = async (data: {
@@ -12,17 +13,18 @@ const createProjectResource = async (data: {
   resource_type_id: number;
   title: string;
 }) => {
-  const API_URL = 'https://project-service.kunmhing.me/api/v1/projectResourceConfigs';
+  const API_URL =
+    "https://project-service.kunmhing.me/api/v1/projectResourceConfigs";
   try {
     const response = await axios.put(API_URL, data, {
       headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
+        Accept: "application/json",
+        "Content-Type": "application/json",
       },
     });
     return response.data;
   } catch (error) {
-    console.error('Error creating project resource:', error);
+    console.error("Error creating project resource:", error);
     throw error;
   }
 };
@@ -30,7 +32,8 @@ const createProjectResource = async (data: {
 const UploadResourceSection: React.FC = () => {
   // const [formData, setFormData] = useState<Record<string, boolean>>({});
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [tableData, setTableData] = useState<any[]>([]); // State to hold fetched table data
+  const [tableData, setTableData] = useState<ProjectResourceConfig[]>([]); // Replace with ProjectResourceConfig[]
+  // State to hold fetched table data
 
   const [iconName, setIconName] = useState(""); // State for icon name
   const [resourceTypeId, setResourceTypeId] = useState(1); // Set to 1 by default for File resource type
@@ -50,33 +53,28 @@ const UploadResourceSection: React.FC = () => {
     fetchData(); // Fetch data when the component is mounted
   }, []);
 
-  const handleToggleChange = async (item: any) => {
-    // Toggle the active state
+  const handleToggleChange = async (item: ProjectResourceConfig) => {
     const updatedStatus = !item.is_active;
-
-    // Prepare the data for the PUT request
-    const updatedData = {
-      icon_name: item.icon_name, // Assuming the icon_name is available in the item
-      id: item.id,
+  
+    const updatedData: ProjectResourceConfig = {
+      ...item,
       is_active: updatedStatus,
-      program_id: 2, // Use the appropriate program ID
-      resource_type_id: item.resource_type_id, // Assuming this is available
-      title: item.title,
     };
-
+  
     try {
-      // Call the API controller to update the resource status
       await updateResourceStatus(updatedData);
-      // Update the local table data after successfully updating the status
       setTableData((prevData) =>
         prevData.map((dataItem) =>
-          dataItem.id === item.id ? { ...dataItem, is_active: updatedStatus } : dataItem
+          dataItem.id === item.id
+            ? { ...dataItem, is_active: updatedStatus }
+            : dataItem
         )
       );
     } catch (error) {
       console.error("Error updating resource status:", error);
     }
   };
+  
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -128,23 +126,28 @@ const UploadResourceSection: React.FC = () => {
         <table className="w-full text-sm text-left text-gray-500">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50">
             <tr>
-              <th scope="col" className="px-4 py-3">Icon</th>
-              <th scope="col" className="px-4 py-3">Title</th>
-              <th scope="col" className="px-4 py-3">Is Active</th>
+              <th scope="col" className="px-4 py-3">
+                Icon
+              </th>
+              <th scope="col" className="px-4 py-3">
+                Title
+              </th>
+              <th scope="col" className="px-4 py-3">
+                Is Active
+              </th>
             </tr>
           </thead>
           <tbody>
-            {tableData.map((item: any, index: number) => (
+            {tableData.map((item: ProjectResourceConfig, index: number) => (
               <tr key={index} className="border-b hover:bg-gray-100">
                 <td className="px-4 py-3">
-                <Image
-  className="w-8 h-8 rounded-full"
-  src="/logo-engcmu/CMU_LOGO_Crop.jpg"
-  alt={""}
-  width={32}  // Specify width (in px)
-  height={32} // Specify height (in px)
-/>
-
+                  <Image
+                    className="w-8 h-8 rounded-full"
+                    src="/logo-engcmu/CMU_LOGO_Crop.jpg"
+                    alt={""}
+                    width={32} // Specify width (in px)
+                    height={32} // Specify height (in px)
+                  />
                 </td>
                 <td className="px-4 py-3">{item.title}</td>
                 <td className="px-4 py-3">
@@ -172,7 +175,9 @@ const UploadResourceSection: React.FC = () => {
 
             {/* Section 1: Icon Upload */}
             <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2">Upload Icon</label>
+              <label className="block text-sm font-semibold mb-2">
+                Upload Icon
+              </label>
               <input
                 type="file"
                 className="w-full p-2 border border-gray-300 rounded"
@@ -194,7 +199,9 @@ const UploadResourceSection: React.FC = () => {
 
             {/* Section 3: Upload Type */}
             <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2">Upload Type</label>
+              <label className="block text-sm font-semibold mb-2">
+                Upload Type
+              </label>
               <select
                 className="w-full p-2 border border-gray-300 rounded"
                 value={resourceTypeId}

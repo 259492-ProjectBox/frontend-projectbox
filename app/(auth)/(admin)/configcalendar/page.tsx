@@ -12,6 +12,7 @@
   import EventTable from "@/components/EventTable";
   import Modal from "@/components/Modal";
   import EventForm from "@/components/EventForm";
+import { ApiError } from "@/models/ApiError";
 
   const ConfigCalendar = () => {
     const [events, setEvents] = useState<Event[]>([]);
@@ -73,14 +74,11 @@
           setEditEvent(null);
         }
       } catch (error: unknown) {
-        // Type guard: Check if error is an instance of Error
-        if (error instanceof Error && 'response' in error) {
-          setErrorMessage((error as any).response?.data?.error || "Failed to update event");
-        } else {
-          setErrorMessage("Failed to update event");
-        }
+        const apiError = error as ApiError;
+        setErrorMessage(apiError.response?.data?.error || "Failed to update event");
         console.error("Error updating event:", error);
-      } finally {
+      }
+       finally {
         setLoading(false);
       }
     };
@@ -128,14 +126,11 @@
           });
         }
       } catch (error: unknown) {
-        // Type guard: Check if error is an instance of Error
-        if (error instanceof Error && 'response' in error) {
-          setErrorMessage((error as any).response?.data?.error || "Failed to create event");
-        } else {
-          setErrorMessage("Failed to create event");
-        }
+        const apiError = error as ApiError;
+        setErrorMessage(apiError.response?.data?.error || "Failed to create event");
         console.error("Error adding event:", error);
-      } finally {
+      }
+       finally {
         setLoading(false);
       }
     };
