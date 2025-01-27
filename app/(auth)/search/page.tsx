@@ -1,24 +1,9 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { fetchRecords } from "@/utils/airtable";
-import Spinner from "@/components/Spinner";
+import { Project } from "@/models/SearchContenetPdf";
+import { fetchPdfProjects } from "@/utils/search/pdfSearchApi";
+import React, { useState } from "react";
 
-interface RecordFields {
-  CourseNo?: string;
-  "ProjectTitle(EN)"?: string;
-  "ProjectTitle(TH)"?: string;
-  Abstract?: string;
-  ProjectAdvisor?: string;
-  Student?: string;
-  ID?: string;
-  StudentNo?: string;
-  CommitteeName?: string;
-}
-
-interface Record {
-  id: string;
-  fields: RecordFields;
-}
+// 1. Import the PDF search API and the Project model
 
 interface SearchFields {
   courseNo: string;
@@ -31,8 +16,6 @@ interface SearchFields {
 const SearchPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [searchAllMajor, setSearchAllMajor] = useState<boolean>(false);
-  const [records, setRecords] = useState<Record[]>([]);
-  const [filteredRecords, setFilteredRecords] = useState<Record[]>([]);
   const [selectedFields, setSelectedFields] = useState<string[]>([
     "ProjectTitle(EN)",
     "ProjectTitle(TH)",
@@ -41,8 +24,7 @@ const SearchPage: React.FC = () => {
     "Student",
     "ID",
   ]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [useDetailedSearch, setUseDetailedSearch] = useState<boolean>(false);
+  const [searchMode, setSearchMode] = useState<string>("quick");
   const [searchFields, setSearchFields] = useState<SearchFields>({
     courseNo: "",
     projectTitle: "",
@@ -51,102 +33,58 @@ const SearchPage: React.FC = () => {
     committeeName: "",
   });
 
-  // Fetch records from Airtable
-  useEffect(() => {
-    const fetchAllRecords = async () => {
+  // State for showing non-PDF (quick/detail) results (UI-only placeholder)
+  const [filteredRecords, setFilteredRecords] = useState<SearchFields[]>([]);
+
+  // 2. Add state for PDF search results
+  const [pdfResults, setPdfResults] = useState<Project[]>([]);
+
+  // 3. Modify handleSearch to call the PDF API if we're in PDF mode
+  const handleSearch = async () => {
+    if (searchMode === "pdf") {
       try {
-        const data: Record[] = await fetchRecords("Project");
-        setRecords(data);
+        const results = await fetchPdfProjects(searchTerm);
+        setPdfResults(results);
       } catch (error) {
-        console.error("Error fetching records:", error);
-      } finally {
-        setLoading(false);
+        console.error("Error fetching PDF results:", error);
+        setPdfResults([]);
       }
-    };
-
-    fetchAllRecords();
-  }, []);
-
-  // Handle search logic
-  const handleSearch = () => {
-    if (useDetailedSearch) {
-      const filtered = records.filter((record) => {
-        const { fields } = record;
-        return (
-          (!searchFields.courseNo ||
-            fields.CourseNo?.toLowerCase().includes(
-              searchFields.courseNo.toLowerCase()
-            )) &&
-          (!searchFields.projectTitle ||
-            fields["ProjectTitle(EN)"]?.toLowerCase().includes(
-              searchFields.projectTitle.toLowerCase()
-            )) &&
-          (!searchFields.studentNo ||
-            fields.StudentNo?.toLowerCase().includes(
-              searchFields.studentNo.toLowerCase()
-            )) &&
-          (!searchFields.advisorName ||
-            fields.ProjectAdvisor?.toLowerCase().includes(
-              searchFields.advisorName.toLowerCase()
-            )) &&
-          (!searchFields.committeeName ||
-            fields.CommitteeName?.toLowerCase().includes(
-              searchFields.committeeName.toLowerCase()
-            ))
-        );
-      });
-
-      setFilteredRecords(filtered);
     } else {
-      if (!searchTerm) {
-        setFilteredRecords([]);
-        return;
-      }
-
-      const lowerCaseValue = searchTerm.toLowerCase();
-
-      const filtered = records.filter((record) => {
-        const { fields } = record;
-        return selectedFields.some((field) =>
-          fields[field as keyof RecordFields]
-            ?.toString()
-            .toLowerCase()
-            .includes(lowerCaseValue)
-        );
-      });
-
-      setFilteredRecords(filtered);
+      // For UI-only (quick/detail), we're just clearing results to demonstrate "No records found."
+      setFilteredRecords([]);
     }
   };
 
-  const toggleFieldSelection = (field: string) => {
-    setSelectedFields((prevFields) =>
-      prevFields.includes(field)
-        ? prevFields.filter((f) => f !== field)
-        : [...prevFields, field]
-    );
+  const toggleSearchMode = () => {
+    setSearchMode((prevMode) => {
+      if (prevMode === "quick") return "detail";
+      if (prevMode === "detail") return "pdf";
+      return "quick";
+    });
   };
-
-  if (loading) {
-    return <Spinner />;
-  }
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-stone-100">
       <div className="w-full max-w-3xl mt-8">
         <h1 className="text-lg font-semibold mb-2 text-gray-800 text-center">
-          {useDetailedSearch ? "Detailed Search" : "Quick Search"}
+          {searchMode === "quick"
+            ? "Quick Search"
+            : searchMode === "detail"
+            ? "Detailed Search"
+            : "PDF Search"}
         </h1>
         <button
-          onClick={() => setUseDetailedSearch(!useDetailedSearch)}
+          onClick={toggleSearchMode}
           className="block text-red-700 text-sm font-medium mx-auto hover:underline focus:outline-none focus:underline"
-          aria-label="Switch Search Method"
+          aria-label="Switch Search Mode"
         >
           Switch Search Mode
         </button>
       </div>
+
       <div className="w-full max-w-3xl mt-4">
-        {useDetailedSearch ? (
+        {/* DETAILED SEARCH */}
+        {searchMode === "detail" ? (
           <div className="bg-white rounded-lg p-3 shadow mb-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {[
@@ -190,7 +128,10 @@ const SearchPage: React.FC = () => {
                     placeholder={placeholder}
                     value={value}
                     onChange={(e) =>
-                      setSearchFields({ ...searchFields, [key]: e.target.value })
+                      setSearchFields({
+                        ...searchFields,
+                        [key]: e.target.value,
+                      })
                     }
                     className="w-full p-1.5 border border-gray-300 rounded focus:outline-none focus:border-red-800 text-sm"
                   />
@@ -206,7 +147,27 @@ const SearchPage: React.FC = () => {
               </button>
             </div>
           </div>
+        ) : searchMode === "pdf" ? (
+          // PDF SEARCH
+          <div>
+            <div className="flex items-center mb-3">
+              <input
+                type="text"
+                placeholder="Enter search term..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-red-800 text-sm"
+              />
+              <button
+                onClick={handleSearch}
+                className="bg-red-700 text-white py-2 px-4 rounded-r-md hover:bg-red-800 focus:outline-none focus:bg-red-900 text-sm"
+              >
+                Search
+              </button>
+            </div>
+          </div>
         ) : (
+          // QUICK SEARCH
           <div>
             <div className="flex items-center mb-3">
               <input
@@ -225,19 +186,51 @@ const SearchPage: React.FC = () => {
             </div>
             <div className="flex flex-wrap gap-2 mb-4">
               {[
-                { label: "Title (EN)", field: "ProjectTitle(EN)", color: "bg-teal-100 text-teal-800" },
-                { label: "Title (TH)", field: "ProjectTitle(TH)", color: "bg-blue-100 text-blue-800" },
-                { label: "Abstract", field: "Abstract", color: "bg-yellow-100 text-yellow-800" },
-                { label: "Advisor", field: "ProjectAdvisor", color: "bg-red-100 text-red-800" },
-                { label: "Student", field: "Student", color: "bg-purple-100 text-purple-800" },
-                { label: "ID", field: "ID", color: "bg-green-100 text-green-800" },
+                {
+                  label: "Title (EN)",
+                  field: "ProjectTitle(EN)",
+                  color: "bg-teal-100 text-teal-800",
+                },
+                {
+                  label: "Title (TH)",
+                  field: "ProjectTitle(TH)",
+                  color: "bg-blue-100 text-blue-800",
+                },
+                {
+                  label: "Abstract",
+                  field: "Abstract",
+                  color: "bg-yellow-100 text-yellow-800",
+                },
+                {
+                  label: "Advisor",
+                  field: "ProjectAdvisor",
+                  color: "bg-red-100 text-red-800",
+                },
+                {
+                  label: "Student",
+                  field: "Student",
+                  color: "bg-purple-100 text-purple-800",
+                },
+                {
+                  label: "ID",
+                  field: "ID",
+                  color: "bg-green-100 text-green-800",
+                },
               ].map(({ label, field, color }) => (
                 <span
                   key={field}
                   className={`inline-flex items-center px-2 py-1 text-sm font-medium rounded cursor-pointer ${
-                    selectedFields.includes(field) ? color : "bg-gray-100 text-gray-800"
+                    selectedFields.includes(field)
+                      ? color
+                      : "bg-gray-100 text-gray-800"
                   }`}
-                  onClick={() => toggleFieldSelection(field)}
+                  onClick={() =>
+                    setSelectedFields((prevFields) =>
+                      prevFields.includes(field)
+                        ? prevFields.filter((f) => f !== field)
+                        : [...prevFields, field]
+                    )
+                  }
                 >
                   {label}
                 </span>
@@ -257,44 +250,69 @@ const SearchPage: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* SEARCH RESULTS */}
         <div className="bg-white rounded-lg shadow p-4 mt-4">
           <h2 className="text-lg font-semibold mb-4">Search Results</h2>
-          {filteredRecords.length > 0 ? (
-            <ul>
-              {filteredRecords.map((record) => (
-                <li
-                  key={record.id}
-                  className="mb-4 border-b border-gray-200 pb-4"
-                >
-                  <h3 className="text-red-700 font-bold">
-                    {record.fields["ProjectTitle(EN)"] || "No Title (EN)"}
-                  </h3>
-                  <h4 className="text-gray-700">
-                    {record.fields["ProjectTitle(TH)"] || "No Title (TH)"}
-                  </h4>
-                  <p className="text-sm text-gray-600">
-                    {record.fields.Abstract || "No Abstract Available"}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    <strong>Advisor(s):</strong>{" "}
-                    {record.fields.ProjectAdvisor || "None"}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    <strong>Student(s):</strong>{" "}
-                    {record.fields.Student || "None"}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    <strong>ID:</strong> {record.fields.ID || "N/A"}
-                  </p>
-                </li>
-              ))}
-            </ul>
+          {searchMode === "pdf" ? (
+            /* PDF MODE RESULTS */
+            pdfResults.length > 0 ? (
+              <ul>
+                {pdfResults.map((project) => (
+                  <li key={project.id} className="mb-4 border-b border-gray-200 pb-4">
+                    <h3 className="text-red-700 font-bold">{project.titleEN}</h3>
+                    <h4 className="text-gray-700">{project.titleTH}</h4>
+                    <p className="text-sm text-gray-600">
+                      {project.abstractText || "No Abstract available"}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      <strong>Course:</strong> {project.course?.courseNo || "N/A"}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      <strong>Academic Year:</strong> {project.academicYear}
+                    </p>
+                    {/* Additional fields or logic as needed */}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-gray-500">
+                {searchTerm
+                  ? "No PDF results found."
+                  : "Enter a search term to see PDF results."}
+              </p>
+            )
           ) : (
-            <p className="text-sm text-gray-500">
-              {searchTerm || useDetailedSearch
-                ? "No records found."
-                : "Enter a search term to see results."}
-            </p>
+            /* QUICK or DETAIL MODE RESULTS */
+            filteredRecords.length > 0 ? (
+              <ul>
+                {filteredRecords.map((record, index) => (
+                  <li
+                    key={index}
+                    className="mb-4 border-b border-gray-200 pb-4"
+                  >
+                    <h3 className="text-red-700 font-bold">Project Title (EN)</h3>
+                    <h4 className="text-gray-700">Project Title (TH)</h4>
+                    <p className="text-sm text-gray-600">Abstract...</p>
+                    <p className="text-sm text-gray-600">
+                      <strong>Advisor(s):</strong> Some advisor
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      <strong>Student(s):</strong> Some student
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      <strong>ID:</strong> Some ID
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-gray-500">
+                {searchTerm || searchMode === "detail"
+                  ? "No records found."
+                  : "Enter a search term to see results."}
+              </p>
+            )
           )}
         </div>
       </div>
