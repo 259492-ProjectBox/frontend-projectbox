@@ -108,14 +108,14 @@ function Dashboard() {
             projects on your plate
           </h2>
         </div>
-        <CustomTooltip title="Create a new project" arrow>
+        {/* <CustomTooltip title="Create a new project" arrow>
           <button
             onClick={() => router.push("../../createproject")}
             className="bg-white text-red-700 font-bold px-6 py-2 rounded shadow-md hover:bg-gray-100 focus:outline-none flex items-center gap-2"
           >
             <AddIcon className="text-red-700" /> Create Project
           </button>
-        </CustomTooltip>
+        </CustomTooltip> */}
       </div>
 
       {/* Projects */}
