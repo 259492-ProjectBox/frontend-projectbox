@@ -21,7 +21,7 @@ export default function AdminManagePage(): JSX.Element {
   const [email, setEmail] = useState<string>("");
   const [programs, setPrograms] = useState<AllProgram[]>([]); // To hold the programs fetched from API
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [selectedAdmin, setSelectedAdmin] = useState<Admin | null>(null);
+  // const [selectedAdmin, setSelectedAdmin] = useState<Admin | null>(null);
   const [selectedPrograms, setSelectedPrograms] = useState<MultiValue<ProgramOption>>([]); // Correct type for selected programs
   const [newProgramEn, setNewProgramEn] = useState<string>(""); // State for new program name (English)
   const [newProgramTh, setNewProgramTh] = useState<string>(""); // State for new program name (Thai)
@@ -65,16 +65,16 @@ export default function AdminManagePage(): JSX.Element {
     }
   };
 
-  const handleDeleteClick = (admin: Admin) => {
-    setSelectedAdmin(admin);
-  };
+  // const handleDeleteClick = (admin: Admin) => {
+  //   setSelectedAdmin(admin);
+  // };
 
-  const handleConfirmDelete = () => {
-    if (selectedAdmin) {
-      setAdmins(admins.filter((admin) => admin.id !== selectedAdmin.id));
-      setSelectedAdmin(null);
-    }
-  };
+  // const handleConfirmDelete = () => {
+  //   if (selectedAdmin) {
+  //     setAdmins(admins.filter((admin) => admin.id !== selectedAdmin.id));
+  //     setSelectedAdmin(null);
+  //   }
+  // };
 
   const handleAddProgram = async () => {
     if (newProgramEn && newProgramTh) {
@@ -101,9 +101,9 @@ export default function AdminManagePage(): JSX.Element {
     }
   };
 
-  const handleDeleteProgram = (programId: number) => {
-    setPrograms(programs.filter((program) => program.id !== programId));
-  };
+  // const handleDeleteProgram = (programId: number) => {
+  //   setPrograms(programs.filter((program) => program.id !== programId));
+  // };
 
   return (
     <div className="min-h-screen p-4 bg-gray-100">

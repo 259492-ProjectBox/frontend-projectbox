@@ -3,6 +3,8 @@ import { ConfigProgramSetting } from "@/models/ConfigProgram";
 import { useConfigProgram } from "@/utils/configprogram/configProgram";
 import getAllProgram from "@/utils/getAllProgram"; // Import the function
 import React, { useState, useEffect } from "react";
+import Spinner from "@/components/Spinner"; // Import the Spinner component
+import { AllProgram } from "@/models/AllPrograms";
 
 export default function ConfigProgram() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -10,26 +12,27 @@ export default function ConfigProgram() {
   const [semester, setSemester] = useState<string>("1"); // State for the selected semester
   const [academicYear, setAcademicYear] = useState<string>("2025"); // State for academic year
   const configData = useConfigProgram(); // Use the hook to fetch config data
-  
-  const [programData, setProgramData] = useState<any[]>([]); // Initialize programData state
-  const [loading, setLoading] = useState(true);
+
+  const [programData, setProgramData] = useState<AllProgram[]>([]); // Use the Program type here
+  const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState<string | null>(null);
 
   // Fetch program data on component mount
   useEffect(() => {
     const fetchPrograms = async () => {
       try {
-        const programs = await getAllProgram();  // Call the async getAllProgram function
-        setProgramData(programs);  // Set the fetched programs to state
-        setLoading(false);  // Set loading to false once data is fetched
+        const programs = await getAllProgram(); // Call the async getAllProgram function
+        setProgramData(programs); // Set the fetched programs to state
+        setLoading(false); // Set loading to false once data is fetched
       } catch (err) {
-        setError("Failed to load program data.");  // Set error if something goes wrong
+        console.log(err);
+        setError("Failed to load program data."); // Set error if something goes wrong
         setLoading(false);
       }
     };
 
     fetchPrograms();
-  }, []); // Empty dependency array means this runs only once when the component mounts
+  }, [error]); // Empty dependency array means this runs only once when the component mounts
 
   // Filter program data to only include the current program
   const filteredProgram = programData.filter(program =>
@@ -44,13 +47,14 @@ export default function ConfigProgram() {
     setIsEditMode(false);
   };
 
+  // Display spinner while data is loading
+  if (loading) return <Spinner />;
+
   return (
     <div className="min-h-screen p-4 bg-gray-100">
       {/* Displaying Program Name and Description Above Config Data */}
       <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-md p-4">
         <h2 className="text-lg font-semibold text-gray-800 mt-6">{filteredProgram[0]?.program_name_en}</h2> {/* Program Name */}
-        <p className="text-gray-600">{filteredProgram[0]?.description}</p> {/* Program Description */}
-
         {/* Displaying Config Data (Semester, Academic Year) in 2 columns */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
           {configData.length > 0 ? (
@@ -87,7 +91,7 @@ export default function ConfigProgram() {
               </div>
             ))
           ) : (
-            <p className="text-gray-600">Loading config data...</p>
+            <p className="text-gray-600">No config data found.</p>
           )}
         </div>
 
@@ -117,7 +121,7 @@ export default function ConfigProgram() {
             <h2 className="text-lg font-semibold mb-4">Add Asset</h2>
             <div className="flex justify-between mb-4">
               <button
-                className={`w-1/2 text-center py-2 rounded-lg bg-[#A71919] text-white`}
+                className="w-1/2 text-center py-2 rounded-lg bg-[#A71919] text-white"
                 onClick={() => setIsModalOpen(false)}
               >
                 Close

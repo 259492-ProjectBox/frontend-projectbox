@@ -1,6 +1,6 @@
 // import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
-import { CmuOAuthBasicInfo } from "../../../types/CmuOAuthBasicInfo";
+// import { CmuOAuthBasicInfo } from "../../../types/CmuOAuthBasicInfo";
 import axiosInstance from "@/utils/axiosInstance";
 
 type SuccessResponse = {

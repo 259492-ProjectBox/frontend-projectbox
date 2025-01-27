@@ -129,7 +129,7 @@ export default function ConfigAdvisorPage() {
                   htmlFor="prefix"
                   className="text-sm text-gray-700 block mb-1"
                 >
-                  ตำแหน่ง
+                  Position
                 </label>
                 <input
                   id="prefix"
