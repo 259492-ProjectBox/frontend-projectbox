@@ -157,7 +157,7 @@ export default function AdvisorStatsPage() {
                     />
                     <div className="pl-3">
                       <Link href={`/advisorprofile/${advisor.id}`}>
-                        <span className="text-base font-semibold text-red-700 hover:underline cursor-pointer">
+                        <span className="text-base font-semibold text-primary_text hover:underline cursor-pointer">
                           {advisor.prefix} {advisor.first_name}{" "}
                           {advisor.last_name}
                         </span>

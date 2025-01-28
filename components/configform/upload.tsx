@@ -117,7 +117,7 @@ const UploadResourceSection: React.FC = () => {
         <h6 className="text-lg font-bold">Upload Resource Section</h6>
         <button
           onClick={openModal}
-          className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-700"
+          className="bg-primary_button text-white py-1 px-3 rounded hover:bg-button_hover"
         >
           Add Upload Type
         </button>

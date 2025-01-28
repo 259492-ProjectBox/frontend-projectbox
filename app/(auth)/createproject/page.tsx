@@ -7,6 +7,7 @@ import getAllEmployees from "@/utils/advisorstats/getAllEmployee";
 import { Advisor } from "@/models/Advisor";
 import Select from "react-select";
 import Image from "next/image";
+import { useConfigProgram } from "@/utils/configprogram/configProgram";
 
 // Types
 interface ProjectResourceConfig {
@@ -39,6 +40,8 @@ const CreateProject: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({});
   const [loading, setLoading] = useState(true);
   const [staffList, setStaffList] = useState<Advisor[]>([]);
+
+  const configProgram = useConfigProgram();
 
   const labels: Record<string, string> = {
     course_id: "Course",
@@ -92,6 +95,24 @@ const CreateProject: React.FC = () => {
 
     fetchData();
   }, []);
+
+  // Prefill academic year and semester
+  useEffect(() => {
+    if (configProgram.length > 0) {
+      const prefilledData: Partial<FormData> = {};
+
+      configProgram.forEach((config) => {
+        if (formConfig[config.config_name.replace(" ", "_")]) {
+          prefilledData[config.config_name.replace(" ", "_")] = config.value;
+        }
+      });
+
+      setFormData((prevData) => ({
+        ...prevData,
+        ...prefilledData,
+      }));
+    }
+  }, [configProgram, formConfig]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
