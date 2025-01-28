@@ -75,7 +75,7 @@ const SearchPage: React.FC = () => {
         </h1>
         <button
           onClick={toggleSearchMode}
-          className="block text-red-700 text-sm font-medium mx-auto hover:underline focus:outline-none focus:underline"
+          className="block text-primary_button text-sm font-medium mx-auto hover:underline focus:outline-none focus:underline"
           aria-label="Switch Search Mode"
         >
           Switch Search Mode
@@ -133,7 +133,7 @@ const SearchPage: React.FC = () => {
                         [key]: e.target.value,
                       })
                     }
-                    className="w-full p-1.5 border border-gray-300 rounded focus:outline-none focus:border-red-800 text-sm"
+                    className="w-full p-1.5 border border-gray-300 rounded focus:outline-none focus:border-button_focus text-sm"
                   />
                 </div>
               ))}
@@ -141,7 +141,7 @@ const SearchPage: React.FC = () => {
             <div className="flex justify-end mt-4">
               <button
                 onClick={handleSearch}
-                className="bg-red-700 text-white py-1.5 px-6 rounded-md hover:bg-red-800 focus:outline-none focus:bg-red-900 text-sm"
+                className="bg-button text-white py-1.5 px-6 rounded-md hover:bg-button_hover focus:outline-none focus:bg-button_focus text-sm"
               >
                 Search
               </button>
@@ -156,11 +156,11 @@ const SearchPage: React.FC = () => {
                 placeholder="Enter search term..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-red-800 text-sm"
+                className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-button_focus text-sm"
               />
               <button
                 onClick={handleSearch}
-                className="bg-red-700 text-white py-2 px-4 rounded-r-md hover:bg-red-800 focus:outline-none focus:bg-red-900 text-sm"
+                className="bg-primary_button text-white py-2 px-4 rounded-r-md hover:bg-button_hover focus:outline-none focus:bg-button_focus text-sm"
               >
                 Search
               </button>
@@ -175,11 +175,11 @@ const SearchPage: React.FC = () => {
                 placeholder="Enter search term..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-red-800 text-sm"
+                className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-button_focus text-sm"
               />
               <button
                 onClick={handleSearch}
-                className="bg-red-700 text-white py-2 px-4 rounded-r-md hover:bg-red-800 focus:outline-none focus:bg-red-900 text-sm"
+                className="bg-primary_button text-white py-2 px-4 rounded-r-md hover:bg-button_hover focus:outline-none focus:bg-button_focus text-sm"
               >
                 Search
               </button>
@@ -242,7 +242,7 @@ const SearchPage: React.FC = () => {
                 checked={searchAllMajor}
                 onChange={() => setSearchAllMajor(!searchAllMajor)}
                 id="searchAllMajor"
-                className="w-3.5 h-3.5 text-red-600 border-gray-300 rounded focus:ring-red-500"
+                className="w-3.5 h-3.5 text-primary_text border-gray-300 rounded focus:ring-button_focus"
               />
               <label htmlFor="searchAllMajor" className="ml-2 text-gray-700 text-sm">
                 Search All Major
@@ -260,7 +260,7 @@ const SearchPage: React.FC = () => {
               <ul>
                 {pdfResults.map((project) => (
                   <li key={project.id} className="mb-4 border-b border-gray-200 pb-4">
-                    <h3 className="text-red-700 font-bold">{project.titleEN}</h3>
+                    <h3 className="text-primary_button font-bold">{project.titleEN}</h3>
                     <h4 className="text-gray-700">{project.titleTH}</h4>
                     <p className="text-sm text-gray-600">
                       {project.abstractText || "No Abstract available"}
@@ -291,7 +291,7 @@ const SearchPage: React.FC = () => {
                     key={index}
                     className="mb-4 border-b border-gray-200 pb-4"
                   >
-                    <h3 className="text-red-700 font-bold">Project Title (EN)</h3>
+                    <h3 className="text-primary_button font-bold">Project Title (EN)</h3>
                     <h4 className="text-gray-700">Project Title (TH)</h4>
                     <p className="text-sm text-gray-600">Abstract...</p>
                     <p className="text-sm text-gray-600">

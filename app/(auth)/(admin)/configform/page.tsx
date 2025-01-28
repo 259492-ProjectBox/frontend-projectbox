@@ -159,7 +159,7 @@ const CreateProject: React.FC = () => {
           <div className="flex justify-end">
             <button
               onClick={handleSubmit}
-              className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-700"
+              className="bg-primary_button text-white py-1 px-3 rounded hover:bg-blue-700"
             >
               Save
             </button>

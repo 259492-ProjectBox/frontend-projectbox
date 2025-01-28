@@ -121,7 +121,7 @@ export default function ConfigAdvisorPage() {
   if (error) {
     return (
       <div className="min-h-screen p-4 bg-gray-100 flex items-center justify-center">
-        <p className="text-red-600">{error}</p>
+        <p className="text-primary_text">{error}</p>
       </div>
     );
   }
@@ -158,8 +158,8 @@ export default function ConfigAdvisorPage() {
           <h1 className="text-lg font-semibold text-gray-800">Config Advisor</h1>
           <button
             onClick={() => handleOpenModal()}
-            className="px-4 py-2 bg-red-700 text-white font-medium rounded 
-                       hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-900"
+            className="px-4 py-2 bg-primary_button text-white font-medium rounded 
+                       hover:bg-button_hover focus:outline-none focus:ring-2 focus:ring-button_focus"
           >
             Add Staff
           </button>
@@ -202,7 +202,7 @@ export default function ConfigAdvisorPage() {
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded text-sm
-                             focus:outline-none focus:ring-2 focus:ring-red-900
+                             focus:outline-none focus:ring-2 focus:ring-button_primary
                              focus:border-transparent"
                 />
               </div>
@@ -219,7 +219,7 @@ export default function ConfigAdvisorPage() {
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded text-sm
-                             focus:outline-none focus:ring-2 focus:ring-red-900
+                             focus:outline-none focus:ring-2 focus:ring-button_focus
                              focus:border-transparent"
                 />
               </div>
@@ -236,7 +236,7 @@ export default function ConfigAdvisorPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded text-sm
-                             focus:outline-none focus:ring-2 focus:ring-red-900
+                             focus:outline-none focus:ring-2 focus:ring-button_focus
                              focus:border-transparent"
                 />
               </div>
@@ -250,7 +250,7 @@ export default function ConfigAdvisorPage() {
                 </button>
                 <button
                   onClick={handleSaveAdvisor}
-                  className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800"
+                  className="px-4 py-2 bg-primary_button text-white rounded hover:bg-button_hover"
                 >
                   Save
                 </button>
