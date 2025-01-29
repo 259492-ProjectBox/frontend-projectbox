@@ -25,7 +25,7 @@ function Dashboard() {
   useEffect(() => {
     const loadProjects = async () => {
       try {
-        const records = await getProjectByStudentId("640610304"); // Replace with the desired student ID
+        const records = await getProjectByStudentId("640610304"); 
         setProjects(records || []);
       } catch (error) {
         console.error("Error fetching projects:", error);
@@ -51,7 +51,7 @@ function Dashboard() {
 
     return (
       <div>
-        <h4 className="font-bold text-red-800">{title}</h4>
+        <h4 className="font-bold text-primary_text">{title}</h4>
         {visibleItems.map((item, index) => (
           <p key={index} className="text-sm">
             {item.id ? `${item.id} - ` : ""}
@@ -60,7 +60,7 @@ function Dashboard() {
         ))}
         {items.length > 3 && (
           <p
-            className="text-sm text-red-800 underline cursor-pointer mt-2"
+            className="text-sm text-primary_text underline cursor-pointer mt-2"
             onClick={() => setSeeMore(!seeMore)}
           >
             {seeMore ? "See Less" : "See More"}
@@ -76,13 +76,13 @@ function Dashboard() {
 
     return (
       <div className="bg-stone-50 border border-stone-200 rounded-lg p-4">
-        <h4 className="text-red-800 font-bold mb-2">Project Description</h4>
+        <h4 className="text-primary_text font-bold mb-2">Project Description</h4>
         <p className="text-gray-700 leading-relaxed">
           {isLongText && !seeMore ? `${text.slice(0, 150)}...` : text}
         </p>
         {isLongText && (
           <button
-            className="text-sm text-red-800 underline cursor-pointer mt-2"
+            className="text-sm text-primary_text underline cursor-pointer mt-2"
             onClick={() => setSeeMore(!seeMore)}
           >
             {seeMore ? "Show Less" : "Show More"}
@@ -111,9 +111,9 @@ function Dashboard() {
         {/* <CustomTooltip title="Create a new project" arrow>
           <button
             onClick={() => router.push("../../createproject")}
-            className="bg-white text-red-700 font-bold px-6 py-2 rounded shadow-md hover:bg-gray-100 focus:outline-none flex items-center gap-2"
+            className="bg-white text-primary_text font-bold px-6 py-2 rounded shadow-md hover:bg-gray-100 focus:outline-none flex items-center gap-2"
           >
-            <AddIcon className="text-red-700" /> Create Project
+            <AddIcon className="text-primary_text" /> Create Project
           </button>
         </CustomTooltip> */}
       </div>
@@ -128,7 +128,7 @@ function Dashboard() {
             {/* Edit Button - Top Right */}
             <button
               onClick={() => console.log("Edit", project.project_no)}
-              className="absolute top-4 right-4 p-2 rounded-full bg-red-100 hover:bg-red-200"
+              className="absolute top-4 right-4 p-2 rounded-full bg-blue-100 hover:bg-blue-200"
               aria-label="Edit Project"
             >
               <EditIcon />
@@ -139,7 +139,7 @@ function Dashboard() {
               <h3 className="text-sm font-semibold text-black">
                 Project No: {project.project_no || "No Data"}
               </h3>
-              <h4 className="text-xl font-bold text-red-800 hover:underline cursor-pointer mb-2">
+              <h4 className="text-xl font-bold text-primary_text hover:underline cursor-pointer mb-2">
                 <Link href={`/projectdetail/${project.id}`}>
                   {project.title_th || "No Title"} —{" "}
                   {project.title_en || "No Title"}

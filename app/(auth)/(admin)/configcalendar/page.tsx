@@ -12,6 +12,7 @@
   import EventTable from "@/components/EventTable";
   import Modal from "@/components/Modal";
   import EventForm from "@/components/EventForm";
+import { ApiError } from "@/models/ApiError";
 
   const ConfigCalendar = () => {
     const [events, setEvents] = useState<Event[]>([]);
@@ -48,6 +49,7 @@
         start_date: event.start_date,
         end_date: event.end_date,
       });
+      console.log(errorMessage);
       setErrorMessage(null);
       setIsModalOpen(true);
     };
@@ -71,13 +73,17 @@
           setIsModalOpen(false);
           setEditEvent(null);
         }
-      } catch (error: any) {
-        setErrorMessage(error.response?.data?.error || "Failed to update event");
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
+        setErrorMessage(apiError.response?.data?.error || "Failed to update event");
         console.error("Error updating event:", error);
-      } finally {
+      }
+       finally {
         setLoading(false);
       }
     };
+    
+    
 
     const handleDeleteEvent = async (id: number) => {
       setLoading(true);
@@ -119,13 +125,18 @@
             end_date: "",
           });
         }
-      } catch (error: any) {
-        setErrorMessage(error.response?.data?.error || "Failed to create event");
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
+        setErrorMessage(apiError.response?.data?.error || "Failed to create event");
         console.error("Error adding event:", error);
-      } finally {
+      }
+       finally {
         setLoading(false);
       }
     };
+    
+    
+    
 
     if (loading) return <Spinner />;
 

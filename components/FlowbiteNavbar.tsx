@@ -3,6 +3,7 @@
 import React from "react";
 import { useAuth } from "@/hooks/useAuth";
 import HamburgerIcon from "@/public/Svg/HamburgerIcon";
+import Image from "next/image";
 
 export default function FlowbiteNavbar({
   toggleSidebar,
@@ -50,11 +51,13 @@ export default function FlowbiteNavbar({
                   data-dropdown-toggle="dropdown-user"
                 >
                   <span className="sr-only">Open user menu</span>
-                  <img
-                    className="w-8 h-8 rounded-full"
-                    src="https://www.w3schools.com/w3images/avatar2.png"
-                    alt="guest user"
-                  />
+                  <Image
+  className="w-8 h-8 rounded-full"
+  src="/logo-engcmu/CMU_LOGO_Crop.jpg"
+  alt={""}
+  width={32}  // Specify width (in px)
+  height={32} // Specify height (in px)
+/>
                 </button>
               </div>
             </div>

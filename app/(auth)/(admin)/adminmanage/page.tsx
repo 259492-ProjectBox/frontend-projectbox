@@ -154,7 +154,7 @@ export default function AdminManagePage(): JSX.Element {
               <h3 className="mb-5 text-lg font-medium text-gray-800">
                 Are you sure you want to delete{" "}
                 <span className="text-red-600 font-semibold">
-                  "{selectedAdmin.email}"?
+                  {selectedAdmin.email}?
                 </span>
               </h3>
               <button
@@ -179,4 +179,5 @@ export default function AdminManagePage(): JSX.Element {
 
 function addAdminConfig(email: string) {
   throw new Error("Function not implemented.");
+  console.log(email);
 }
