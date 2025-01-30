@@ -28,8 +28,9 @@ export async function GET() {
 			firstName: decoded.firstName,
 			lastName: decoded.lastName,
 			studentId: decoded.studentId,
-			orgName: decoded.orgName,
 			isAdmin: decoded.isAdmin,
+			roles: decoded.roles,
+			isPlatformAdmin: decoded.isPlatformAdmin,
 		});
 	} catch (error) {
 		console.log(error);
