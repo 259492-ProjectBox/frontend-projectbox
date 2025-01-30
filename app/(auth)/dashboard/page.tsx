@@ -16,26 +16,36 @@ import SketchupIcon from "@/public/Svg/SketchupIcon";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth";
 
 function Dashboard() {
   const router = useRouter();
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]); // Ensure this is initialized as an empty array
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
     const loadProjects = async () => {
+      if (!user?.studentId) {
+        console.error("No student ID available.");
+        setLoading(false);
+        return;
+      }
+
       try {
-        const records = await getProjectByStudentId("640610304"); 
-        setProjects(records || []);
+        const records = await getProjectByStudentId(user.studentId);
+        // Ensure we are always setting an array
+        setProjects(Array.isArray(records) ? records : []); // If it's not an array, set an empty array
       } catch (error) {
         console.error("Error fetching projects:", error);
+        setProjects([]); // Set an empty array in case of an error
       } finally {
         setLoading(false);
       }
     };
 
     loadProjects();
-  }, []);
+  }, [user]);
 
   if (loading) return <Spinner />;
 
@@ -97,8 +107,11 @@ function Dashboard() {
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <div>
-          <h1 className="text-4xl mb-1">
-            Welcome, <span className="text-widwa">Pichayoot</span>
+        <h1 className="text-4xl mb-1">
+            Welcome,{" "}
+            <span className="text-primary_text">
+              {user?.firstName|| ""}
+            </span>
           </h1>
           <h2 className="text-xl text-gray-600">
             You have{" "}
@@ -108,96 +121,100 @@ function Dashboard() {
             projects on your plate
           </h2>
         </div>
-        {/* <CustomTooltip title="Create a new project" arrow>
+        <CustomTooltip title="Create a new project" arrow>
           <button
             onClick={() => router.push("../../createproject")}
             className="bg-white text-primary_text font-bold px-6 py-2 rounded shadow-md hover:bg-gray-100 focus:outline-none flex items-center gap-2"
           >
             <AddIcon className="text-primary_text" /> Create Project
           </button>
-        </CustomTooltip> */}
+        </CustomTooltip>
       </div>
 
       {/* Projects */}
-      {projects.map((project, index) => (
-        <div
-          key={index}
-          className="relative mb-6 border border-gray-200 rounded-lg shadow-sm bg-white"
-        >
-          <div className="p-4">
-            {/* Edit Button - Top Right */}
-            <button
-              onClick={() => console.log("Edit", project.project_no)}
-              className="absolute top-4 right-4 p-2 rounded-full bg-blue-100 hover:bg-blue-200"
-              aria-label="Edit Project"
-            >
-              <EditIcon />
-            </button>
+      {projects.length === 0 ? (
+        <p>No projects available</p> // Show a message if no projects are found
+      ) : (
+        projects.map((project, index) => (
+          <div
+            key={index}
+            className="relative mb-6 border border-gray-200 rounded-lg shadow-sm bg-white"
+          >
+            <div className="p-4">
+              {/* Edit Button - Top Right */}
+              <button
+                onClick={() => console.log("Edit", project.project_no)}
+                className="absolute top-4 right-4 p-2 rounded-full bg-blue-100 hover:bg-blue-200"
+                aria-label="Edit Project"
+              >
+                <EditIcon />
+              </button>
 
-            {/* Project Title */}
-            <div>
-              <h3 className="text-sm font-semibold text-black">
-                Project No: {project.project_no || "No Data"}
-              </h3>
-              <h4 className="text-xl font-bold text-primary_text hover:underline cursor-pointer mb-2">
-                <Link href={`/projectdetail/${project.id}`}>
-                  {project.title_th || "No Title"} —{" "}
-                  {project.title_en || "No Title"}
-                </Link>
-              </h4>
-            </div>
+              {/* Project Title */}
+              <div>
+                <h3 className="text-sm font-semibold text-black">
+                  Project No: {project.project_no || "No Data"}
+                </h3>
+                <h4 className="text-xl font-bold text-primary_text hover:underline cursor-pointer mb-2">
+                  <Link href={`/projectdetail/${project.id}`}>
+                    {project.title_th || "No Title"} —{" "}
+                    {project.title_en || "No Title"}
+                  </Link>
+                </h4>
+              </div>
 
-            {/* Icons - Below Project Title */}
-            <div className="flex flex-wrap gap-4 mb-4">
-              <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
-                <FileIcon />
-              </button>
-              <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
-                <YouTubeIcon />
-              </button>
-              <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
-                <GitHubIcon />
-              </button>
-              <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
-                <PowerPointIcon />
-              </button>
-              <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
-                <PictureIcon />
-              </button>
-              <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
-                <AutoCADIcon />
-              </button>
-              <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
-                <SketchupIcon />
-              </button>
-              <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
-                <LinkIcon />
-              </button>
-            </div>
+              {/* Icons - Below Project Title */}
+              <div className="flex flex-wrap gap-4 mb-4">
+                <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
+                  <FileIcon />
+                </button>
+                <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
+                  <YouTubeIcon />
+                </button>
+                <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
+                  <GitHubIcon />
+                </button>
+                <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
+                  <PowerPointIcon />
+                </button>
+                <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
+                  <PictureIcon />
+                </button>
+                <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
+                  <AutoCADIcon />
+                </button>
+                <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
+                  <SketchupIcon />
+                </button>
+                <button className="p-2 bg-stone-100 rounded hover:bg-stone-200">
+                  <LinkIcon />
+                </button>
+              </div>
 
-            {/* Students and Committees */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <LimitedList
-                items={project.members.map((member) => ({
-                  name: ` ${member.first_name} ${member.last_name} (${member.id})`,
-                }))}
-                title="Members"
-              />
-              <LimitedList
-                items={project.staffs.map((staff) => ({
-                  name: `${staff.prefix} ${staff.first_name} ${staff.last_name}`,
-                }))}
-                title="Advisor"
-              />
-            </div>
+              {/* Students and Committees */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <LimitedList
+                  items={project.members.map((member) => ({
+                    name: ` ${member.first_name} ${member.last_name} (${member.id})`,
+                  }))}
+                  title="Members"
+                />
+                <LimitedList
+                  items={project.staffs.map((staff) => ({
+                    name: `${staff.prefix} ${staff.first_name} ${staff.last_name}`,
+                  }))}
+                  title="Advisor"
+                />
+              </div>
 
-            {/* Project Description */}
-            <div className="w-full">
-              <LimitedText text={project.abstract_text || "No Description"} />
+              {/* Project Description */}
+              <div className="w-full">
+                <LimitedText text={project.abstract_text || "No Description"} />
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        ))
+      )}
     </div>
   );
 }
