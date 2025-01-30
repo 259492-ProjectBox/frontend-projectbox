@@ -32,7 +32,14 @@ export function useAuth() {
 	// Function to sign out the user
 	const signOut = async () => {
 		try {
-			await axios.post("/api/signOut");
+			await axios.post("/api/signOut").then((response) => {
+				if(response.data.ok) {
+					const SignOut = process.env.CMU_ENTRAID_LOGOUT_URL;
+					router.push(`${SignOut}`); 
+				 }else{
+				   router.push('../');  
+				 } }  
+			);
 			setAuthState({ user: null, isLoading: false, error: null });
 			router.push("/"); // Redirect to login page after sign-out
 		} catch (error) {

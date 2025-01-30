@@ -1,8 +1,11 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { serverGetCookie } from "../utils/helpFunction";
+import Link from "next/link";
 
 export default function Home() {
+  const cmuURL =process.env.NEXT_PUBLIC_CMU_ENTRAID_URL as string;
+  
   const token = serverGetCookie();
   if (token) redirect("/dashboard");
   return (
@@ -28,17 +31,18 @@ export default function Home() {
               <span className="font-bold">Project Box</span>
             </h2>
           </div>
-          <a href={process.env.NEXT_PUBLIC_CMU_OAUTH_URL} className="w-full">
-            <button className="bg-white text-gray-800 font-bold py-3 px-6 rounded-lg shadow-md hover:bg-gray-100 transition duration-300 w-full mb-4 flex items-center justify-center gap-3">
-              <Image
-                src="/logo-engcmu/CMU_LOGO_Crop.jpg"
-                width={30}
-                height={30}
-                alt="CMU Logo"
-              />
-              Sign in CMU Account
-            </button>
-          </a>
+            <a className="w-full" href= {`${cmuURL}`} >
+              <button className="bg-white text-gray-800 font-bold py-3 px-6 rounded-lg shadow-md hover:bg-gray-100 transition duration-300 w-full mb-4 flex items-center justify-center gap-3">
+                <Image
+                  src="/logo-engcmu/CMU_LOGO_Crop.jpg"
+                  width={30}
+                  height={30}
+                  alt="CMU Logo"
+                />
+                Sign in CMU Account
+              </button>
+            </a>
+          
           <p className="text-white text-sm mb-4">Search project by not login</p>
           <a href="/search" className="w-full">
             <button className="bg-teal-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-teal-600 transition duration-300 w-full">
