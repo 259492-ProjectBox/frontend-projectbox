@@ -68,7 +68,7 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
           )}
 
           {/* Divider for SUPER ADMIN */}
-          {user?.isPlatformAdmin && (
+          {(user?.roles.includes("platform_admin") && user.isPlatformAdmin) && (
             <>
               <hr className="my-4 border-gray-300" />
               <SidebarMenuSection items={superAdminMenuItems} />
@@ -76,7 +76,6 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
           )}
 
           {/* Logout Section */}
-          <hr className="my-4 border-gray-300" />
           <div className="mt-4">
             <LogoutButton onLogout={signOut} />
           </div>
