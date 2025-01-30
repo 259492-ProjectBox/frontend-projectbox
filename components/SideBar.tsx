@@ -15,7 +15,7 @@ import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 
 export default function Sidebar({ children }: React.PropsWithChildren) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
 
   const menuItems = [
     { text: "My Project", icon: <PersonIcon className="w-4 h-4 text-blue-500" />, path: "/dashboard" },
@@ -28,7 +28,7 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
   const configMenuItems = [
     { text: "Manage Program", icon: <ChecklistRtlIcon className="w-4 h-4 text-green-500" />, path: "/configprogram" },
     // { text: "Config Calendar", icon: <EditCalendarIcon className="w-4 h-4 text-yellow-500" />, path: "/configcalendar" },
-    { text: "Managen Form", icon: <EditNoteIcon className="w-4 h-4 text-indigo-500" />, path: "/configform" },
+    { text: "Manage Form", icon: <EditNoteIcon className="w-4 h-4 text-indigo-500" />, path: "/configform" },
     { text: "Manage Staff", icon: <ManageAccountsIcon className="w-4 h-4 text-cyan-500" />, path: "/configemployee" },
     // { text: "Config Assets", icon: <SettingsIcon className="w-4 h-4 text-cyan-500" />, path: "/configassets" },
     // { text: "Admin Manage", icon: <SupervisorAccountIcon className="w-4 h-4 text-rose-500" />, path: "/adminmanage" },
@@ -58,18 +58,25 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
           <SidebarMenuSection items={menuItems} />
 
           {/* Divider */}
-          <hr className="my-4 border-gray-300" />
+          {user?.roles.includes("admin") && user.isAdmin?.length > 0 && (
+            <hr className="my-4 border-gray-300" />
+          )}
 
-          {/* Config Section */}
-          <SidebarMenuSection items={configMenuItems} />
+          {/* Config Section: Check if roles include "admin" and isAdmin is not empty */}
+          {(user?.roles.includes("admin") && user.isAdmin?.length > 0) && (
+            <SidebarMenuSection items={configMenuItems} />
+          )}
 
-          {/* Divider */}
-          <hr className="my-4 border-gray-300" />
-
-          {/* SUPER ADMIN Section */}
-          <SidebarMenuSection items={superAdminMenuItems} />
+          {/* Divider for SUPER ADMIN */}
+          {user?.isPlatformAdmin && (
+            <>
+              <hr className="my-4 border-gray-300" />
+              <SidebarMenuSection items={superAdminMenuItems} />
+            </>
+          )}
 
           {/* Logout Section */}
+          <hr className="my-4 border-gray-300" />
           <div className="mt-4">
             <LogoutButton onLogout={signOut} />
           </div>
