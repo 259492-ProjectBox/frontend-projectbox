@@ -145,8 +145,8 @@ const CreateProject: React.FC = () => {
               title="Members"
               fields={[
                 "advisor",
-                "co-advisor",
-                "external-committee",
+                "co_advisor",
+                "external_committee",
                 "committee",
                 "student",
               ]}
