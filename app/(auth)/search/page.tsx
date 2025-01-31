@@ -22,8 +22,7 @@ const SearchPage: React.FC = () => {
     "Abstract",
     "ProjectAdvisor",
     "Student",
-    "ID",
-  ]);
+  ]); // Removed ID
   const [searchMode, setSearchMode] = useState<string>("quick");
   const [searchFields, setSearchFields] = useState<SearchFields>({
     courseNo: "",
@@ -211,11 +210,6 @@ const SearchPage: React.FC = () => {
                   field: "Student",
                   color: "bg-purple-100 text-purple-800",
                 },
-                {
-                  label: "ID",
-                  field: "ID",
-                  color: "bg-green-100 text-green-800",
-                },
               ].map(({ label, field, color }) => (
                 <span
                   key={field}
@@ -299,9 +293,6 @@ const SearchPage: React.FC = () => {
                     </p>
                     <p className="text-sm text-gray-600">
                       <strong>Student(s):</strong> Some student
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      <strong>ID:</strong> Some ID
                     </p>
                   </li>
                 ))}
