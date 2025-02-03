@@ -183,117 +183,108 @@ export default function ConfigAdvisorPage() {
         {/* Modal for Add/Edit Advisor */}
         {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+            <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-sm">
               <h2 className="text-lg font-semibold text-gray-800 mb-4">
                 {isEditMode ? "Edit Advisor" : "Add New Advisor"}
               </h2>
-              <div className="mb-3">
-                <label
-                  htmlFor="prefixEn"
-                  className="text-sm text-gray-700 block mb-1"
-                >
-                  Position (EN)
-                </label>
-                <input
-                  id="prefixEn"
-                  type="text"
-                  value={prefixEn}
-                  onChange={(e) => setPrefixEn(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm
-                             focus:outline-none focus:ring-2 focus:ring-red-900
-                             focus:border-transparent"
-                />
+              
+              {/* English Section */}
+              <div className="mb-4 p-3 border border-gray-200 rounded">
+                <h3 className="text-md font-semibold text-gray-700 mb-2">English</h3>
+                <div className="mb-2">
+                  <label htmlFor="prefixEn" className="text-sm text-gray-700 block mb-1">
+                    Position (EN)
+                  </label>
+                  <input
+                    id="prefixEn"
+                    type="text"
+                    value={prefixEn}
+                    onChange={(e) => setPrefixEn(e.target.value)}
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm
+                               focus:outline-none focus:ring-2 focus:ring-red-900
+                               focus:border-transparent"
+                  />
+                </div>
+                <div className="mb-2">
+                  <label htmlFor="firstNameEn" className="text-sm text-gray-700 block mb-1">
+                    First Name (EN)
+                  </label>
+                  <input
+                    id="firstNameEn"
+                    type="text"
+                    value={firstNameEn}
+                    onChange={(e) => setFirstNameEn(e.target.value)}
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm
+                               focus:outline-none focus:ring-2 focus:ring-button_primary
+                               focus:border-transparent"
+                  />
+                </div>
+                <div className="mb-2">
+                  <label htmlFor="lastNameEn" className="text-sm text-gray-700 block mb-1">
+                    Last Name (EN)
+                  </label>
+                  <input
+                    id="lastNameEn"
+                    type="text"
+                    value={lastNameEn}
+                    onChange={(e) => setLastNameEn(e.target.value)}
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm
+                               focus:outline-none focus:ring-2 focus:ring-button_focus
+                               focus:border-transparent"
+                  />
+                </div>
               </div>
-              <div className="mb-3">
-                <label
-                  htmlFor="prefixTh"
-                  className="text-sm text-gray-700 block mb-1"
-                >
-                  Position (TH)
-                </label>
-                <input
-                  id="prefixTh"
-                  type="text"
-                  value={prefixTh}
-                  onChange={(e) => setPrefixTh(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm
-                             focus:outline-none focus:ring-2 focus:ring-red-900
-                             focus:border-transparent"
-                />
+
+              {/* Thai Section */}
+              <div className="mb-4 p-3 border border-gray-200 rounded">
+                <h3 className="text-md font-semibold text-gray-700 mb-2">Thai</h3>
+                <div className="mb-2">
+                  <label htmlFor="prefixTh" className="text-sm text-gray-700 block mb-1">
+                    ตำแหน่ง (TH)
+                  </label>
+                  <input
+                    id="prefixTh"
+                    type="text"
+                    value={prefixTh}
+                    onChange={(e) => setPrefixTh(e.target.value)}
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm
+                               focus:outline-none focus:ring-2 focus:ring-red-900
+                               focus:border-transparent"
+                  />
+                </div>
+                <div className="mb-2">
+                  <label htmlFor="firstNameTh" className="text-sm text-gray-700 block mb-1">
+                    ชื่อจริง (TH)
+                  </label>
+                  <input
+                    id="firstNameTh"
+                    type="text"
+                    value={firstNameTh}
+                    onChange={(e) => setFirstNameTh(e.target.value)}
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm
+                               focus:outline-none focus:ring-2 focus:ring-button_primary
+                               focus:border-transparent"
+                  />
+                </div>
+                <div className="mb-2">
+                  <label htmlFor="lastNameTh" className="text-sm text-gray-700 block mb-1">
+                    นามสกุล (TH)
+                  </label>
+                  <input
+                    id="lastNameTh"
+                    type="text"
+                    value={lastNameTh}
+                    onChange={(e) => setLastNameTh(e.target.value)}
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm
+                               focus:outline-none focus:ring-2 focus:ring-button_focus
+                               focus:border-transparent"
+                  />
+                </div>
               </div>
+
+              {/* Email Section */}
               <div className="mb-3">
-                <label
-                  htmlFor="firstNameEn"
-                  className="text-sm text-gray-700 block mb-1"
-                >
-                  First Name (EN)
-                </label>
-                <input
-                  id="firstNameEn"
-                  type="text"
-                  value={firstNameEn}
-                  onChange={(e) => setFirstNameEn(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm
-                             focus:outline-none focus:ring-2 focus:ring-button_primary
-                             focus:border-transparent"
-                />
-              </div>
-              <div className="mb-3">
-                <label
-                  htmlFor="firstNameTh"
-                  className="text-sm text-gray-700 block mb-1"
-                >
-                  First Name (TH)
-                </label>
-                <input
-                  id="firstNameTh"
-                  type="text"
-                  value={firstNameTh}
-                  onChange={(e) => setFirstNameTh(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm
-                             focus:outline-none focus:ring-2 focus:ring-button_primary
-                             focus:border-transparent"
-                />
-              </div>
-              <div className="mb-3">
-                <label
-                  htmlFor="lastNameEn"
-                  className="text-sm text-gray-700 block mb-1"
-                >
-                  Last Name (EN)
-                </label>
-                <input
-                  id="lastNameEn"
-                  type="text"
-                  value={lastNameEn}
-                  onChange={(e) => setLastNameEn(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm
-                             focus:outline-none focus:ring-2 focus:ring-button_focus
-                             focus:border-transparent"
-                />
-              </div>
-              <div className="mb-3">
-                <label
-                  htmlFor="lastNameTh"
-                  className="text-sm text-gray-700 block mb-1"
-                >
-                  Last Name (TH)
-                </label>
-                <input
-                  id="lastNameTh"
-                  type="text"
-                  value={lastNameTh}
-                  onChange={(e) => setLastNameTh(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm
-                             focus:outline-none focus:ring-2 focus:ring-button_focus
-                             focus:border-transparent"
-                />
-              </div>
-              <div className="mb-3">
-                <label
-                  htmlFor="email"
-                  className="text-sm text-gray-700 block mb-1"
-                >
+                <label htmlFor="email" className="text-sm text-gray-700 block mb-1">
                   Email
                 </label>
                 <input
@@ -301,7 +292,7 @@ export default function ConfigAdvisorPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm
+                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm
                              focus:outline-none focus:ring-2 focus:ring-button_focus
                              focus:border-transparent"
                 />
@@ -309,14 +300,14 @@ export default function ConfigAdvisorPage() {
               <div className="flex justify-end gap-2">
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded
+                  className="px-3 py-1 bg-gray-300 text-gray-700 rounded
                              hover:bg-gray-400"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSaveAdvisor}
-                  className="px-4 py-2 bg-primary_button text-white rounded hover:bg-button_hover"
+                  className="px-3 py-1 bg-primary_button text-white rounded hover:bg-button_hover"
                 >
                   Save
                 </button>
