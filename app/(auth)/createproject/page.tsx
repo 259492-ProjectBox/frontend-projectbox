@@ -8,6 +8,7 @@ import { Advisor } from "@/models/Advisor";
 import Select from "react-select";
 import Image from "next/image";
 import { useConfigProgram } from "@/utils/configprogram/configProgram";
+import { useAuth } from "@/hooks/useAuth";
 
 // Types
 interface ProjectResourceConfig {
@@ -35,12 +36,50 @@ interface FormData {
     | undefined;
 }
 
+interface Course {
+  id: number;
+  course_no: string;
+  course_name: string;
+  program_id: number;
+  program: {
+    id: number;
+    program_name_th: string;
+    program_name_en: string;
+    abbreviation: string;
+  };
+}
+
+interface Program {
+  id: number;
+  program_name_th: string;
+  program_name_en: string;
+  abbreviation: string;
+}
+
+interface StudentData {
+  id: number;
+  student_id: string;
+  sec_lab: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  semester: number;
+  academic_year: number;
+  course_id: number;
+  course: Course;
+  program_id: number;
+  program: Program;
+  created_at: string;
+}
+
 const CreateProject: React.FC = () => {
   const [formConfig, setFormConfig] = useState<FormConfig>({});
   const [formData, setFormData] = useState<FormData>({});
   const [loading, setLoading] = useState(true);
   const [staffList, setStaffList] = useState<Advisor[]>([]);
+  const [studentData, setStudentData] = useState<StudentData | null>(null); // Store student data
 
+  const { user } = useAuth(); // Get user from useAuth
   const configProgram = useConfigProgram();
 
   const labels: Record<string, string> = {
@@ -70,7 +109,25 @@ const CreateProject: React.FC = () => {
   // Fetch data on mount
   useEffect(() => {
     const fetchData = async () => {
+      if (!user?.studentId) return; // Ensure studentId is available
+
       try {
+        // Fetch student data using the studentId from useAuth
+        const response = await fetch(
+          `https://project-service.kunmhing.me/api/v1/students/${user.studentId}`,
+          {
+            method: "GET",
+            headers: {
+              accept: "application/json",
+            },
+          }
+        );
+        
+        const data = await response.json();
+        setStudentData(data);
+        console.log("Student Data:", data);
+
+        // Fetch other data
         const config = await getProjectConfig(1); // Replace '1' with appropriate majorId
         const activeFields = config.reduce<FormConfig>((acc, field) => {
           if (field.is_active) acc[field.title] = true;
@@ -94,7 +151,7 @@ const CreateProject: React.FC = () => {
     };
 
     fetchData();
-  }, []);
+  }, [user?.studentId]); // Re-run effect when studentId changes
 
   // Prefill academic year and semester
   useEffect(() => {
