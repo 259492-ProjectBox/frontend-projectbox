@@ -2,9 +2,12 @@
 
 export interface Advisor {
   id: number;
-  prefix: string;
-  first_name: string;
-  last_name: string;
+  prefix_en: string;
+  prefix_th: string;
+  first_name_en: string;
+  first_name_th: string;
+  last_name_en: string;
+  last_name_th: string;
   email: string;
-  program_id: number; // Changed from major_id to program_id
+  program_id: number;
 }
