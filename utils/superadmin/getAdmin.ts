@@ -1,7 +1,7 @@
 // utils/adminController.ts
 import axios from "axios";
 
-const API_URL = "https://auth-service.kunmhing.me/api/getNonStudentAndAlumni";
+const API_URL = "https://auth-service.kunmhing.me/api/getAdmin";
 
 // Function to fetch admin data from the API
 export const getAdmins = async () => {
