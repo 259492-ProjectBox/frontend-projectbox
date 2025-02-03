@@ -9,6 +9,8 @@ import Select from "react-select";
 import Image from "next/image";
 import { useConfigProgram } from "@/utils/configprogram/configProgram";
 import { useAuth } from "@/hooks/useAuth";
+import { getStudentInfo } from "@/utils/createproject/getStudentInfo"; // Import the new utility function
+import { Student } from "@/models/Student"; // Import the new Student type
 
 // Types
 interface ProjectResourceConfig {
@@ -77,7 +79,7 @@ const CreateProject: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({});
   const [loading, setLoading] = useState(true);
   const [staffList, setStaffList] = useState<Advisor[]>([]);
-  const [studentData, setStudentData] = useState<StudentData | null>(null); // Store student data
+  const [studentData, setStudentData] = useState<Student | null>(null); // Store student data
 
   const { user } = useAuth(); // Get user from useAuth
   const configProgram = useConfigProgram();
@@ -113,17 +115,7 @@ const CreateProject: React.FC = () => {
 
       try {
         // Fetch student data using the studentId from useAuth
-        const response = await fetch(
-          `https://project-service.kunmhing.me/api/v1/students/${user.studentId}`,
-          {
-            method: "GET",
-            headers: {
-              accept: "application/json",
-            },
-          }
-        );
-        
-        const data = await response.json();
+        const data = await getStudentInfo(user.studentId);
         setStudentData(data);
         console.log("Student Data:", data);
 
@@ -288,7 +280,7 @@ const CreateProject: React.FC = () => {
             )
           }
           options={staffList.map((staff) => ({
-            label: `${staff.prefix} ${staff.first_name} ${staff.last_name}`,
+            label: `${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
             value: staff.id,
           }))}
           getOptionLabel={(e) => e.label} // Ensure the correct label is displayed
