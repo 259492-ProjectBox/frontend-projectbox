@@ -10,11 +10,11 @@ const putUpdateEmployee = async (payload: Advisor): Promise<Advisor> => {
       {
         headers: {
           "Content-Type": "application/json",
-          "accept": "application/json",
+          accept: "application/json",
         },
       }
     );
-    console.log("putUpdateEmployee",response.data)
+    console.log("putUpdateEmployee", response.data);
     return response.data;
   } catch (error) {
     console.error("Error updating employee:", error);

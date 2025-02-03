@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Advisor } from "@/models/Advisor";
 import Spinner from "@/components/Spinner";
 import postCreateEmployee from "@/utils/configemployee/postCreateEmployee";
-import getEmployeeByMajorId from "@/utils/advisorstats/getEmployeebyProgramId";
+import getEmployeeByProgramId from "@/utils/advisorstats/getEmployeebyProgramId";
 import putUpdateEmployee from "@/utils/configemployee/putEditEmployee";
 import getAllProgram from "@/utils/getAllProgram";
 import { AllProgram } from "@/models/AllPrograms";
@@ -18,9 +18,12 @@ export default function ConfigAdvisorPage() {
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [selectedAdvisor, setSelectedAdvisor] = useState<Advisor | null>(null);
 
-  const [prefix, setPrefix] = useState<string>("");
-  const [firstName, setFirstName] = useState<string>("");
-  const [lastName, setLastName] = useState<string>("");
+  const [prefixEn, setPrefixEn] = useState<string>("");
+  const [prefixTh, setPrefixTh] = useState<string>("");
+  const [firstNameEn, setFirstNameEn] = useState<string>("");
+  const [firstNameTh, setFirstNameTh] = useState<string>("");
+  const [lastNameEn, setLastNameEn] = useState<string>("");
+  const [lastNameTh, setLastNameTh] = useState<string>("");
   const [email, setEmail] = useState<string>("");
 
   // Major selector states (only for display, not filtering the table)
@@ -45,7 +48,7 @@ export default function ConfigAdvisorPage() {
   useEffect(() => {
     const fetchAdvisors = async () => {
       try {
-        const data: Advisor[] = await getEmployeeByMajorId(1);
+        const data: Advisor[] = await getEmployeeByProgramId(1);
         setAdvisors(data);
       } catch (err) {
         console.error("Error fetching advisors:", err);
@@ -63,14 +66,20 @@ export default function ConfigAdvisorPage() {
     setSelectedAdvisor(advisor);
 
     if (advisor) {
-      setPrefix(advisor.prefix);
-      setFirstName(advisor.first_name);
-      setLastName(advisor.last_name);
+      setPrefixEn(advisor.prefix_en);
+      setPrefixTh(advisor.prefix_th);
+      setFirstNameEn(advisor.first_name_en);
+      setFirstNameTh(advisor.first_name_th);
+      setLastNameEn(advisor.last_name_en);
+      setLastNameTh(advisor.last_name_th);
       setEmail(advisor.email);
     } else {
-      setPrefix("");
-      setFirstName("");
-      setLastName("");
+      setPrefixEn("");
+      setPrefixTh("");
+      setFirstNameEn("");
+      setFirstNameTh("");
+      setLastNameEn("");
+      setLastNameTh("");
       setEmail("");
     }
 
@@ -84,9 +93,12 @@ export default function ConfigAdvisorPage() {
         // Update existing advisor
         const updatedAdvisor = {
           ...selectedAdvisor,
-          prefix,
-          first_name: firstName,
-          last_name: lastName,
+          prefix_en: prefixEn,
+          prefix_th: prefixTh,
+          first_name_en: firstNameEn,
+          first_name_th: firstNameTh,
+          last_name_en: lastNameEn,
+          last_name_th: lastNameTh,
           email,
         };
         const updatedEmployee = await putUpdateEmployee(updatedAdvisor);
@@ -99,9 +111,12 @@ export default function ConfigAdvisorPage() {
       } else {
         // Create new advisor
         const newAdvisorPayload = {
-          prefix,
-          first_name: firstName,
-          last_name: lastName,
+          prefix_en: prefixEn,
+          prefix_th: prefixTh,
+          first_name_en: firstNameEn,
+          first_name_th: firstNameTh,
+          last_name_en: lastNameEn,
+          last_name_th: lastNameTh,
           email,
           program_id: 1, // Always fixed to 1
         };
@@ -174,16 +189,16 @@ export default function ConfigAdvisorPage() {
               </h2>
               <div className="mb-3">
                 <label
-                  htmlFor="prefix"
+                  htmlFor="prefixEn"
                   className="text-sm text-gray-700 block mb-1"
                 >
-                  Position
+                  Position (EN)
                 </label>
                 <input
-                  id="prefix"
+                  id="prefixEn"
                   type="text"
-                  value={prefix}
-                  onChange={(e) => setPrefix(e.target.value)}
+                  value={prefixEn}
+                  onChange={(e) => setPrefixEn(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded text-sm
                              focus:outline-none focus:ring-2 focus:ring-red-900
                              focus:border-transparent"
@@ -191,16 +206,33 @@ export default function ConfigAdvisorPage() {
               </div>
               <div className="mb-3">
                 <label
-                  htmlFor="firstName"
+                  htmlFor="prefixTh"
                   className="text-sm text-gray-700 block mb-1"
                 >
-                  First Name
+                  Position (TH)
                 </label>
                 <input
-                  id="firstName"
+                  id="prefixTh"
                   type="text"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
+                  value={prefixTh}
+                  onChange={(e) => setPrefixTh(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm
+                             focus:outline-none focus:ring-2 focus:ring-red-900
+                             focus:border-transparent"
+                />
+              </div>
+              <div className="mb-3">
+                <label
+                  htmlFor="firstNameEn"
+                  className="text-sm text-gray-700 block mb-1"
+                >
+                  First Name (EN)
+                </label>
+                <input
+                  id="firstNameEn"
+                  type="text"
+                  value={firstNameEn}
+                  onChange={(e) => setFirstNameEn(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded text-sm
                              focus:outline-none focus:ring-2 focus:ring-button_primary
                              focus:border-transparent"
@@ -208,16 +240,50 @@ export default function ConfigAdvisorPage() {
               </div>
               <div className="mb-3">
                 <label
-                  htmlFor="lastName"
+                  htmlFor="firstNameTh"
                   className="text-sm text-gray-700 block mb-1"
                 >
-                  Last Name
+                  First Name (TH)
                 </label>
                 <input
-                  id="lastName"
+                  id="firstNameTh"
                   type="text"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  value={firstNameTh}
+                  onChange={(e) => setFirstNameTh(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm
+                             focus:outline-none focus:ring-2 focus:ring-button_primary
+                             focus:border-transparent"
+                />
+              </div>
+              <div className="mb-3">
+                <label
+                  htmlFor="lastNameEn"
+                  className="text-sm text-gray-700 block mb-1"
+                >
+                  Last Name (EN)
+                </label>
+                <input
+                  id="lastNameEn"
+                  type="text"
+                  value={lastNameEn}
+                  onChange={(e) => setLastNameEn(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm
+                             focus:outline-none focus:ring-2 focus:ring-button_focus
+                             focus:border-transparent"
+                />
+              </div>
+              <div className="mb-3">
+                <label
+                  htmlFor="lastNameTh"
+                  className="text-sm text-gray-700 block mb-1"
+                >
+                  Last Name (TH)
+                </label>
+                <input
+                  id="lastNameTh"
+                  type="text"
+                  value={lastNameTh}
+                  onChange={(e) => setLastNameTh(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded text-sm
                              focus:outline-none focus:ring-2 focus:ring-button_focus
                              focus:border-transparent"
@@ -260,7 +326,7 @@ export default function ConfigAdvisorPage() {
         )}
 
         {/* Table of Advisors (Major ID=1 by default) */}
-        <div className="relative overflow-x-auto shadow-md sm:rounded-lg mt-6">
+        <div className="relative overflow-x-auto shadow-md sm:rounded-lg mt-6"></div>
           <table className="w-full text-sm text-left text-gray-500">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50">
               <tr>
@@ -288,7 +354,7 @@ export default function ConfigAdvisorPage() {
                     {item.id}
                   </td>
                   <td className="px-6 py-4 font-medium text-gray-900">
-                    {item.prefix} {item.first_name} {item.last_name}
+                    {item.prefix_en} {item.first_name_en} {item.last_name_en}
                   </td>
                   <td className="px-6 py-4">{item.email}</td>
                   <td className="px-3 py-4 text-center">
@@ -305,6 +371,5 @@ export default function ConfigAdvisorPage() {
           </table>
         </div>
       </div>
-    </div>
   );
 }
