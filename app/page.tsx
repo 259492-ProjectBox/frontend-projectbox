@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { serverGetCookie } from "../utils/helpFunction";
-import Link from "next/link";
 
 export default function Home() {
   const cmuURL =process.env.NEXT_PUBLIC_CMU_ENTRAID_URL as string;
