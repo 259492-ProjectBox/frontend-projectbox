@@ -132,10 +132,6 @@ export default function AdvisorStatsPage() {
                 <th scope="col" className="px-6 py-3">
                   Program
                 </th>{" "}
-                {/* Updated this column to show program name */}
-                <th scope="col" className="px-6 py-3">
-                  Count
-                </th>
               </tr>
             </thead>
             <tbody>
