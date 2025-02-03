@@ -8,6 +8,10 @@ import { Advisor } from "@/models/Advisor";
 import Select from "react-select";
 import Image from "next/image";
 import { useConfigProgram } from "@/utils/configprogram/configProgram";
+import { useAuth } from "@/hooks/useAuth";
+import { getStudentInfo } from "@/utils/createproject/getStudentInfo"; // Import the new utility function
+import { getStudentsByProgram } from "@/utils/createproject/getStudentsByProgram";
+import { Student } from "@/models/Student"; // Import the new Student type
 
 // Types
 interface ProjectResourceConfig {
@@ -35,12 +39,34 @@ interface FormData {
     | undefined;
 }
 
+interface Course {
+  id: number;
+  course_no: string;
+  course_name: string;
+  program_id: number;
+  program: {
+    id: number;
+    program_name_th: string;
+    program_name_en: string;
+    abbreviation: string;
+  };
+}
+
+interface Program {
+  id: number;
+  program_name_th: string;
+  program_name_en: string;
+  abbreviation: string;
+}
+
 const CreateProject: React.FC = () => {
   const [formConfig, setFormConfig] = useState<FormConfig>({});
   const [formData, setFormData] = useState<FormData>({});
   const [loading, setLoading] = useState(true);
   const [staffList, setStaffList] = useState<Advisor[]>([]);
+  const [studentList, setStudentList] = useState<Student[]>([]); // Store student list
 
+  const { user } = useAuth(); // Get user from useAuth
   const configProgram = useConfigProgram();
 
   const labels: Record<string, string> = {
@@ -70,22 +96,33 @@ const CreateProject: React.FC = () => {
   // Fetch data on mount
   useEffect(() => {
     const fetchData = async () => {
+      if (!user?.studentId) return; // Ensure studentId is available
+
       try {
-        const config = await getProjectConfig(1); // Replace '1' with appropriate majorId
-        const activeFields = config.reduce<FormConfig>((acc, field) => {
-          if (field.is_active) acc[field.title] = true;
-          return acc;
-        }, {});
-        setFormConfig(activeFields);
+        // Fetch student data using the studentId from useAuth
+        const data = await getStudentInfo(user.studentId);
+        console.log("Student Data:", data);
 
-        const projectResourceConfigs = await fetchProjectResourceConfigs(1); // Replace with programId
-        setFormConfig((prevConfig) => ({
-          ...prevConfig,
-          report_pdf: projectResourceConfigs,
-        }));
+        if (data?.program_id) {
+          const config = await getProjectConfig(data.program_id); // Use program ID from student data
+          const activeFields = config.reduce<FormConfig>((acc, field) => {
+            if (field.is_active) acc[field.title] = true;
+            return acc;
+          }, {});
+          setFormConfig(activeFields);
 
-        const employees = await getAllEmployees();
-        setStaffList(employees);
+          const projectResourceConfigs = await fetchProjectResourceConfigs(data.program_id); // Use program ID from student data
+          setFormConfig((prevConfig) => ({
+            ...prevConfig,
+            report_pdf: projectResourceConfigs,
+          }));
+
+          const employees = await getAllEmployees();
+          setStaffList(employees);
+
+          const students = await getStudentsByProgram(data.program_id); // Use program ID from student data
+          setStudentList(students);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -94,7 +131,7 @@ const CreateProject: React.FC = () => {
     };
 
     fetchData();
-  }, []);
+  }, [user?.studentId]); // Re-run effect when studentId changes
 
   // Prefill academic year and semester
   useEffect(() => {
@@ -211,7 +248,8 @@ const CreateProject: React.FC = () => {
   const renderMultiSelectField = (
     field: string,
     label: string,
-    isRequired: boolean
+    isRequired: boolean,
+    optionsList: { value: number; label: string }[]
   ) => {
     if (!formConfig[field]) return null;
 
@@ -230,10 +268,7 @@ const CreateProject: React.FC = () => {
               field
             )
           }
-          options={staffList.map((staff) => ({
-            label: `${staff.prefix} ${staff.first_name} ${staff.last_name}`,
-            value: staff.id,
-          }))}
+          options={optionsList}
           getOptionLabel={(e) => e.label} // Ensure the correct label is displayed
           getOptionValue={(e) => e.value.toString()} // Convert value to string if needed
           className="w-full"
@@ -335,14 +370,50 @@ const CreateProject: React.FC = () => {
         </div>
         <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
           <h6 className="text-lg font-bold mb-4">Team Details</h6>
-          {renderInputField("student", "Students", true)}
-          {renderMultiSelectField("advisor", "Advisor", true)}
-          {renderMultiSelectField("co_advisor", "Co-Advisor", false)}
-          {renderMultiSelectField("committee", "Committee Members", false)}
+          {renderMultiSelectField(
+            "student",
+            "Students",
+            true,
+            studentList.map((student) => ({
+              value: student.id,
+              label: `${student.first_name} ${student.last_name} (${student.student_id})`,
+            }))
+          )}
+          {renderMultiSelectField(
+            "advisor",
+            "Advisor",
+            true,
+            staffList.map((staff) => ({
+              value: staff.id,
+              label: `${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
+            }))
+          )}
+          {renderMultiSelectField(
+            "co_advisor",
+            "Co-Advisor",
+            false,
+            staffList.map((staff) => ({
+              value: staff.id,
+              label: `${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
+            }))
+          )}
+          {renderMultiSelectField(
+            "committee",
+            "Committee Members",
+            false,
+            staffList.map((staff) => ({
+              value: staff.id,
+              label: `${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
+            }))
+          )}
           {renderMultiSelectField(
             "external_committee",
             "External Committee Members",
-            false
+            false,
+            staffList.map((staff) => ({
+              value: staff.id,
+              label: `${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
+            }))
           )}
         </div>
         <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">

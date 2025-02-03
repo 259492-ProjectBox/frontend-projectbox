@@ -7,8 +7,8 @@ import getProjectConfig from "@/utils/configform/getProjectConfig";
 import updateProjectConfigs from "@/utils/configform/updateProjectConfigs";
 import { ProjectConfig } from "@/models/ProjectConfig";
 import MockTableSection from "@/components/configform/upload";
-import getAllProgram from "@/utils/getAllProgram";
-import { AllProgram } from "@/models/AllPrograms";
+import { useAuth } from "@/hooks/useAuth";
+import { getProgramNameById } from "@/utils/programHelpers";
 
 const CreateProject: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({});
@@ -16,14 +16,16 @@ const CreateProject: React.FC = () => {
   const [apiData, setApiData] = useState<ProjectConfig[]>([]);
 
   // Major selector states (for display only; not filtering data)
-  const [majorList, setMajorList] = useState<AllProgram[]>([]);
-  const [selectedMajor, setSelectedMajor] = useState<number>(1); // Default
+  const { user } = useAuth();
+  const [selectedMajor, setSelectedMajor] = useState<number>(
+    user?.isAdmin[0] ?? 0
+  ); // Default
 
-  // 1) Fetch project config by fixed major ID (1)
+  // 1) Fetch project config by selected major ID
   const fetchConfig = async () => {
     try {
       setLoading(true);
-      const data: ProjectConfig[] = await getProjectConfig(1);
+      const data: ProjectConfig[] = await getProjectConfig(selectedMajor);
       // Map API response to formData
       const initialFormData = data.reduce(
         (acc: Record<string, boolean>, item: ProjectConfig) => {
@@ -41,23 +43,10 @@ const CreateProject: React.FC = () => {
     }
   };
 
-  // 2) Fetch major list (for the selector)
-  useEffect(() => {
-    const fetchMajors = async () => {
-      try {
-        const data = await getAllProgram();
-        setMajorList(data);
-      } catch (err) {
-        console.error("Error fetching major list:", err);
-      }
-    };
-    fetchMajors();
-  }, []);
-
-  // 3) Call fetchConfig once on mount
+  // 2) Call fetchConfig when selectedMajor changes
   useEffect(() => {
     fetchConfig();
-  }, []);
+  }, [selectedMajor]);
 
   // Toggle fields
   const handleToggleChange = (fieldName: string) => {
@@ -107,11 +96,13 @@ const CreateProject: React.FC = () => {
             className="w-full px-3 py-2 text-sm border border-gray-300 rounded 
                        focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            {majorList.map((major) => (
-              <option key={major.id} value={major.id}>
-                {major.program_name_en}
-              </option>
-            ))}
+            {user?.isAdmin
+              ?.sort((a, b) => a - b)
+              .map((majorId) => (
+                <option key={majorId} value={majorId}>
+                  {majorId}
+                </option>
+              ))}
           </select>
         </div>
 

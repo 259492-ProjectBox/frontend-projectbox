@@ -52,8 +52,8 @@ export default function AdvisorStatsPage() {
       setFilteredAdvisors(
         advisors.filter(
           (advisor) =>
-            advisor.first_name.toLowerCase().includes(lowerCaseSearchTerm) ||
-            advisor.last_name.toLowerCase().includes(lowerCaseSearchTerm) ||
+            advisor.first_name_en.toLowerCase().includes(lowerCaseSearchTerm) ||
+            advisor.last_name_en.toLowerCase().includes(lowerCaseSearchTerm) ||
             advisor.email.toLowerCase().includes(lowerCaseSearchTerm)
         )
       );
@@ -132,10 +132,6 @@ export default function AdvisorStatsPage() {
                 <th scope="col" className="px-6 py-3">
                   Program
                 </th>{" "}
-                {/* Updated this column to show program name */}
-                <th scope="col" className="px-6 py-3">
-                  Count
-                </th>
               </tr>
             </thead>
             <tbody>
@@ -151,15 +147,20 @@ export default function AdvisorStatsPage() {
                     <Image
                       className="w-8 h-8 rounded-full"
                       src="/logo-engcmu/CMU_LOGO_Crop.jpg"
-                      alt={advisor.first_name}
+                      alt={advisor.first_name_en}
                       width={32} // Specify width (in px)
                       height={32} // Specify height (in px)
                     />
                     <div className="pl-3">
                       <Link href={`/advisorprofile/${advisor.id}`}>
                         <span className="text-base font-semibold text-primary_text hover:underline cursor-pointer">
-                          {advisor.prefix} {advisor.first_name}{" "}
-                          {advisor.last_name}
+                          {advisor.prefix_en} {advisor.first_name_en}{" "}
+                          {advisor.last_name_en}
+                        </span>
+                        <br />
+                        <span className="text-sm text-gray-500">
+                          {advisor.prefix_th} {advisor.first_name_th}{" "}
+                          {advisor.last_name_th}
                         </span>
                       </Link>
                     </div>

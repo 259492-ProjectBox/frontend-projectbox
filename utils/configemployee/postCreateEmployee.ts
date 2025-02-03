@@ -11,9 +11,9 @@ const postCreateEmployee = async (payload: CreateAdvisorPayload): Promise<Adviso
       "https://project-service.kunmhing.me/api/v1/staffs",
       payload,
       {
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
-          "accept": "application/json"  // Added accept header as per the curl example
+          accept: "application/json",
         },
       }
     );

@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import getProjectByStudentId from "@/utils/dasboard/getProjectByStudentId";
+import getProjectByStudentId from "@/utils/dashboard/getProjectByStudentId";
 import { Project } from "@/models/Project";
 import Spinner from "@/components/Spinner";
 import AddIcon from "@mui/icons-material/Add";
@@ -17,11 +17,13 @@ import { CustomTooltip } from "@/components/CustomTooltip";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
+import { createProjectCheckPermission } from "@/utils/dashboard/createProjectCheckPermission"; // Import the new utility function
 
 function Dashboard() {
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]); // Ensure this is initialized as an empty array
   const [loading, setLoading] = useState(true);
+  const [hasPermission, setHasPermission] = useState(false); // State to track permission
   const { user } = useAuth();
 
   useEffect(() => {
@@ -44,7 +46,15 @@ function Dashboard() {
       }
     };
 
+    const checkPermission = async () => {
+      if (!user?.studentId) return;
+
+      const permission = await createProjectCheckPermission(user.studentId);
+      setHasPermission(permission);
+    };
+
     loadProjects();
+    checkPermission();
   }, [user]);
 
   if (loading) return <Spinner />;
@@ -121,14 +131,16 @@ function Dashboard() {
             projects on your plate
           </h2>
         </div>
-        <CustomTooltip title="Create a new project" arrow>
-          <button
-            onClick={() => router.push("../../createproject")}
-            className="bg-white text-primary_text font-bold px-6 py-2 rounded shadow-md hover:bg-gray-100 focus:outline-none flex items-center gap-2"
-          >
-            <AddIcon className="text-primary_text" /> Create Project
-          </button>
-        </CustomTooltip>
+        {hasPermission && (
+          <CustomTooltip title="Create a new project" arrow>
+            <button
+              onClick={() => router.push("../../createproject")}
+              className="bg-white text-primary_text font-bold px-6 py-2 rounded shadow-md hover:bg-gray-100 focus:outline-none flex items-center gap-2"
+            >
+              <AddIcon className="text-primary_text" /> Create Project
+            </button>
+          </CustomTooltip>
+        )}
       </div>
 
       {/* Projects */}
