@@ -278,7 +278,7 @@ export default function AdminManagePage(): JSX.Element {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
           <div className="relative bg-white rounded-lg shadow-lg w-full max-w-md">
             <div className="p-6">
-              <h3 className="mb-5 text-lg font-medium text-gray-800">Add Admin</h3>
+              <h3 className="mb-5 text-lg font-medium text-gray-800">Add Admin to Program</h3>
               <div className="mb-4">
                 <input
                   type="email"
