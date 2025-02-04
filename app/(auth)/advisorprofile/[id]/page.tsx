@@ -48,6 +48,7 @@ export default function AdvisorProfilePage() {
             <div className="mt-4 space-y-2">
               <p className="text-lg font-semibold">
                 {advisor.prefix_en} {advisor.first_name_en} {advisor.last_name_en}
+                <br />
                 {advisor.prefix_th} {advisor.first_name_th} {advisor.last_name_th}
               </p>
               <p className="text-sm">
