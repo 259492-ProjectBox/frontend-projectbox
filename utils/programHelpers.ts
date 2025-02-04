@@ -38,5 +38,16 @@ const getProgramId = async (programName: string): Promise<number | undefined> =>
     return undefined;
   }
 };
+export const getProgramOptions = async (isAdmin: number[]): Promise<AllProgram[]> => {
+  const allPrograms: AllProgram[] = await getAllProgram(); // Fetch all programs
 
-export { getProgramNameById, getProgramIdByName, getProgramName, getProgramId };
+  // Filter only programs that exist in isAdmin
+  const validPrograms = allPrograms.filter((program) => isAdmin.includes(program.id));
+
+  return [
+    { id: 0, program_name_en: "Select Program", program_name_th: "เลือกหลักสูตร" }, // Default option
+    ...validPrograms.sort((a, b) => a.id - b.id), // Sort by ID for consistency
+  ];
+};
+
+export { getProgramNameById, getProgramIdByName, getProgramName, getProgramId  };

@@ -25,3 +25,17 @@ export const useConfigProgram = () => {
 
   return configProgram;
 };
+
+
+export async function fetchConfigProgram(programId: number) {
+  const res = await fetch(`/api/configProgram?programId=${programId}`, { 
+    method: "GET",
+    cache: "no-store" // Ensure fresh data
+  });
+
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.message);
+
+  return data.data;
+}
+
