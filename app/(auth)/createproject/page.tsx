@@ -102,6 +102,13 @@ const CreateProject: React.FC = () => {
 
           const students = await getStudentsByProgram(data.program_id); // Use program ID from student data
           setStudentList(students);
+
+          // Pre-fill course and section
+          setFormData((prevData) => ({
+            ...prevData,
+            course_id: data.course.course_no,
+            section_id: data.sec_lab,
+          }));
         }
       } catch (error) {
         console.error("Error fetching data:", error);
