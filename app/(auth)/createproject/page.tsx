@@ -39,26 +39,6 @@ interface FormData {
     | undefined;
 }
 
-interface Course {
-  id: number;
-  course_no: string;
-  course_name: string;
-  program_id: number;
-  program: {
-    id: number;
-    program_name_th: string;
-    program_name_en: string;
-    abbreviation: string;
-  };
-}
-
-interface Program {
-  id: number;
-  program_name_th: string;
-  program_name_en: string;
-  abbreviation: string;
-}
-
 const CreateProject: React.FC = () => {
   const [formConfig, setFormConfig] = useState<FormConfig>({});
   const [formData, setFormData] = useState<FormData>({});
@@ -122,6 +102,13 @@ const CreateProject: React.FC = () => {
 
           const students = await getStudentsByProgram(data.program_id); // Use program ID from student data
           setStudentList(students);
+
+          // Pre-fill course and section
+          setFormData((prevData) => ({
+            ...prevData,
+            course_id: data.course.course_no,
+            section_id: data.sec_lab,
+          }));
         }
       } catch (error) {
         console.error("Error fetching data:", error);

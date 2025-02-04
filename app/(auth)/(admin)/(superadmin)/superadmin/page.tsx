@@ -15,10 +15,42 @@ type ProgramOption = {
   label: string;
 };
 
+type Admin = {
+  email: string;
+  nameEn: string;
+  nameTh: string;
+  programs: string;
+  programIds: number[];
+};
+
+type FetchedAdmin = {
+  cmuaccount: string;
+  firstnameen: string;
+  lastnameen: string;
+  firstnameth: string;
+  lastnameth: string;
+  programs_ids: number[];
+};
+
+const programColors: Record<number, { bg: string; text: string }> = {
+  1: { bg: "bg-[#F8D7DA]", text: "text-[#8B0000]" },
+  2: { bg: "bg-[#F3E5F5]", text: "text-[#6A1B9A]" },
+  3: { bg: "bg-[#E8F5E9]", text: "text-[#1B5E20]" },
+  4: { bg: "bg-[#FFEBEE]", text: "text-[#B71C1C]" },
+  5: { bg: "bg-[#E0F2F1]", text: "text-[#004D40]" },
+  6: { bg: "bg-[#FFFDE7]", text: "text-[#F57F17]" },
+  7: { bg: "bg-[#F3E5F5]", text: "text-[#4A148C]" },
+  8: { bg: "bg-[#FFF3E0]", text: "text-[#E65100]" },
+  9: { bg: "bg-[#E3F2FD]", text: "text-[#0D47A1]" },
+  10: { bg: "bg-[#E8EAF6]", text: "text-[#1A237E]" },
+  11: { bg: "bg-[#F8D7DA]", text: "text-[#8B0000]" },
+  12: { bg: "bg-[#E0F7FA]", text: "text-[#006064]" },
+};
+
 export default function AdminManagePage(): JSX.Element {
   const { user } = useAuth(); // Get user from the auth context (assumed to be available in your app)
-  const [admins, setAdmins] = useState<any[]>([]); // Hold admins data
-  const [filteredAdmins, setFilteredAdmins] = useState<any[]>([]); // Hold filtered admins based on selected program
+  const [admins, setAdmins] = useState<Admin[]>([]); // Hold admins data
+  const [filteredAdmins, setFilteredAdmins] = useState<Admin[]>([]); // Hold filtered admins based on selected program
   const [email, setEmail] = useState<string>(""); // For email input (Admin's email)
   const [programs, setPrograms] = useState<AllProgram[]>([]); // To hold the programs fetched from API
   const [selectedProgram, setSelectedProgram] = useState<ProgramOption | null>(null); // Selected program for filtering
@@ -28,18 +60,19 @@ export default function AdminManagePage(): JSX.Element {
   const [newProgramTh, setNewProgramTh] = useState<string>(""); // State for new program name (Thai)
   const [isProgramModalOpen, setIsProgramModalOpen] = useState<boolean>(false); // State for program modal visibility
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false); // State for delete modal visibility
-  const [adminToDelete, setAdminToDelete] = useState<any | null>(null); // Admin to be deleted
+  const [adminToDelete, setAdminToDelete] = useState<Admin | null>(null); // Admin to be deleted
+  const [searchTerm, setSearchTerm] = useState<string>(""); // State for search term
 
   // Fetching admin data from the API using the controller
   useEffect(() => {
     const loadAdmins = async () => {
       try {
-        const fetchedAdmins = await getAdmins();
-        const adminsWithPrograms = fetchedAdmins.map((admin: any) => ({
+        const fetchedAdmins: FetchedAdmin[] = await getAdmins();
+        const adminsWithPrograms = fetchedAdmins.map((admin) => ({
           email: admin.cmuaccount,
           nameEn: `${admin.firstnameen} ${admin.lastnameen}`,
           nameTh: `${admin.firstnameth} ${admin.lastnameth}`,
-          programs: admin.programs_ids.map((id: number) => getProgramNameById(id, programs)).join(", "),
+          programs: admin.programs_ids.map((id) => getProgramNameById(id, programs)).join(", "),
           programIds: admin.programs_ids, // Store program IDs for filtering
         }));
         setAdmins(adminsWithPrograms);
@@ -67,6 +100,23 @@ export default function AdminManagePage(): JSX.Element {
   useEffect(() => {
     fetchPrograms(); // This runs once when the component mounts
   }, []); 
+
+  // Filter admins based on search term and selected program
+  useEffect(() => {
+    const filtered = admins.filter((admin) => {
+      const matchesSearchTerm =
+        admin.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        admin.nameEn.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        admin.nameTh.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesProgram =
+        !selectedProgram || selectedProgram.value === -1 || admin.programIds.includes(selectedProgram.value);
+
+      return matchesSearchTerm && matchesProgram;
+    });
+
+    setFilteredAdmins(filtered);
+  }, [searchTerm, selectedProgram, admins]);
 
   // Filter admins based on selected program
   const handleFilterProgramChange = (selectedOption: ProgramOption | null) => {
@@ -120,9 +170,11 @@ export default function AdminManagePage(): JSX.Element {
         setAdmins([
           ...admins,
           {
-            id: admins.length + 1,
             email: userAccount,
-            program: selectedPrograms.map((program: ProgramOption) => program.label).join(", "),
+            nameEn: "", // You may need to fetch the name again or handle it differently
+            nameTh: "", // You may need to fetch the name again or handle it differently
+            programs: selectedPrograms.map((program: ProgramOption) => program.label).join(", "),
+            programIds: programIds,
           },
         ]);
         
@@ -181,7 +233,14 @@ export default function AdminManagePage(): JSX.Element {
         </div>
 
         {/* Program Filter Dropdown */}
-        <div className="mb-4">
+        <div className="mb-4 flex gap-2">
+          <input
+            type="text"
+            placeholder="Search by CMU Account or Name"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-4/12 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-800 text-sm"
+          />
           <Select
             value={selectedProgram}
             onChange={handleFilterProgramChange}
@@ -192,12 +251,12 @@ export default function AdminManagePage(): JSX.Element {
                 label: program.program_name_en,
               })),
             ]}
-            className="w-5/12"
+            className="w-4/12"
             placeholder="Filter by Program"
           />
         </div>
 
-        <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+        <div className="relative overflow-x-auto shadow-md sm:rounded-lg max-h-96 overflow-y-auto">
           <table className="w-full text-sm text-left text-gray-500">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50">
               <tr>
@@ -216,7 +275,19 @@ export default function AdminManagePage(): JSX.Element {
                     <br />
                     <span className="text-gray-500">{item.nameTh}</span>
                   </td>
-                  <td className="px-6 py-4 font-medium text-gray-900">{item.programs}</td>
+                    <td className="px-6 py-4 font-medium text-gray-900">
+                    {item.programIds.map((programId) => {
+                      const colorTheme = programColors[programId] || { bg: "bg-gray-300", text: "text-gray-700" };
+                      return (
+                      <div
+                        key={programId}
+                        className={`inline-block px-2 py-1 rounded-full text-xs font-semibold mr-2 mb-1 ${colorTheme.bg} ${colorTheme.text}`}
+                      >
+                        {getProgramNameById(programId, programs)}
+                      </div>
+                      );
+                    })}
+                    </td>
                   <td className="px-6 py-4 font-medium text-red-600 cursor-pointer" onClick={() => { setAdminToDelete(item); setIsDeleteModalOpen(true); }}>
                     Delete
                   </td>
@@ -232,7 +303,7 @@ export default function AdminManagePage(): JSX.Element {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
           <div className="relative bg-white rounded-lg shadow-lg w-full max-w-md">
             <div className="p-6">
-              <h3 className="mb-5 text-lg font-medium text-gray-800">Add Admin</h3>
+              <h3 className="mb-5 text-lg font-medium text-gray-800">Add Admin to Program</h3>
               <div className="mb-4">
                 <input
                   type="email"
@@ -288,7 +359,6 @@ export default function AdminManagePage(): JSX.Element {
               <p className="mb-4 text-gray-500">Are you sure you want to delete this admin?</p>
               <p className="mb-4 text-gray-500">{adminToDelete.nameEn} ({adminToDelete.nameTh})</p>
               <p className="mb-4 text-gray-500">{adminToDelete.email}</p>
-              {/* <p className="mb-4 text-gray-500">{adminToDelete.programs}</p> */}
               <p className="mb-4 text-red-600">Delete will remove admin of all programs including </p>
                 <div className="mb-4 p-2 border border-red-300 rounded">
                   {adminToDelete.programs.split(", ").map((program: string, index: number) => (
@@ -300,7 +370,7 @@ export default function AdminManagePage(): JSX.Element {
                   No, cancel
                 </button>
                 <button onClick={handleDeleteAdmin} type="button" className="py-2 px-3 text-sm font-medium text-center text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300">
-                  Yes, I'm sure
+                  Remove
                 </button>
               </div>
             </div>

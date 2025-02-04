@@ -23,6 +23,9 @@ export default function ConfigProgram() {
   // Config data from custom hook
   const configData = useConfigProgram(); 
 
+  // File Upload state
+  const [file, setFile] = useState<File | null>(null);
+
   // 1) Fetch list of all programs (for dropdown)
   useEffect(() => {
     const fetchPrograms = async () => {
@@ -59,6 +62,23 @@ export default function ConfigProgram() {
   const handleSave = () => {
     console.log("Saved values - Academic Year:", academicYear, "Semester:", semester);
     setIsEditMode(false); // Turn off edit mode
+  };
+
+  // Handler for file upload
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  // Handler for saving the uploaded file
+  const handleSaveUpload = () => {
+    if (file) {
+      console.log("File uploaded: ", file.name);
+      // You can add additional logic here to handle the file (e.g., send it to the server)
+    } else {
+      console.log("No file selected for upload.");
+    }
   };
 
   // Show loading or error
@@ -149,7 +169,7 @@ export default function ConfigProgram() {
         </div>
 
         {/* Edit/Save Buttons */}
-        <div className="mt-4">
+        <div className="mt-4 flex gap-4">
           <button
             onClick={() => setIsEditMode((prev) => !prev)}
             className="text-white bg-blue-900 py-2 px-4 rounded-lg 
@@ -160,19 +180,75 @@ export default function ConfigProgram() {
           {isEditMode && (
             <button
               onClick={handleSave}
-              className="ml-4 text-white bg-blue-900 py-2 px-4 rounded-lg 
+              className="text-white bg-blue-900 py-2 px-4 rounded-lg 
                          hover:bg-blue-800 transition-colors"
             >
               Save
             </button>
           )}
         </div>
+
+        {/* Space added between the sections */}
+        <div className="my-8" />
+
+        {/* File Upload Section */}
+        <div className="mt-6 p-4 rounded-md shadow-sm border border-gray-200 bg-white">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">
+            Upload Excel for Allow Students in this Semester can create Project
+          </h3>
+          <label
+            htmlFor="dropzone-file"
+            className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+          >
+            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+              <svg
+                className="w-8 h-8 mb-4 text-gray-500"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 20 16"
+              >
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                />
+              </svg>
+              <p className="mb-2 text-sm text-gray-500">
+                <span className="font-semibold">Click to upload</span> or drag and drop
+              </p>
+              <p className="text-xs text-gray-500">
+                .xlsx file only (MAX. 800 KB)
+              </p>
+            </div>
+            <input
+              id="dropzone-file"
+              type="file"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+          </label>
+          {file && (
+            <p className="mt-2 text-gray-600">Selected File: {file.name}</p>
+          )}
+
+          {/* Save Upload Button */}
+          <button
+            onClick={handleSaveUpload}
+            className="mt-4 text-white bg-blue-900 py-2 px-4 rounded-lg 
+                       hover:bg-blue-800 transition-colors"
+          >
+            Save Upload
+          </button>
+        </div>
+
       </div>
 
       {/* Example Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center 
-                        bg-black bg-opacity-50 z-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
             <h2 className="text-lg font-semibold mb-4">Add Asset</h2>
             <div className="flex justify-between mb-4">

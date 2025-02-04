@@ -12,6 +12,8 @@ export const getStudentInfo = async (studentId: string): Promise<Student | null>
       }
     );
     const data = await response.json();
+    console.log("getStudentInfo data:", data);
+    
     return data;
   } catch (error) {
     console.error("Error fetching student data:", error);
