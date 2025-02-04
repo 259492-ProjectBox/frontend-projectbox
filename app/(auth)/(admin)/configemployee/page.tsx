@@ -6,6 +6,8 @@ import postCreateEmployee from "@/utils/configemployee/postCreateEmployee";
 import getEmployeeByProgramId from "@/utils/advisorstats/getEmployeebyProgramId";
 import putUpdateEmployee from "@/utils/configemployee/putEditEmployee";
 import { useAuth } from "@/hooks/useAuth";
+import { AllProgram } from "@/models/AllPrograms";
+import { getProgramOptions } from "@/utils/programHelpers";
 
 export default function ConfigAdvisorPage() {
   const [advisors, setAdvisors] = useState<Advisor[]>([]);
@@ -27,10 +29,24 @@ export default function ConfigAdvisorPage() {
   const [email, setEmail] = useState<string>("");
 
   // Major selector states
-  const [selectedMajor, setSelectedMajor] = useState<number>(
-    user?.isAdmin[0] ?? 0
-  ); // default to first program
+  const [selectedMajor, setSelectedMajor] = useState<number>(0);
+  const [options, setOptions] = useState<AllProgram[]>([]);
 
+  useEffect(() => {
+    const fetchOptions = async () => {
+      if(!user) return;
+      const programOptions = await getProgramOptions(user.isAdmin);
+      setOptions(programOptions);
+
+      // Ensure selectedMajor is in options, otherwise set it to "Unknown" (0)
+      const validIds = programOptions.map((option) => option.id);
+      if (!validIds.includes(selectedMajor)) {
+        setSelectedMajor(0);
+      }
+    };
+
+    fetchOptions();
+  }, [user?.isAdmin]);
   // Fetch advisors by selected major ID
   useEffect(() => {
     const fetchAdvisors = async () => {
@@ -45,6 +61,7 @@ export default function ConfigAdvisorPage() {
         setLoading(false);
       }
     };
+    
     fetchAdvisors();
   }, [selectedMajor]);
 
@@ -148,13 +165,12 @@ export default function ConfigAdvisorPage() {
             className="w-full px-3 py-2 text-sm border border-gray-300 rounded
              focus:outline-none focus:ring-2 focus:ring-red-900"
           >
-            {user?.isAdmin
-              ?.sort((a, b) => a - b)
-              .map((majorId) => (
-                <option key={majorId} value={majorId}>
-                  {majorId}
-                </option>
-              ))}
+            {options.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.program_name_en}
+              </option>
+            ))  
+            }
           </select>
         </div>
 

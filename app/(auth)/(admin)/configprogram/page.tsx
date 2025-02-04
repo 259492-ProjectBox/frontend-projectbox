@@ -2,9 +2,10 @@
 import React, { useEffect, useState } from "react";
 import Spinner from "@/components/Spinner";
 import { ConfigProgramSetting } from "@/models/ConfigProgram";
-import { useConfigProgram } from "@/utils/configprogram/configProgram";
-import getAllProgram from "@/utils/getAllProgram";
+import { fetchConfigProgram, useConfigProgram } from "@/utils/configprogram/configProgram";
 import { AllProgram } from "@/models/AllPrograms";
+import { getProgramOptions } from "@/utils/programHelpers";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function ConfigProgram() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -15,48 +16,74 @@ export default function ConfigProgram() {
   const [academicYear, setAcademicYear] = useState<string>("2025");
 
   // Program data
-  const [programData, setProgramData] = useState<AllProgram[]>([]);
-  const [selectedMajor, setSelectedMajor] = useState<number>(0); // Program ID currently chosen
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Config data from custom hook
-  const configData = useConfigProgram(); 
+  
 
   // File Upload state
   const [file, setFile] = useState<File | null>(null);
 
-  // 1) Fetch list of all programs (for dropdown)
+  const {user} = useAuth();
+  const [selectedMajor, setSelectedMajor] = useState<number>(0);
+  const [options, setOptions] = useState<AllProgram[]>([]);
+  
   useEffect(() => {
-    const fetchPrograms = async () => {
-      try {
-        const programs = await getAllProgram();
-        setProgramData(programs);
-
-        // Optional: set a default selection if needed
-        if (programs.length > 0) {
-          setSelectedMajor(programs[0].id);
+      const fetchOptions = async () => {
+        if (!user) return;
+        setLoading(true);
+        try {
+          const programOptions = await getProgramOptions(user.isAdmin);
+          setOptions(programOptions);
+  
+          // Ensure selectedMajor is in options; otherwise, reset to default (0)
+          if (!programOptions.some((option) => option.id === selectedMajor)) {
+            setSelectedMajor(0);
+          }
+        } catch (err) {
+          console.error("Error fetching program options:", err);
+          setError("Failed to load program options.");
+        } finally {
+          setLoading(false);
         }
-      } catch (err) {
-        console.error(err);
-        setError("Failed to load program data.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPrograms();
-  }, []);
-
-  // 2) Filter configData so we only show settings matching selectedMajor
-  const filteredConfigData = configData.filter(
-    (config) => config.program_id === selectedMajor
-  );
+      };
+  
+      fetchOptions();
+    }, [user?.isAdmin]); // Re-fetch when `isAdmin` changes
+  
+    
+    // Fetch configuration data for selected program
+    // const configData = useConfigProgram();
+    const [configData, setConfigData] = useState<ConfigProgramSetting[]>([]);
+    useEffect(() => {
+      if (selectedMajor === 0) return; // Skip if no program is selected
+  
+      const loadData = async () => {
+        setLoading(true);
+        try {
+          const data = await fetchConfigProgram(selectedMajor);
+          console.log("Data Config:", data);
+          
+          if (!Array.isArray(data)) {
+            throw new Error("Unexpected response format");
+          }
+          setConfigData(data);
+        } catch (err) {
+          console.error("Error fetching config:", err);
+          setError("Failed to load configurations.");
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      loadData();
+    }, [selectedMajor]);
+    
 
   // 3) Find the selected program object to display its name
-  const selectedProgram = programData.find(
-    (program) => program.id === selectedMajor
-  );
+  // const selectedProgram = programData.find(
+  //   (program) => program.id === selectedMajor
+  // );
 
   // Handler for saving changes in edit mode
   const handleSave = () => {
@@ -110,23 +137,24 @@ export default function ConfigProgram() {
             className="w-full px-3 py-2 text-sm border border-gray-300 rounded
                        focus:outline-none focus:ring-2 focus:ring-red-900"
           >
-            {programData.map((prog) => (
-              <option key={prog.id} value={prog.id}>
-                {prog.program_name_en}
+           {options.map((option) => (
+              
+              <option key={option.id} value={option.id}>
+                {option.program_name_en}
               </option>
             ))}
           </select>
         </div>
 
         {/* Program Name */}
-        <h2 className="text-lg font-semibold text-gray-800 mt-6">
+        {/* <h2 className="text-lg font-semibold text-gray-800 mt-6">
           {selectedProgram?.program_name_en ?? "No program selected"}
-        </h2>
+        </h2> */}
 
         {/* Config Data Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-          {filteredConfigData.length > 0 ? (
-            filteredConfigData.map((item: ConfigProgramSetting, index) => (
+          {configData.length > 0 ? (
+            configData.map((item: ConfigProgramSetting, index) => (
               <div key={index} className="bg-white p-4 rounded-lg shadow-md">
                 <h2 className="text-gray-800 font-semibold">{item.config_name}</h2>
 

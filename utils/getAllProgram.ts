@@ -9,7 +9,7 @@ const getAllProgram = async (): Promise<AllProgram[]> => {
         headers: { Accept: "application/json" },
       }
     );
-    console.log("getAllProgram:",response.data);
+    // console.log("getAllProgram:",response.data);
     // Assuming the response.data is an array of majors
     return response.data as AllProgram[];
   } catch (error) {

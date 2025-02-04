@@ -8,6 +8,8 @@ import updateProjectConfigs from "@/utils/configform/updateProjectConfigs";
 import { ProjectConfig } from "@/models/ProjectConfig";
 import MockTableSection from "@/components/configform/upload";
 import { useAuth } from "@/hooks/useAuth";
+import { AllProgram } from "@/models/AllPrograms";
+import { getProgramOptions } from "@/utils/programHelpers";
 
 const CreateProject: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({});
@@ -16,16 +18,37 @@ const CreateProject: React.FC = () => {
 
   // Major selector states (for display only; not filtering data)
   const { user } = useAuth();
-  const [selectedMajor, setSelectedMajor] = useState<number>(
-    user?.isAdmin[0] ?? 0
-  ); // Default
+  const [selectedMajor, setSelectedMajor] = useState<number>(0); 
 
-  // 1) Fetch project config by selected major ID
+  const [options, setOptions] = useState<AllProgram[]>([]);
+  
+    useEffect(() => {
+      const fetchOptions = async () => {
+        if(!user) return;
+        const programOptions = await getProgramOptions(user.isAdmin);
+        setOptions(programOptions);
+  
+        // Ensure selectedMajor is in options, otherwise set it to "Unknown" (0)
+        const validIds = programOptions.map((option) => option.id);
+        if (!validIds.includes(selectedMajor)) {
+          setSelectedMajor(0);
+        }
+      };
+  
+      fetchOptions();
+    }, [user?.isAdmin]);
+
+    
   const fetchConfig = async () => {
     try {
       setLoading(true);
+      if (selectedMajor === 0) {
+        setFormData({});
+        setApiData([]);
+        setLoading(false);
+        return;
+      }
       const data: ProjectConfig[] = await getProjectConfig(selectedMajor);
-      // Map API response to formData
       const initialFormData = data.reduce(
         (acc: Record<string, boolean>, item: ProjectConfig) => {
           acc[item.title] = item.is_active;
@@ -95,13 +118,11 @@ const CreateProject: React.FC = () => {
             className="w-full px-3 py-2 text-sm border border-gray-300 rounded 
                        focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            {user?.isAdmin
-              ?.sort((a, b) => a - b)
-              .map((majorId) => (
-                <option key={majorId} value={majorId}>
-                  {majorId}
-                </option>
-              ))}
+            {options.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.program_name_en}
+              </option>
+            ))}
           </select>
         </div>
 
