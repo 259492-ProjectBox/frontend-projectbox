@@ -300,7 +300,7 @@ export default function AdminManagePage(): JSX.Element {
                   No, cancel
                 </button>
                 <button onClick={handleDeleteAdmin} type="button" className="py-2 px-3 text-sm font-medium text-center text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300">
-                  Yes, I'm sure
+                  Remove
                 </button>
               </div>
             </div>

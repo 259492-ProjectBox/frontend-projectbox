@@ -8,7 +8,6 @@ import updateProjectConfigs from "@/utils/configform/updateProjectConfigs";
 import { ProjectConfig } from "@/models/ProjectConfig";
 import MockTableSection from "@/components/configform/upload";
 import { useAuth } from "@/hooks/useAuth";
-import { getProgramNameById } from "@/utils/programHelpers";
 
 const CreateProject: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({});
