@@ -61,6 +61,7 @@ export default function AdminManagePage(): JSX.Element {
   const [isProgramModalOpen, setIsProgramModalOpen] = useState<boolean>(false); // State for program modal visibility
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false); // State for delete modal visibility
   const [adminToDelete, setAdminToDelete] = useState<Admin | null>(null); // Admin to be deleted
+  const [searchTerm, setSearchTerm] = useState<string>(""); // State for search term
 
   // Fetching admin data from the API using the controller
   useEffect(() => {
@@ -99,6 +100,23 @@ export default function AdminManagePage(): JSX.Element {
   useEffect(() => {
     fetchPrograms(); // This runs once when the component mounts
   }, []); 
+
+  // Filter admins based on search term and selected program
+  useEffect(() => {
+    const filtered = admins.filter((admin) => {
+      const matchesSearchTerm =
+        admin.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        admin.nameEn.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        admin.nameTh.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesProgram =
+        !selectedProgram || selectedProgram.value === -1 || admin.programIds.includes(selectedProgram.value);
+
+      return matchesSearchTerm && matchesProgram;
+    });
+
+    setFilteredAdmins(filtered);
+  }, [searchTerm, selectedProgram, admins]);
 
   // Filter admins based on selected program
   const handleFilterProgramChange = (selectedOption: ProgramOption | null) => {
@@ -215,7 +233,14 @@ export default function AdminManagePage(): JSX.Element {
         </div>
 
         {/* Program Filter Dropdown */}
-        <div className="mb-4">
+        <div className="mb-4 flex gap-2">
+          <input
+            type="text"
+            placeholder="Search by CMU Account or Name"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-4/12 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-800 text-sm"
+          />
           <Select
             value={selectedProgram}
             onChange={handleFilterProgramChange}
@@ -226,12 +251,12 @@ export default function AdminManagePage(): JSX.Element {
                 label: program.program_name_en,
               })),
             ]}
-            className="w-5/12"
+            className="w-4/12"
             placeholder="Filter by Program"
           />
         </div>
 
-        <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+        <div className="relative overflow-x-auto shadow-md sm:rounded-lg max-h-96 overflow-y-auto">
           <table className="w-full text-sm text-left text-gray-500">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50">
               <tr>
