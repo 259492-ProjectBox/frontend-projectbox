@@ -64,24 +64,24 @@ export default function AdminManagePage(): JSX.Element {
   const [searchTerm, setSearchTerm] = useState<string>(""); // State for search term
 
   // Fetching admin data from the API using the controller
-  useEffect(() => {
-    const loadAdmins = async () => {
-      try {
-        const fetchedAdmins: FetchedAdmin[] = await getAdmins();
-        const adminsWithPrograms = fetchedAdmins.map((admin) => ({
-          email: admin.cmuaccount,
-          nameEn: `${admin.firstnameen} ${admin.lastnameen}`,
-          nameTh: `${admin.firstnameth} ${admin.lastnameth}`,
-          programs: admin.programs_ids.map((id) => getProgramNameById(id, programs)).join(", "),
-          programIds: admin.programs_ids, // Store program IDs for filtering
-        }));
-        setAdmins(adminsWithPrograms);
-        setFilteredAdmins(adminsWithPrograms); // Initially, show all admins
-      } catch (error) {
-        console.error("Error loading admins:", error);
-      }
-    };
+  const loadAdmins = async () => {
+    try {
+      const fetchedAdmins: FetchedAdmin[] = await getAdmins();
+      const adminsWithPrograms = fetchedAdmins.map((admin) => ({
+        email: admin.cmuaccount,
+        nameEn: `${admin.firstnameen} ${admin.lastnameen}`,
+        nameTh: `${admin.firstnameth} ${admin.lastnameth}`,
+        programs: admin.programs_ids.map((id) => getProgramNameById(id, programs)).join(", "),
+        programIds: admin.programs_ids, // Store program IDs for filtering
+      }));
+      setAdmins(adminsWithPrograms);
+      setFilteredAdmins(adminsWithPrograms); // Initially, show all admins
+    } catch (error) {
+      console.error("Error loading admins:", error);
+    }
+  };
 
+  useEffect(() => {
     loadAdmins();
   }, [programs]); // Depend on programs to ensure they are loaded before mapping
 
@@ -148,8 +148,10 @@ export default function AdminManagePage(): JSX.Element {
         setFilteredAdmins(updatedAdmins);
         setIsDeleteModalOpen(false); // Close the delete modal
         setAdminToDelete(null); // Clear the admin to delete
+        alert("Admin deleted successfully!");
       } catch (error) {
         console.error("Error deleting admin:", error);
+        alert("Failed to delete admin.");
       }
     }
   };
@@ -166,24 +168,17 @@ export default function AdminManagePage(): JSX.Element {
         // Call the createAdmin function from the controller
         await createAdmin(userAccount, adminAccount, programIds); // Use userAccount for the new admin and adminAccount for the current user
         
-        // Update the UI after creating the admin
-        setAdmins([
-          ...admins,
-          {
-            email: userAccount,
-            nameEn: "", // You may need to fetch the name again or handle it differently
-            nameTh: "", // You may need to fetch the name again or handle it differently
-            programs: selectedPrograms.map((program: ProgramOption) => program.label).join(", "),
-            programIds: programIds,
-          },
-        ]);
+        // Fetch the updated admin list
+        await loadAdmins();
         
         // Clear the form
         setEmail(""); // Clear the email field after adding
         setSelectedPrograms([]); // Clear the selected programs after adding
         setIsModalOpen(false); // Close the modal
+        alert("Admin added successfully!");
       } catch (error) {
         console.error("Error adding admin:", error);
+        alert("Failed to add admin.");
       }
     } else {
       alert("Please fill in all fields and select at least one program.");
