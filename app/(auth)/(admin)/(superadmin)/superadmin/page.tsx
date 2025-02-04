@@ -15,10 +15,27 @@ type ProgramOption = {
   label: string;
 };
 
+type Admin = {
+  email: string;
+  nameEn: string;
+  nameTh: string;
+  programs: string;
+  programIds: number[];
+};
+
+type FetchedAdmin = {
+  cmuaccount: string;
+  firstnameen: string;
+  lastnameen: string;
+  firstnameth: string;
+  lastnameth: string;
+  programs_ids: number[];
+};
+
 export default function AdminManagePage(): JSX.Element {
   const { user } = useAuth(); // Get user from the auth context (assumed to be available in your app)
-  const [admins, setAdmins] = useState<any[]>([]); // Hold admins data
-  const [filteredAdmins, setFilteredAdmins] = useState<any[]>([]); // Hold filtered admins based on selected program
+  const [admins, setAdmins] = useState<Admin[]>([]); // Hold admins data
+  const [filteredAdmins, setFilteredAdmins] = useState<Admin[]>([]); // Hold filtered admins based on selected program
   const [email, setEmail] = useState<string>(""); // For email input (Admin's email)
   const [programs, setPrograms] = useState<AllProgram[]>([]); // To hold the programs fetched from API
   const [selectedProgram, setSelectedProgram] = useState<ProgramOption | null>(null); // Selected program for filtering
@@ -28,18 +45,18 @@ export default function AdminManagePage(): JSX.Element {
   const [newProgramTh, setNewProgramTh] = useState<string>(""); // State for new program name (Thai)
   const [isProgramModalOpen, setIsProgramModalOpen] = useState<boolean>(false); // State for program modal visibility
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false); // State for delete modal visibility
-  const [adminToDelete, setAdminToDelete] = useState<any | null>(null); // Admin to be deleted
+  const [adminToDelete, setAdminToDelete] = useState<Admin | null>(null); // Admin to be deleted
 
   // Fetching admin data from the API using the controller
   useEffect(() => {
     const loadAdmins = async () => {
       try {
-        const fetchedAdmins = await getAdmins();
-        const adminsWithPrograms = fetchedAdmins.map((admin: any) => ({
+        const fetchedAdmins: FetchedAdmin[] = await getAdmins();
+        const adminsWithPrograms = fetchedAdmins.map((admin) => ({
           email: admin.cmuaccount,
           nameEn: `${admin.firstnameen} ${admin.lastnameen}`,
           nameTh: `${admin.firstnameth} ${admin.lastnameth}`,
-          programs: admin.programs_ids.map((id: number) => getProgramNameById(id, programs)).join(", "),
+          programs: admin.programs_ids.map((id) => getProgramNameById(id, programs)).join(", "),
           programIds: admin.programs_ids, // Store program IDs for filtering
         }));
         setAdmins(adminsWithPrograms);
@@ -120,9 +137,11 @@ export default function AdminManagePage(): JSX.Element {
         setAdmins([
           ...admins,
           {
-            id: admins.length + 1,
             email: userAccount,
-            program: selectedPrograms.map((program: ProgramOption) => program.label).join(", "),
+            nameEn: "", // You may need to fetch the name again or handle it differently
+            nameTh: "", // You may need to fetch the name again or handle it differently
+            programs: selectedPrograms.map((program: ProgramOption) => program.label).join(", "),
+            programIds: programIds,
           },
         ]);
         
