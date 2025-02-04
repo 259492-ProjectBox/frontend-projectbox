@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Spinner from "@/components/Spinner";
 import { ConfigProgramSetting } from "@/models/ConfigProgram";
-import { fetchConfigProgram, useConfigProgram } from "@/utils/configprogram/configProgram";
+import { getConfigProgram } from "@/utils/configprogram/configProgram";
 import { AllProgram } from "@/models/AllPrograms";
 import { getProgramOptions } from "@/utils/programHelpers";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,14 +19,13 @@ export default function ConfigProgram() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  
-
   // File Upload state
   const [file, setFile] = useState<File | null>(null);
 
   const {user} = useAuth();
   const [selectedMajor, setSelectedMajor] = useState<number>(0);
   const [options, setOptions] = useState<AllProgram[]>([]);
+  const [configData, setConfigData] = useState<ConfigProgramSetting[]>([]);
   
   useEffect(() => {
       const fetchOptions = async () => {
@@ -51,23 +50,27 @@ export default function ConfigProgram() {
       fetchOptions();
     }, [user?.isAdmin]); // Re-fetch when `isAdmin` changes
   
-    
     // Fetch configuration data for selected program
-    // const configData = useConfigProgram();
-    const [configData, setConfigData] = useState<ConfigProgramSetting[]>([]);
     useEffect(() => {
       if (selectedMajor === 0) return; // Skip if no program is selected
   
       const loadData = async () => {
         setLoading(true);
         try {
-          const data = await fetchConfigProgram(selectedMajor);
+          const data = await getConfigProgram(selectedMajor);
           console.log("Data Config:", data);
           
           if (!Array.isArray(data)) {
             throw new Error("Unexpected response format");
           }
           setConfigData(data);
+
+          // Update semester and academic year based on fetched data
+          const semesterConfig = data.find(item => item.config_name === "semester");
+          const academicYearConfig = data.find(item => item.config_name === "academic year");
+          if (semesterConfig) setSemester(semesterConfig.value);
+          if (academicYearConfig) setAcademicYear(academicYearConfig.value);
+
         } catch (err) {
           console.error("Error fetching config:", err);
           setError("Failed to load configurations.");
@@ -78,7 +81,6 @@ export default function ConfigProgram() {
   
       loadData();
     }, [selectedMajor]);
-    
 
   // 3) Find the selected program object to display its name
   // const selectedProgram = programData.find(
