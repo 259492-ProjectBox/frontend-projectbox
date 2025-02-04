@@ -32,6 +32,21 @@ type FetchedAdmin = {
   programs_ids: number[];
 };
 
+const programColors: Record<number, { bg: string; text: string }> = {
+  1: { bg: "bg-[#F8D7DA]", text: "text-[#8B0000]" },
+  2: { bg: "bg-[#F3E5F5]", text: "text-[#6A1B9A]" },
+  3: { bg: "bg-[#E8F5E9]", text: "text-[#1B5E20]" },
+  4: { bg: "bg-[#FFEBEE]", text: "text-[#B71C1C]" },
+  5: { bg: "bg-[#E0F2F1]", text: "text-[#004D40]" },
+  6: { bg: "bg-[#FFFDE7]", text: "text-[#F57F17]" },
+  7: { bg: "bg-[#F3E5F5]", text: "text-[#4A148C]" },
+  8: { bg: "bg-[#FFF3E0]", text: "text-[#E65100]" },
+  9: { bg: "bg-[#E3F2FD]", text: "text-[#0D47A1]" },
+  10: { bg: "bg-[#E8EAF6]", text: "text-[#1A237E]" },
+  11: { bg: "bg-[#F8D7DA]", text: "text-[#8B0000]" },
+  12: { bg: "bg-[#E0F7FA]", text: "text-[#006064]" },
+};
+
 export default function AdminManagePage(): JSX.Element {
   const { user } = useAuth(); // Get user from the auth context (assumed to be available in your app)
   const [admins, setAdmins] = useState<Admin[]>([]); // Hold admins data
@@ -235,7 +250,19 @@ export default function AdminManagePage(): JSX.Element {
                     <br />
                     <span className="text-gray-500">{item.nameTh}</span>
                   </td>
-                  <td className="px-6 py-4 font-medium text-gray-900">{item.programs}</td>
+                    <td className="px-6 py-4 font-medium text-gray-900">
+                    {item.programIds.map((programId) => {
+                      const colorTheme = programColors[programId] || { bg: "bg-gray-300", text: "text-gray-700" };
+                      return (
+                      <div
+                        key={programId}
+                        className={`inline-block px-2 py-1 rounded-full text-xs font-semibold mr-2 mb-1 ${colorTheme.bg} ${colorTheme.text}`}
+                      >
+                        {getProgramNameById(programId, programs)}
+                      </div>
+                      );
+                    })}
+                    </td>
                   <td className="px-6 py-4 font-medium text-red-600 cursor-pointer" onClick={() => { setAdminToDelete(item); setIsDeleteModalOpen(true); }}>
                     Delete
                   </td>
@@ -307,7 +334,6 @@ export default function AdminManagePage(): JSX.Element {
               <p className="mb-4 text-gray-500">Are you sure you want to delete this admin?</p>
               <p className="mb-4 text-gray-500">{adminToDelete.nameEn} ({adminToDelete.nameTh})</p>
               <p className="mb-4 text-gray-500">{adminToDelete.email}</p>
-              {/* <p className="mb-4 text-gray-500">{adminToDelete.programs}</p> */}
               <p className="mb-4 text-red-600">Delete will remove admin of all programs including </p>
                 <div className="mb-4 p-2 border border-red-300 rounded">
                   {adminToDelete.programs.split(", ").map((program: string, index: number) => (
