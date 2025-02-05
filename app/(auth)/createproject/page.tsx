@@ -2,16 +2,17 @@
 import React, { useEffect, useState } from "react";
 import Spinner from "@/components/Spinner";
 import getProjectConfig from "@/utils/configform/getProjectConfig";
-import { fetchProjectResourceConfigs } from "@/utils/configform/getProjectResourceConfig";
+import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig";
 import getAllEmployees from "@/utils/advisorstats/getAllEmployee";
 import { Advisor } from "@/models/Advisor";
 import Select from "react-select";
 import Image from "next/image";
-import { useConfigProgram } from "@/utils/configprogram/configProgram";
+import { getConfigProgram } from "@/utils/configprogram/configProgram";
 import { useAuth } from "@/hooks/useAuth";
 import { getStudentInfo } from "@/utils/createproject/getStudentInfo"; // Import the new utility function
 import { getStudentsByProgram } from "@/utils/createproject/getStudentsByProgram";
 import { Student } from "@/models/Student"; // Import the new Student type
+import { ConfigProgramSetting } from "@/models/ConfigProgram";
 
 // Types
 interface ProjectResourceConfig {
@@ -45,9 +46,9 @@ const CreateProject: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [staffList, setStaffList] = useState<Advisor[]>([]);
   const [studentList, setStudentList] = useState<Student[]>([]); // Store student list
+  const [configProgram, setConfigProgram] = useState<ConfigProgramSetting[]>([]);
 
   const { user } = useAuth(); // Get user from useAuth
-  const configProgram = useConfigProgram();
 
   const labels: Record<string, string> = {
     course_id: "Course",
@@ -91,7 +92,7 @@ const CreateProject: React.FC = () => {
           }, {});
           setFormConfig(activeFields);
 
-          const projectResourceConfigs = await fetchProjectResourceConfigs(data.program_id); // Use program ID from student data
+          const projectResourceConfigs = await getProjectResourceConfig(data.program_id); // Use program ID from student data
           setFormConfig((prevConfig) => ({
             ...prevConfig,
             report_pdf: projectResourceConfigs,
@@ -102,6 +103,9 @@ const CreateProject: React.FC = () => {
 
           const students = await getStudentsByProgram(data.program_id); // Use program ID from student data
           setStudentList(students);
+
+          const programConfig = await getConfigProgram(data.program_id); // Fetch program config
+          setConfigProgram(programConfig);
 
           // Pre-fill course and section
           setFormData((prevData) => ({

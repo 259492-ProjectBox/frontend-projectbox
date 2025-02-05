@@ -6,39 +6,47 @@ import Section from "@/components/configform/Section";
 import getProjectConfig from "@/utils/configform/getProjectConfig";
 import updateProjectConfigs from "@/utils/configform/updateProjectConfigs";
 import { ProjectConfig } from "@/models/ProjectConfig";
-import MockTableSection from "@/components/configform/upload";
 import { useAuth } from "@/hooks/useAuth";
 import { AllProgram } from "@/models/AllPrograms";
 import { getProgramOptions } from "@/utils/programHelpers";
+import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig";
+import updateResourceStatus from "@/utils/configform/updateProjectResourceConfig";
+import axios from "axios";
+import Image from "next/image";
+import { ProjectResourceConfig } from "@/models/ProjectRespurceConfig";
+import createProjectResource from "@/utils/configform/createProjectResource";
 
 const CreateProject: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [apiData, setApiData] = useState<ProjectConfig[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [tableData, setTableData] = useState<ProjectResourceConfig[]>([]);
+  const [iconName, setIconName] = useState("");
+  const [resourceTypeId, setResourceTypeId] = useState(1);
+  const [title, setTitle] = useState("");
 
   // Major selector states (for display only; not filtering data)
   const { user } = useAuth();
   const [selectedMajor, setSelectedMajor] = useState<number>(0); 
-
   const [options, setOptions] = useState<AllProgram[]>([]);
   
-    useEffect(() => {
-      const fetchOptions = async () => {
-        if(!user) return;
-        const programOptions = await getProgramOptions(user.isAdmin);
-        setOptions(programOptions);
-  
-        // Ensure selectedMajor is in options, otherwise set it to "Unknown" (0)
-        const validIds = programOptions.map((option) => option.id);
-        if (!validIds.includes(selectedMajor)) {
-          setSelectedMajor(0);
-        }
-      };
-  
-      fetchOptions();
-    }, [user?.isAdmin]);
+  useEffect(() => {
+    const fetchOptions = async () => {
+      if(!user) return;
+      const programOptions = await getProgramOptions(user.isAdmin);
+      setOptions(programOptions);
 
-    
+      // Ensure selectedMajor is in options, otherwise set it to "Unknown" (0)
+      const validIds = programOptions.map((option) => option.id);
+      if (!validIds.includes(selectedMajor)) {
+        setSelectedMajor(0);
+      }
+    };
+
+    fetchOptions();
+  }, [user?.isAdmin]);
+
   const fetchConfig = async () => {
     try {
       setLoading(true);
@@ -65,12 +73,10 @@ const CreateProject: React.FC = () => {
     }
   };
 
-  // 2) Call fetchConfig when selectedMajor changes
   useEffect(() => {
     fetchConfig();
   }, [selectedMajor]);
 
-  // Toggle fields
   const handleToggleChange = (fieldName: string) => {
     setFormData((prevData) => ({
       ...prevData,
@@ -78,7 +84,6 @@ const CreateProject: React.FC = () => {
     }));
   };
 
-  // Convert updated formData back to API format & submit
   const handleSubmit = async () => {
     const updatedConfigs: ProjectConfig[] = apiData.map((item) => ({
       id: item.id,
@@ -94,6 +99,74 @@ const CreateProject: React.FC = () => {
     } catch (error) {
       console.error(error);
       alert("Failed to update configuration. Please try again.");
+    }
+  };
+
+  const fetchData = async () => {
+    try {
+      const data = await getProjectResourceConfig(selectedMajor);
+      setTableData(data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [selectedMajor]);
+
+  const handleResourceToggleChange = async (item: ProjectResourceConfig) => {
+    const updatedStatus = !item.is_active;
+    const updatedData: ProjectResourceConfig = {
+      ...item,
+      is_active: updatedStatus,
+    };
+    try {
+      await updateResourceStatus(updatedData);
+      setTableData((prevData) =>
+        prevData.map((dataItem) =>
+          dataItem.id === item.id
+            ? { ...dataItem, is_active: updatedStatus }
+            : dataItem
+        )
+      );
+    } catch (error) {
+      console.error("Error updating resource status:", error);
+    }
+  };
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setIconName(file.name);
+    }
+  };
+
+  const handleResourceSubmit = async () => {
+    const data = {
+      icon_name: iconName,
+      is_active: true,
+      program_id: selectedMajor,
+      resource_type_id: resourceTypeId,
+      title: title,
+    };
+
+    try {
+      await createProjectResource(data);
+      alert("Project resource created successfully!");
+      closeModal();
+      fetchData();
+    } catch (error) {
+      console.log(error);
+      alert("Failed to create project resource. Please try again.");
     }
   };
 
@@ -178,7 +251,125 @@ const CreateProject: React.FC = () => {
         </div>
 
         {/* 3) Mock Table Section (Upload Resource) */}
-        <MockTableSection />
+        <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
+          <div className="flex justify-between items-center mb-4">
+            <h6 className="text-lg font-bold">Upload Resource Section</h6>
+            <button
+              onClick={openModal}
+              className="bg-primary_button text-white py-1 px-3 rounded hover:bg-button_hover"
+            >
+              Add Upload Type
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left text-gray-500">
+              <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                <tr>
+                  <th scope="col" className="px-4 py-3">
+                    Icon
+                  </th>
+                  <th scope="col" className="px-4 py-3">
+                    Title
+                  </th>
+                  <th scope="col" className="px-4 py-3">
+                    Is Active
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {tableData.map((item: ProjectResourceConfig, index: number) => (
+                  <tr key={index} className="border-b hover:bg-gray-100">
+                    <td className="px-4 py-3">
+                      <Image
+                        className="w-8 h-8 rounded-full"
+                        src="/logo-engcmu/CMU_LOGO_Crop.jpg"
+                        alt={""}
+                        width={32}
+                        height={32}
+                      />
+                    </td>
+                    <td className="px-4 py-3">{item.title}</td>
+                    <td className="px-4 py-3">
+                      <label className="inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="sr-only peer"
+                          checked={item.is_active || false}
+                          onChange={() => handleResourceToggleChange(item)}
+                        />
+                        <div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-white peer-checked:bg-green-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                      </label>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Modal for creating new project resource */}
+          {isModalOpen && (
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
+              <div className="bg-white p-6 rounded-lg w-96">
+                <h3 className="text-xl font-bold mb-4">Upload Details</h3>
+
+                {/* Section 1: Icon Upload */}
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold mb-2">
+                    Upload Icon
+                  </label>
+                  <input
+                    type="file"
+                    className="w-full p-2 border border-gray-300 rounded"
+                    onChange={handleIconChange}
+                  />
+                </div>
+
+                {/* Section 2: Title Input */}
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold mb-2">Title</label>
+                  <input
+                    type="text"
+                    className="w-full p-2 border border-gray-300 rounded"
+                    placeholder="Enter title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                  />
+                </div>
+
+                {/* Section 3: Upload Type */}
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold mb-2">
+                    Upload Type
+                  </label>
+                  <select
+                    className="w-full p-2 border border-gray-300 rounded"
+                    value={resourceTypeId}
+                    onChange={(e) => setResourceTypeId(Number(e.target.value))}
+                  >
+                    <option value="1">File</option>
+                    <option value="2">Link</option>
+                  </select>
+                </div>
+
+                {/* Modal buttons */}
+                <div className="flex justify-end">
+                  <button
+                    onClick={closeModal}
+                    className="bg-gray-300 text-black px-4 py-2 rounded mr-2 hover:bg-gray-400"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleResourceSubmit}
+                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+                  >
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

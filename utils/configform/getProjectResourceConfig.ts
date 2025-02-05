@@ -1,7 +1,7 @@
 // src/utils/apiController.ts
 import axios from "axios";
 
-export const fetchProjectResourceConfigs = async (programId: number) => {
+export const getProjectResourceConfig = async (programId: number) => {
   try {
     const response = await axios.get(
       `https://project-service.kunmhing.me/api/v1/projectResourceConfigs/program/${programId}`,

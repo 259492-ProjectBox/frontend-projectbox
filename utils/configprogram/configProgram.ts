@@ -1,41 +1,35 @@
 // src/hooks/useConfigData.ts
 import { ConfigProgramSetting } from "@/models/ConfigProgram";
-import { useState, useEffect } from "react";
+import axios from 'axios';
 
-export const useConfigProgram = () => {
-  const [configProgram, setConfigProgram] = useState<ConfigProgramSetting[]>([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('https://project-service.kunmhing.me/api/v1/configs/program/1', {
-          method: 'GET',
-          headers: {
-            'accept': 'application/json'
-          }
-        });
-        const data: ConfigProgramSetting[] = await response.json();
-        setConfigProgram(data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
+export const getConfigProgram = async (programId: number): Promise<ConfigProgramSetting[]> => {
+  try {
+    const response = await fetch(`https://project-service.kunmhing.me/api/v1/configs/program/${programId}`, {
+      method: 'GET',
+      headers: {
+        'accept': 'application/json'
       }
-    };
-    fetchData();
-  }, []);
-
-  return configProgram;
+    });
+    const data: ConfigProgramSetting[] = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    throw error;
+  }
 };
 
-
-export async function fetchConfigProgram(programId: number) {
-  const res = await fetch(`/api/configProgram?programId=${programId}`, { 
-    method: "GET",
-    cache: "no-store" // Ensure fresh data
-  });
-
-  const data = await res.json();
-  if (!data.ok) throw new Error(data.message);
-
-  return data.data;
-}
+export const updateConfigProgram = async (config: ConfigProgramSetting) => {
+  try {
+    const response = await axios.put('https://project-service.kunmhing.me/api/v1/configs', config, {
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error updating config program:', error);
+    throw error;
+  }
+};
 
