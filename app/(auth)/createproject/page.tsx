@@ -48,6 +48,7 @@ const CreateProject: React.FC = () => {
   const [staffList, setStaffList] = useState<Advisor[]>([]);
   const [studentList, setStudentList] = useState<Student[]>([]); // Store student list
   const [configProgram, setConfigProgram] = useState<ConfigProgramSetting[]>([]);
+  const [data, setData] = useState<Student | null>(null);
 
   const { user } = useAuth(); // Get user from useAuth
 
@@ -82,8 +83,8 @@ const CreateProject: React.FC = () => {
 
       try {
         // Fetch student data using the studentId from useAuth
-        const data = await getStudentInfo(user.studentId);
-        console.log("Student Data:", data);
+        const data = await getStudentInfo(user.studentId)
+        setData(data);
 
         if (data?.program_id) {
           const config = await getProjectConfig(data.program_id); // Use program ID from student data
@@ -342,8 +343,8 @@ const CreateProject: React.FC = () => {
         academic_year: parseInt(formData.academic_year as string, 10), // Ensure academic_year is an integer
         semester: parseInt(formData.semester as string, 10), // Ensure semester is an integer
         section_id: formData.section_id,
-        program_id: formData.program_id, 
-        course_id: parseInt(formData.course_id as string, 10),
+        program_id: data?.program_id, 
+        course_id: data?.course_id,
         staffs: staffList.map((staff) => ({
           staff_id: staff.id,
           project_role_id: 1, // Assuming role ID is 1 for all staffs
