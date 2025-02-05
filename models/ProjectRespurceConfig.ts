@@ -1,12 +1,18 @@
 export interface ProjectResourceConfig {
+  icon_name: string;
+  id: number;
+  is_active: boolean;
+  program: {
+    abbreviation: string;
     id: number;
-    icon_name: string;
-    is_active: boolean;
-    program_id: number;
-    resource_type_id: number;
-    title: string;
-    resource_type: {
-      type_name: string;
-    };
-  }
-  
+    program_name_en: string;
+    program_name_th: string;
+  };
+  program_id: number;
+  resource_type: {
+    id: number;
+    type_name: string;
+  };
+  resource_type_id: number;
+  title: string;
+}
