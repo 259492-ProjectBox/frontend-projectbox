@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Spinner from "@/components/Spinner";
 import { ConfigProgramSetting } from "@/models/ConfigProgram";
-import { getConfigProgram } from "@/utils/configprogram/configProgram";
+import { getConfigProgram, updateConfigProgram } from "@/utils/configprogram/configProgram";
 import { AllProgram } from "@/models/AllPrograms";
 import { getProgramOptions } from "@/utils/programHelpers";
 import { useAuth } from "@/hooks/useAuth";
@@ -12,8 +12,8 @@ export default function ConfigProgram() {
   const [isEditMode, setIsEditMode] = useState(false);
 
   // Local states for semester & academic year
-  const [semester, setSemester] = useState<string>("1");
-  const [academicYear, setAcademicYear] = useState<string>("2025");
+  const [semester, setSemester] = useState<string>("");
+  const [academicYear, setAcademicYear] = useState<string>("");
 
   // Program data
   const [loading, setLoading] = useState(true);
@@ -88,9 +88,33 @@ export default function ConfigProgram() {
   // );
 
   // Handler for saving changes in edit mode
-  const handleSave = () => {
-    console.log("Saved values - Academic Year:", academicYear, "Semester:", semester);
-    setIsEditMode(false); // Turn off edit mode
+  const handleSave = async () => {
+    try {
+      const academicYearConfig = configData.find(item => item.config_name === "academic year");
+      const semesterConfig = configData.find(item => item.config_name === "semester");
+  
+      if (academicYearConfig) {
+        await updateConfigProgram({
+          ...academicYearConfig,
+          value: academicYear
+        });
+      }
+  
+      if (semesterConfig) {
+        await updateConfigProgram({
+          ...semesterConfig,
+          value: semester
+        });
+      }
+  
+      console.log("Saved values - Academic Year:", academicYear, "Semester:", semester);
+      alert("Update successful!");
+      setIsEditMode(false); // Turn off edit mode
+    } catch (error) {
+      console.error("Error saving config:", error);
+      setError("Failed to save configurations.");
+      alert("Update failed!");
+    }
   };
 
   // Handler for file upload
@@ -147,11 +171,6 @@ export default function ConfigProgram() {
             ))}
           </select>
         </div>
-
-        {/* Program Name */}
-        {/* <h2 className="text-lg font-semibold text-gray-800 mt-6">
-          {selectedProgram?.program_name_en ?? "No program selected"}
-        </h2> */}
 
         {/* Config Data Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
