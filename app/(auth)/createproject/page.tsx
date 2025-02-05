@@ -13,6 +13,7 @@ import { getStudentInfo } from "@/utils/createproject/getStudentInfo"; // Import
 import { getStudentsByProgram } from "@/utils/createproject/getStudentsByProgram";
 import { Student } from "@/models/Student"; // Import the new Student type
 import { ConfigProgramSetting } from "@/models/ConfigProgram";
+import axios from "axios"; // Import axios for making API requests
 
 // Types
 interface ProjectResourceConfig {
@@ -47,6 +48,7 @@ const CreateProject: React.FC = () => {
   const [staffList, setStaffList] = useState<Advisor[]>([]);
   const [studentList, setStudentList] = useState<Student[]>([]); // Store student list
   const [configProgram, setConfigProgram] = useState<ConfigProgramSetting[]>([]);
+  const [data, setData] = useState<Student | null>(null);
 
   const { user } = useAuth(); // Get user from useAuth
 
@@ -81,8 +83,8 @@ const CreateProject: React.FC = () => {
 
       try {
         // Fetch student data using the studentId from useAuth
-        const data = await getStudentInfo(user.studentId);
-        console.log("Student Data:", data);
+        const data = await getStudentInfo(user.studentId)
+        setData(data);
 
         if (data?.program_id) {
           const config = await getProjectConfig(data.program_id); // Use program ID from student data
@@ -332,7 +334,55 @@ const CreateProject: React.FC = () => {
 
   const handleSubmit = async () => {
     try {
-      console.log("Form Data:", formData);
+      const formDataToSend = new FormData();
+
+      const projectData = {
+        title_th: formData.title_th,
+        title_en: formData.title_en,
+        abstract_text: formData.abstract_text,
+        academic_year: parseInt(formData.academic_year as string, 10), // Ensure academic_year is an integer
+        semester: parseInt(formData.semester as string, 10), // Ensure semester is an integer
+        section_id: formData.section_id,
+        program_id: data?.program_id, 
+        course_id: data?.course_id,
+        staffs: staffList.map((staff) => ({
+          staff_id: staff.id,
+          project_role_id: 1, // Assuming role ID is 1 for all staffs
+        })),
+        members: studentList.map((student) => ({
+          id: student.id,
+        })),
+      };
+
+      formDataToSend.append("project", JSON.stringify(projectData));
+
+      (formConfig["report_pdf"] as ProjectResourceConfig[]).forEach((fileConfig) => {
+        if (formData[`file_upload_${fileConfig.id}`]) {
+          (formData[`file_upload_${fileConfig.id}`] as { url: string }[]).forEach((file) => {
+            formDataToSend.append("files", file.url);
+            formDataToSend.append("projectResources[]", JSON.stringify({
+              title: fileConfig.title,
+            }));
+          });
+        }
+        if (formData[`file_link_${fileConfig.id}`]) {
+          formDataToSend.append("projectResources[]", JSON.stringify({
+            title: fileConfig.title,
+            url: formData[`file_link_${fileConfig.id}`],
+          }));
+        }
+      });
+
+      console.log("Form Data to Send:", formDataToSend);
+
+      // Make API request to create project
+      await axios.post("https://project-service.kunmhing.me/api/v1/projects", formDataToSend, {
+        headers: {
+          Authorization: "Bearer Pl6sXUmjwzNtwcA4+rkBP8jTmRttcNwgJqp1Zn1a+qCRaYXdYdwgJ9mM5glzHQD2FOsLilpELbmVSF2nGZCOwTO6u5CTsVpyIGDguXoMobSApgEsO3avovqWYDAEuznY/Vu4XMvHDkFqyuY1dQfN+QdB04t89/1O/w1cDnyilFU=",
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
       alert("Form submitted successfully!");
     } catch (error) {
       console.error("Error submitting form:", error);
