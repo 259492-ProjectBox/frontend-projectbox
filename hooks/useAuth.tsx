@@ -37,7 +37,11 @@ export function useAuth() {
 			await axios.post("/api/signOut").then((response) => {
 				if(response.data.ok) {
 					const SignOut = process.env.CMU_ENTRAID_LOGOUT_URL;
-					router.push(`${SignOut}`); 
+					if (SignOut) { 
+						// router.push(`${SignOut}`);
+						window.location.href = SignOut;
+					}
+					// router.push(`${SignOut}`); 
 				 }else{
 				   router.push('../');  
 				 } }  

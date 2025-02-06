@@ -20,13 +20,13 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
   const menuItems = [
     { text: "My Project", icon: <PersonIcon className="w-4 h-4 text-blue-500" />, path: "/dashboard" },
     { text: "Search Project", icon: <SearchIcon className="w-4 h-4 text-teal-500" />, path: "/search" },
-    { text: "Advisor Stats", icon: <GroupsIcon className="w-4 h-4 text-red-500" />, path: "/advisorstats" },
+    { text: "Advisor Info", icon: <GroupsIcon className="w-4 h-4 text-red-500" />, path: "/advisorstats" },
     // { text: "Event Calendar", icon: <EventIcon className="w-4 h-4 text-red-500" />, path: "/eventcalendar" },
     // { text: "Assets", icon: <InventoryIcon className="w-4 h-4 text-orange-500" />, path: "/assetspage" },
   ];
 
   const configMenuItems = [
-    { text: "Manage Program", icon: <ChecklistRtlIcon className="w-4 h-4 text-green-500" />, path: "/configprogram" },
+    { text: "Manage Students", icon: <ChecklistRtlIcon className="w-4 h-4 text-green-500" />, path: "/configprogram" },
     // { text: "Config Calendar", icon: <EditCalendarIcon className="w-4 h-4 text-yellow-500" />, path: "/configcalendar" },
     { text: "Manage Submission", icon: <EditNoteIcon className="w-4 h-4 text-indigo-500" />, path: "/configform" },
     { text: "Manage Staff", icon: <ManageAccountsIcon className="w-4 h-4 text-cyan-500" />, path: "/configemployee" },

@@ -8,7 +8,6 @@ const getProgramNameById = (programId: number, programs: AllProgram[]): string |
   const program = programs.find((prog) => prog.id === programId);
   return program ? program.program_name_en : undefined; // Return program name in English if found, otherwise undefined
 };
-
 const getProgramAbbreviationById = (programId: number, programs: AllProgram[]): string | undefined => {
   const program = programs.find((prog) => prog.id === programId);
   return program ? program.abbreviation : undefined; // Return program name in English if found, otherwise undefined
