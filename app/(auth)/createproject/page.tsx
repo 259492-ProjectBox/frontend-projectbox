@@ -13,6 +13,7 @@ import { getStudentInfo } from "@/utils/createproject/getStudentInfo"; // Import
 import { getStudentsByProgram } from "@/utils/createproject/getStudentsByProgram";
 import { Student } from "@/models/Student"; // Import the new Student type
 import { ConfigProgramSetting } from "@/models/ConfigProgram";
+import axios from "axios"; // Import axios for making API requests
 
 // Types
 interface ProjectResourceConfig {
@@ -37,6 +38,7 @@ interface FormData {
     | string[]
     | { url: string }[]
     | { value: number; label: string }[]
+    | FileList
     | undefined;
 }
 
@@ -47,6 +49,7 @@ const CreateProject: React.FC = () => {
   const [staffList, setStaffList] = useState<Advisor[]>([]);
   const [studentList, setStudentList] = useState<Student[]>([]); // Store student list
   const [configProgram, setConfigProgram] = useState<ConfigProgramSetting[]>([]);
+  const [data, setData] = useState<Student | null>(null);
 
   const { user } = useAuth(); // Get user from useAuth
 
@@ -81,8 +84,8 @@ const CreateProject: React.FC = () => {
 
       try {
         // Fetch student data using the studentId from useAuth
-        const data = await getStudentInfo(user.studentId);
-        console.log("Student Data:", data);
+        const data = await getStudentInfo(user.studentId)
+        setData(data);
 
         if (data?.program_id) {
           const config = await getProjectConfig(data.program_id); // Use program ID from student data
@@ -160,14 +163,16 @@ const CreateProject: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement>,
     fieldName: string
   ) => {
-    const files = e.target.files;
-    if (files) {
-      const fileUrls = Array.from(files).map((file) => ({
-        url: URL.createObjectURL(file),
+    const { files } = e.target;
+    if (files && files.length > 0) {
+      // Save the FileList directly instead of blob URLs
+      setFormData((prevData) => ({
+        ...prevData,
+        [fieldName]: files,
       }));
-      setFormData((prevData) => ({ ...prevData, [fieldName]: fileUrls }));
     }
   };
+  
 
   const renderInputField = (
     field: string,
@@ -332,13 +337,90 @@ const CreateProject: React.FC = () => {
 
   const handleSubmit = async () => {
     try {
-      console.log("Form Data:", formData);
+      // 1. Create a FormData instance.
+      const formDataToSend = new FormData();
+  
+      // 2. Build the JSON for the project itself.
+      const projectData = {
+        title_th: formData.title_th,
+        title_en: formData.title_en,
+        abstract_text: formData.abstract_text,
+        academic_year: parseInt(formData.academic_year as string, 10),
+        semester: parseInt(formData.semester as string, 10),
+        section_id: formData.section_id,
+        program_id: data?.program_id,
+        course_id: data?.course_id,
+        staffs: staffList.map((staff) => ({
+          staff_id: staff.id,
+          project_role_id: 1, // example
+        })),
+        members: studentList.map((student) => ({
+          id: student.id,
+        })),
+      };
+  
+      // 3. Append the JSON-serialized project object.
+      formDataToSend.append("project", JSON.stringify(projectData));
+  
+      // 4. For each ProjectResourceConfig, decide if we have a URL or a file upload.
+      const fileConfigs = formConfig["report_pdf"] as ProjectResourceConfig[] | undefined;
+      if (fileConfigs) {
+        fileConfigs.forEach((fileConfig) => {
+          if (!fileConfig.is_active) return; // skip if inactive
+  
+          // If the user entered a link (URL-based resource)
+          const linkField = `file_link_${fileConfig.id}`;
+          const fileField = `file_upload_${fileConfig.id}`;
+  
+          // If there's a text link, append it as a resource
+          if (formData[linkField]) {
+            formDataToSend.append(
+              "projectResources[]",
+              JSON.stringify({
+                title: fileConfig.title,
+                url: formData[linkField],
+              })
+            );
+          }
+  
+          // If the user selected files, append them
+          const selectedFiles = formData[fileField] as FileList | undefined;
+          if (selectedFiles && selectedFiles.length > 0) {
+            // First, append the resource metadata (e.g., just the title)
+            formDataToSend.append(
+              "projectResources[]",
+              JSON.stringify({
+                title: fileConfig.title,
+              })
+            );
+  
+            // Then, each file in the FileList must be appended as a separate form-data part
+            Array.from(selectedFiles).forEach((file) => {
+              formDataToSend.append("files", file, file.name);
+            });
+          }
+        });
+      }
+  
+      // 5. Send the formData using axios
+      await axios.post(
+        "https://project-service.kunmhing.me/api/v1/projects",
+        formDataToSend,
+        {
+          headers: {
+            Authorization: "Bearer Pl6sXUmjwzNtwcA4+rkBP8jTmRttcNwgJqp1Zn1a+qCRaYXdYdwgJ9mM5glzHQD2FOsLilpELbmVSF2nGZCOwTO6u5CTsVpyIGDguXoMobSApgEsO3avovqWYDAEuznY/Vu4XMvHDkFqyuY1dQfN+QdB04t89/1O/w1cDnyilFU=",
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+  
       alert("Form submitted successfully!");
     } catch (error) {
       console.error("Error submitting form:", error);
       alert("Failed to submit the form.");
     }
   };
+  
 
   if (loading) return <Spinner />;
 
