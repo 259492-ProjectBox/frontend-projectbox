@@ -18,8 +18,8 @@ export interface Course {
 export interface Employee {
   id: number;
   prefix: string;
-  first_name: string;
-  last_name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   program: {
     id: number;
@@ -32,10 +32,10 @@ export interface Employee {
 
 export interface Member {
   id: string;
-  student_id: string;
+  studentId: string;
   sec_lab: string;
-  first_name: string;
-  last_name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   semester: number;
   academic_year: number;
@@ -75,10 +75,10 @@ export interface ProjectResource {
 
 export interface Project {
   id: number;
-  project_no: string;
-  title_th: string;
-  title_en: string;
-  abstract_text: string;
+  projectNo: string;
+  titleTH: string;
+  titleEN: string;
+  abstractText: string;
   academic_year: number;
   semester: number;
   section_id: string;

@@ -40,7 +40,7 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
           <div className="space-y-2">
             <p>
               <strong className="text-gray-700">Project No:</strong>{" "}
-              {project.project_no || "No Data"}
+              {project.projectNo || "No Data"}
             </p>
             <p>
               <strong className="text-gray-700">Academic Year:</strong>{" "}
@@ -67,15 +67,15 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
             </p>
             <p>
               <strong className="text-gray-700">Project Title (EN):</strong>{" "}
-              {project.title_en || "No Title"}
+              {project.titleEN || "No Title"}
             </p>
             <p>
               <strong className="text-gray-700">Project Title (TH):</strong>{" "}
-              {project.title_th || "No Title"}
+              {project.titleTH || "No Title"}
             </p>
             <p>
               <strong className="text-gray-700">Project Description:</strong>{" "}
-              {project.abstract_text || "No Description Available"}
+              {project.abstractText || "No Description Available"}
             </p>
           </div>
         </div>
@@ -83,20 +83,20 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
         {/* Advisor Section */}
         <div className="border-b pb-6">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Advisor</h2>
-          {project.staffs.length > 0 ? (
+          {project.staffs?.length > 0 ? (
             <ul className="space-y-4">
               {project.staffs.map((advisor) => (
                 <li key={advisor.id} className="flex items-center space-x-4">
                   <Image
                     className="w-8 h-8 rounded-full"
                     src="/logo-engcmu/CMU_LOGO_Crop.jpg"
-                    alt={advisor.first_name}
+                    alt={advisor.firstName}
                     width={32} // Specify width (in px)
                     height={32} // Specify height (in px)
                   />
                   <div>
                     <p className="font-semibold text-gray-800">
-                      {advisor.prefix} {advisor.first_name} {advisor.last_name}
+                      {advisor.prefix} {advisor.firstName} {advisor.lastName}
                     </p>
                     <p className="text-gray-500 text-sm">Advisor</p>
                   </div>
@@ -111,21 +111,21 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
         {/* Members Section */}
         <div className="pb-6">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Members</h2>
-          {project.members.length > 0 ? (
+          {project.members?.length > 0 ? (
             <ul className="space-y-4">
               {project.members.map((member) => (
                 <li key={member.id} className="flex items-center space-x-4">
                   <Image
-  className="w-8 h-8 rounded-full"
-  src="/logo-engcmu/CMU_LOGO_Crop.jpg"
-  alt={""}
-  width={32}  // Specify width (in px)
-  height={32} // Specify height (in px)
-/>
+                    className="w-8 h-8 rounded-full"
+                    src="/logo-engcmu/CMU_LOGO_Crop.jpg"
+                    alt={""}
+                    width={32} // Specify width (in px)
+                    height={32} // Specify height (in px)
+                  />
 
                   <div>
                     <p className="font-semibold text-gray-800">
-                      {member.id} - {member.first_name} {member.last_name}
+                      {member.id} - {member.firstName} {member.lastName}
                     </p>
                   </div>
                 </li>
