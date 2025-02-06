@@ -7,7 +7,7 @@ export interface Course {
   id: number;
   course_no: string;
   course_name: string;
-  program: { // Replacing major with program as per response
+  program: {
     id: number;
     program_name_th: string;
     program_name_en: string;
@@ -32,9 +32,21 @@ export interface Employee {
 
 export interface Member {
   id: string;
+  student_id: string;
+  sec_lab: string;
   first_name: string;
   last_name: string;
   email: string;
+  semester: number;
+  academic_year: number;
+  course_id: number;
+  course: Course;
+  program_id: number;
+  program: {
+    id: number;
+    program_name_th: string;
+    program_name_en: string;
+  };
 }
 
 export interface ResourceType {
@@ -78,7 +90,7 @@ export interface Project {
   program_id: number;
   course_id: number;
   course: Course;
-  staffs: Employee[]; // Renamed from `employees` to match response
+  staffs: Employee[];
   members: Member[];
   project_resources: ProjectResource[];
   created_at: string;
