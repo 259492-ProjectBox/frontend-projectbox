@@ -8,8 +8,8 @@ import { deleteAdmin } from "@/utils/superadmin/deleteAdmin"; // Import the dele
 import { useAuth } from "@/hooks/useAuth"; // Importing useAuth hook
 import React, { useEffect, useState } from "react";
 import Select, { MultiValue } from "react-select"; // Importing MultiValue from react-select
-import { getProgramNameById } from "@/utils/programHelpers"; // Import the helper function to get program name by ID
-
+import { getProgramAbbreviationById, getProgramNameById } from "@/utils/programHelpers"; // Import the helper function to get program name by ID
+  
 type ProgramOption = {
   value: number;
   label: string;
@@ -53,11 +53,13 @@ export default function AdminManagePage(): JSX.Element {
   const [filteredAdmins, setFilteredAdmins] = useState<Admin[]>([]); // Hold filtered admins based on selected program
   const [email, setEmail] = useState<string>(""); // For email input (Admin's email)
   const [programs, setPrograms] = useState<AllProgram[]>([]); // To hold the programs fetched from API
-  const [selectedProgram, setSelectedProgram] = useState<ProgramOption | null>(null); // Selected program for filtering
+  const [selectedProgram, setSelectedProgram] = useState<ProgramOption | null>({value: 0,
+    label: "Select Program",}); // Selected program for filtering
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedPrograms, setSelectedPrograms] = useState<MultiValue<ProgramOption>>([]); // Correct type for selected programs
   const [newProgramEn, setNewProgramEn] = useState<string>(""); // State for new program name (English)
   const [newProgramTh, setNewProgramTh] = useState<string>(""); // State for new program name (Thai)
+  const [newAbbreviation, setNewAbbreviation] = useState<string>(""); // State for new program abbreviation
   const [isProgramModalOpen, setIsProgramModalOpen] = useState<boolean>(false); // State for program modal visibility
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false); // State for delete modal visibility
   const [adminToDelete, setAdminToDelete] = useState<Admin | null>(null); // Admin to be deleted
@@ -121,18 +123,26 @@ export default function AdminManagePage(): JSX.Element {
   // Filter admins based on selected program
   const handleFilterProgramChange = (selectedOption: ProgramOption | null) => {
     setSelectedProgram(selectedOption);
-
-    // Filter admins based on the selected program
-    if (selectedOption && selectedOption.value !== -1) {
-      const filtered = admins.filter((admin) =>
-        admin.programIds.includes(selectedOption.value)
-      );
-      setFilteredAdmins(filtered);
-    } else {
-      setFilteredAdmins(admins); // Show all admins if "All Programs" is selected
+  
+    if (!selectedOption || selectedOption.value === 0) {
+      // If "Select Program" is chosen, do nothing (keep all admins)
+      setFilteredAdmins(admins);
+      return;
     }
+  
+    if (selectedOption.value === -1) {
+      // If "All Programs" is chosen, show all admins
+      setFilteredAdmins(admins);
+      return;
+    }
+  
+    // Otherwise, filter admins based on selected program
+    const filtered = admins.filter((admin) =>
+      admin.programIds.includes(selectedOption.value)
+    );
+    setFilteredAdmins(filtered);
   };
-
+  
   // Handle admin deletion
   const handleDeleteAdmin = async () => {
     const adminAccount = user?.cmuAccount; // Use user.cmuAccount for the adminAccount
@@ -192,6 +202,8 @@ export default function AdminManagePage(): JSX.Element {
         const createdProgram = await postCreateProgram({
           program_name_en: newProgramEn,
           program_name_th: newProgramTh,
+          abbreviation: newAbbreviation,
+          
         });
 
         setPrograms([
@@ -201,6 +213,7 @@ export default function AdminManagePage(): JSX.Element {
 
         setNewProgramEn(""); // Clear input after adding
         setNewProgramTh(""); // Clear input after adding
+        setNewAbbreviation(""); // Clear input after adding
         setIsProgramModalOpen(false); // Close the modal
         fetchPrograms(); // Call fetchPrograms after adding a new program
       } catch (error) {
@@ -240,7 +253,8 @@ export default function AdminManagePage(): JSX.Element {
             value={selectedProgram}
             onChange={handleFilterProgramChange}
             options={[
-              { value: -1, label: "All Programs" }, // All Programs option
+              { value: 0, label: "Select Program" }, // Default selection
+              { value: -1, label: "All Programs" },  // GetAll option
               ...programs.map((program) => ({
                 value: program.id,
                 label: program.program_name_en,
@@ -248,7 +262,7 @@ export default function AdminManagePage(): JSX.Element {
             ]}
             className="w-4/12"
             placeholder="Filter by Program"
-          />
+        />
         </div>
 
         <div className="relative overflow-x-auto shadow-md sm:rounded-lg max-h-96 overflow-y-auto">
@@ -278,7 +292,7 @@ export default function AdminManagePage(): JSX.Element {
                         key={programId}
                         className={`inline-block px-2 py-1 rounded-full text-xs font-semibold mr-2 mb-1 ${colorTheme.bg} ${colorTheme.text}`}
                       >
-                        {getProgramNameById(programId, programs)}
+                        {getProgramAbbreviationById(programId, programs)}
                       </div>
                       );
                     })}
@@ -376,7 +390,7 @@ export default function AdminManagePage(): JSX.Element {
       {/* Manage Program Section */}
       <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-md p-4 mb-6">
         <div className="flex justify-between items-center mb-3">
-          <h1 className="text-lg font-semibold text-gray-800">Manage Program</h1>
+          <h1 className="text-lg font-semibold text-gray-800">Program Names</h1>
           <button
             onClick={() => setIsProgramModalOpen(true)}
             className="bg-white text-blue-700 font-bold px-6 py-2 rounded shadow-md hover:bg-gray-100 focus:outline-none flex items-center gap-2"
@@ -392,14 +406,16 @@ export default function AdminManagePage(): JSX.Element {
                 <th scope="col" className="px-6 py-3">ID</th>
                 <th scope="col" className="px-6 py-3">Program Name En</th>
                 <th scope="col" className="px-6 py-3">Program Name Th</th>
+                <th scope="col" className="px-6 py-3">Abbreviation</th>
               </tr>
             </thead>
             <tbody>
-              {programs.map((program) => (
+              {programs.map((program , index) => (
                 <tr key={program.id} className="bg-white border-b hover:bg-gray-50">
-                  <td className="px-6 py-4 font-medium text-gray-900">{program.id}</td>
+                  <td className="px-6 py-4 font-medium text-gray-900">{index + 1}</td>
                   <td className="px-6 py-4 font-medium text-gray-900">{program.program_name_en}</td>
                   <td className="px-6 py-4 font-medium text-gray-900">{program.program_name_th}</td>
+                  <td className="px-6 py-4 font-medium text-gray-900">{program.abbreviation}</td>
                 </tr>
               ))}
             </tbody>
@@ -428,6 +444,15 @@ export default function AdminManagePage(): JSX.Element {
                   placeholder="Program Name (Th)"
                   value={newProgramTh}
                   onChange={(e) => setNewProgramTh(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-800 text-sm"
+                />
+              </div>
+              <div className="mb-4">
+                <input
+                  type="text"
+                  placeholder="Abbrevaition ex. CPE"
+                  value={newAbbreviation}
+                  onChange={(e) => setNewAbbreviation(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-800 text-sm"
                 />
               </div>

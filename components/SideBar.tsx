@@ -28,7 +28,7 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
   const configMenuItems = [
     { text: "Manage Program", icon: <ChecklistRtlIcon className="w-4 h-4 text-green-500" />, path: "/configprogram" },
     // { text: "Config Calendar", icon: <EditCalendarIcon className="w-4 h-4 text-yellow-500" />, path: "/configcalendar" },
-    { text: "Manage Form", icon: <EditNoteIcon className="w-4 h-4 text-indigo-500" />, path: "/configform" },
+    { text: "Manage Submission", icon: <EditNoteIcon className="w-4 h-4 text-indigo-500" />, path: "/configform" },
     { text: "Manage Staff", icon: <ManageAccountsIcon className="w-4 h-4 text-cyan-500" />, path: "/configemployee" },
     // { text: "Config Assets", icon: <SettingsIcon className="w-4 h-4 text-cyan-500" />, path: "/configassets" },
     // { text: "Admin Manage", icon: <SupervisorAccountIcon className="w-4 h-4 text-rose-500" />, path: "/adminmanage" },

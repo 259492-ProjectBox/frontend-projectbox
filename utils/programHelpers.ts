@@ -9,6 +9,11 @@ const getProgramNameById = (programId: number, programs: AllProgram[]): string |
   return program ? program.program_name_en : undefined; // Return program name in English if found, otherwise undefined
 };
 
+const getProgramAbbreviationById = (programId: number, programs: AllProgram[]): string | undefined => {
+  const program = programs.find((prog) => prog.id === programId);
+  return program ? program.abbreviation : undefined; // Return program name in English if found, otherwise undefined
+}
+
 // Helper function to map program names to their IDs
 const getProgramIdByName = (programName: string, programs: AllProgram[]): number | undefined => {
   const program = programs.find((prog) => prog.program_name_en === programName);
@@ -45,9 +50,9 @@ export const getProgramOptions = async (isAdmin: number[]): Promise<AllProgram[]
   const validPrograms = allPrograms.filter((program) => isAdmin.includes(program.id));
 
   return [
-    { id: 0, program_name_en: "Select Program", program_name_th: "เลือกหลักสูตร" }, // Default option
+    { id: 0, program_name_en: "Select Program", program_name_th: "เลือกหลักสูตร", abbreviation: "" }, // Default option
     ...validPrograms.sort((a, b) => a.id - b.id), // Sort by ID for consistency
   ];
 };
 
-export { getProgramNameById, getProgramIdByName, getProgramName, getProgramId  };
+export { getProgramNameById, getProgramIdByName, getProgramName, getProgramId ,getProgramAbbreviationById };
