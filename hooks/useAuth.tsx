@@ -18,7 +18,7 @@ export function useAuth() {
 	const fetchAuthUser = async () => {
 		setAuthState((prev) => ({ ...prev, isLoading: true }));
 		const response = await fetchUserInfo();
-		console.log("Use Auth Data",response);
+		// console.log("Use Auth Data",response);
 		
 		if ("errorMessage" in response) {
 			setAuthState({
