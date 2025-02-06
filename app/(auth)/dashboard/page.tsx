@@ -131,7 +131,7 @@ function Dashboard() {
             projects on your plate
           </h2>
         </div>
-        {hasPermission && (
+        {hasPermission && projects.length === 0 && (
           <CustomTooltip title="Create a new project" arrow>
             <button
               onClick={() => router.push("../../createproject")}
@@ -155,7 +155,7 @@ function Dashboard() {
             <div className="p-4">
               {/* Edit Button - Top Right */}
               <button
-                onClick={() => console.log("Edit", project.project_no)}
+                onClick={() => console.log("Edit", project.projectNo)}
                 className="absolute top-4 right-4 p-2 rounded-full bg-blue-100 hover:bg-blue-200"
                 aria-label="Edit Project"
               >
@@ -165,12 +165,11 @@ function Dashboard() {
               {/* Project Title */}
               <div>
                 <h3 className="text-sm font-semibold text-black">
-                  Project No: {project.project_no || "No Data"}
+                  Project No: {project.projectNo || "No Data"}
                 </h3>
                 <h4 className="text-xl font-bold text-primary_text hover:underline cursor-pointer mb-2">
                   <Link href={`/projectdetail/${project.id}`}>
-                    {project.title_th || "No Title"} —{" "}
-                    {project.title_en || "No Title"}
+                    {project.titleTH || "No Title"} — {project.titleEN || "No Title"}
                   </Link>
                 </h4>
               </div>
@@ -207,13 +206,13 @@ function Dashboard() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <LimitedList
                   items={project.members.map((member) => ({
-                    name: ` ${member.first_name} ${member.last_name} (${member.id})`,
+                    name: ` ${member.firstName || "No First Name"} ${member.lastName || "No Last Name"} (${member.studentId || "No Student ID"})`,
                   }))}
                   title="Members"
                 />
                 <LimitedList
                   items={project.staffs.map((staff) => ({
-                    name: `${staff.prefix} ${staff.first_name} ${staff.last_name}`,
+                    name: `${staff.prefix || ""} ${staff.firstName || "No First Name"} ${staff.lastName || "No Last Name"}`,
                   }))}
                   title="Advisor"
                 />
@@ -221,7 +220,7 @@ function Dashboard() {
 
               {/* Project Description */}
               <div className="w-full">
-                <LimitedText text={project.abstract_text || "No Description"} />
+                <LimitedText text={project.abstractText || "No Description"} />
               </div>
             </div>
           </div>
