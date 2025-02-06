@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Spinner from "@/components/Spinner";
 import { ConfigProgramSetting } from "@/models/ConfigProgram";
-import { getConfigProgram, updateConfigProgram } from "@/utils/configprogram/configProgram";
+import { fetchConfigProgram, useConfigProgram } from "@/utils/configprogram/configProgram";
 import { AllProgram } from "@/models/AllPrograms";
 import { getProgramOptions } from "@/utils/programHelpers";
 import { useAuth } from "@/hooks/useAuth";
@@ -12,12 +12,14 @@ export default function ConfigProgram() {
   const [isEditMode, setIsEditMode] = useState(false);
 
   // Local states for semester & academic year
-  const [semester, setSemester] = useState<string>("");
-  const [academicYear, setAcademicYear] = useState<string>("");
+  const [semester, setSemester] = useState<string>("1");
+  const [academicYear, setAcademicYear] = useState<string>("2025");
 
   // Program data
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  
 
   // File Upload state
   const [file, setFile] = useState<File | null>(null);
@@ -25,7 +27,6 @@ export default function ConfigProgram() {
   const {user} = useAuth();
   const [selectedMajor, setSelectedMajor] = useState<number>(0);
   const [options, setOptions] = useState<AllProgram[]>([]);
-  const [configData, setConfigData] = useState<ConfigProgramSetting[]>([]);
   
   useEffect(() => {
       const fetchOptions = async () => {
@@ -50,27 +51,23 @@ export default function ConfigProgram() {
       fetchOptions();
     }, [user?.isAdmin]); // Re-fetch when `isAdmin` changes
   
+    
     // Fetch configuration data for selected program
+    // const configData = useConfigProgram();
+    const [configData, setConfigData] = useState<ConfigProgramSetting[]>([]);
     useEffect(() => {
       if (selectedMajor === 0) return; // Skip if no program is selected
   
       const loadData = async () => {
         setLoading(true);
         try {
-          const data = await getConfigProgram(selectedMajor);
+          const data = await fetchConfigProgram(selectedMajor);
           console.log("Data Config:", data);
           
           if (!Array.isArray(data)) {
             throw new Error("Unexpected response format");
           }
           setConfigData(data);
-
-          // Update semester and academic year based on fetched data
-          const semesterConfig = data.find(item => item.config_name === "semester");
-          const academicYearConfig = data.find(item => item.config_name === "academic year");
-          if (semesterConfig) setSemester(semesterConfig.value);
-          if (academicYearConfig) setAcademicYear(academicYearConfig.value);
-
         } catch (err) {
           console.error("Error fetching config:", err);
           setError("Failed to load configurations.");
@@ -81,6 +78,7 @@ export default function ConfigProgram() {
   
       loadData();
     }, [selectedMajor]);
+    
 
   // 3) Find the selected program object to display its name
   // const selectedProgram = programData.find(
@@ -88,33 +86,9 @@ export default function ConfigProgram() {
   // );
 
   // Handler for saving changes in edit mode
-  const handleSave = async () => {
-    try {
-      const academicYearConfig = configData.find(item => item.config_name === "academic year");
-      const semesterConfig = configData.find(item => item.config_name === "semester");
-  
-      if (academicYearConfig) {
-        await updateConfigProgram({
-          ...academicYearConfig,
-          value: academicYear
-        });
-      }
-  
-      if (semesterConfig) {
-        await updateConfigProgram({
-          ...semesterConfig,
-          value: semester
-        });
-      }
-  
-      console.log("Saved values - Academic Year:", academicYear, "Semester:", semester);
-      alert("Update successful!");
-      setIsEditMode(false); // Turn off edit mode
-    } catch (error) {
-      console.error("Error saving config:", error);
-      setError("Failed to save configurations.");
-      alert("Update failed!");
-    }
+  const handleSave = () => {
+    console.log("Saved values - Academic Year:", academicYear, "Semester:", semester);
+    setIsEditMode(false); // Turn off edit mode
   };
 
   // Handler for file upload
@@ -171,6 +145,11 @@ export default function ConfigProgram() {
             ))}
           </select>
         </div>
+
+        {/* Program Name */}
+        {/* <h2 className="text-lg font-semibold text-gray-800 mt-6">
+          {selectedProgram?.program_name_en ?? "No program selected"}
+        </h2> */}
 
         {/* Config Data Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
