@@ -14,6 +14,7 @@ import { getStudentsByProgram } from "@/utils/createproject/getStudentsByProgram
 import { Student } from "@/models/Student"; // Import the new Student type
 import { ConfigProgramSetting } from "@/models/ConfigProgram";
 import axios from "axios"; // Import axios for making API requests
+import { useRouter } from "next/navigation"; // Import useRouter from next/navigation
 
 // Types
 interface ProjectResourceConfig {
@@ -52,6 +53,7 @@ const CreateProject: React.FC = () => {
   const [data, setData] = useState<Student | null>(null);
 
   const { user } = useAuth(); // Get user from useAuth
+  const router = useRouter(); // Initialize useRouter
 
   const labels: Record<string, string> = {
     course_id: "Course",
@@ -415,6 +417,7 @@ const CreateProject: React.FC = () => {
       );
   
       alert("Form submitted successfully!");
+      router.push("/dashboard"); // Redirect to dashboard page
     } catch (error) {
       console.error("Error submitting form:", error);
       alert("Failed to submit the form.");

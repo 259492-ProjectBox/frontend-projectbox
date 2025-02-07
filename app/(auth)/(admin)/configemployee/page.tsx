@@ -27,6 +27,7 @@ export default function ConfigAdvisorPage() {
   const [lastNameEn, setLastNameEn] = useState<string>("");
   const [lastNameTh, setLastNameTh] = useState<string>("");
   const [email, setEmail] = useState<string>("");
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   // Major selector states
   const [selectedMajor, setSelectedMajor] = useState<number>(0);
@@ -93,6 +94,11 @@ export default function ConfigAdvisorPage() {
 
   // Save (create or update) advisor
   const handleSaveAdvisor = async () => {
+    if (!email || !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email)) {
+      setEmailError("Enter a valid CMU account");
+      return;
+    }
+    setEmailError(null);
     try {
       if (isEditMode && selectedAdvisor) {
         // Update existing advisor
@@ -329,6 +335,7 @@ export default function ConfigAdvisorPage() {
                              focus:outline-none focus:ring-2 focus:ring-button_focus
                              focus:border-transparent"
                 />
+                {emailError && <p className="text-red-600 text-sm mt-1">{emailError}</p>}
               </div>
               <div className="flex justify-end gap-2">
                 <button

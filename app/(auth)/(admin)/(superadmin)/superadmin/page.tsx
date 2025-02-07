@@ -5,10 +5,12 @@ import postCreateProgram from "@/utils/platformadmin/postCreateProgram";
 import { getAdmins } from "@/utils/superadmin/getAdmin";
 import { createAdmin } from "@/utils/superadmin/createAdmin"; // Import the createAdmin function
 import { deleteAdmin } from "@/utils/superadmin/deleteAdmin"; // Import the deleteAdmin function
+import putEditProgram from "@/utils/superadmin/putEditProgram"; // Import the putEditProgram function
 import { useAuth } from "@/hooks/useAuth"; // Importing useAuth hook
 import React, { useEffect, useState } from "react";
 import Select, { MultiValue } from "react-select"; // Importing MultiValue from react-select
 import { getProgramAbbreviationById, getProgramNameById } from "@/utils/programHelpers"; // Import the helper function to get program name by ID
+import { Program } from "@/models/Program"; // Import the Program model
   
 type ProgramOption = {
   value: number;
@@ -52,7 +54,7 @@ export default function AdminManagePage(): JSX.Element {
   const [admins, setAdmins] = useState<Admin[]>([]); // Hold admins data
   const [filteredAdmins, setFilteredAdmins] = useState<Admin[]>([]); // Hold filtered admins based on selected program
   const [email, setEmail] = useState<string>(""); // For email input (Admin's email)
-  const [programs, setPrograms] = useState<AllProgram[]>([]); // To hold the programs fetched from API
+  const [programs, setPrograms] = useState<Program[]>([]); // To hold the programs fetched from API
   const [selectedProgram, setSelectedProgram] = useState<ProgramOption | null>({value: 0,
     label: "Select Program",}); // Selected program for filtering
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -64,6 +66,12 @@ export default function AdminManagePage(): JSX.Element {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false); // State for delete modal visibility
   const [adminToDelete, setAdminToDelete] = useState<Admin | null>(null); // Admin to be deleted
   const [searchTerm, setSearchTerm] = useState<string>(""); // State for search term
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false); // State for edit modal visibility
+  const [programToEdit, setProgramToEdit] = useState<Program | null>(null); // Program to be edited
+  const [editProgramEn, setEditProgramEn] = useState<string>(""); // State for edit program name (English)
+  const [editProgramTh, setEditProgramTh] = useState<string>(""); // State for edit program name (Thai)
+  const [editAbbreviation, setEditAbbreviation] = useState<string>(""); // State for edit program abbreviation
 
   // Fetching admin data from the API using the controller
   const loadAdmins = async () => {
@@ -168,6 +176,11 @@ export default function AdminManagePage(): JSX.Element {
 
   // Handle admin creation
   const handleAddAdmin = async () => {
+    if (!email || !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email)) {
+      setEmailError("Enter a valid CMU account");
+      return;
+    }
+    setEmailError(null);
     const adminAccount = user?.cmuAccount; // Use user.cmuAccount for the adminAccount
     const userAccount = email; // userAccount is entered by the user in the input field
 
@@ -218,6 +231,35 @@ export default function AdminManagePage(): JSX.Element {
         fetchPrograms(); // Call fetchPrograms after adding a new program
       } catch (error) {
         console.error("Error creating program:", error);
+      }
+    } else {
+      alert("Please provide both English and Thai program names.");
+    }
+  };
+
+  // Handle program edit
+  const handleEditProgram = async () => {
+    if (programToEdit && editProgramEn && editProgramTh) {
+      try {
+        const updatedProgram = await putEditProgram({
+          id: programToEdit.id,
+          program_name_en: editProgramEn,
+          program_name_th: editProgramTh,
+          abbreviation: editAbbreviation,
+        });
+
+        const updatedPrograms = programs.map((program) =>
+          program.id === updatedProgram.id ? updatedProgram : program
+        );
+        setPrograms(updatedPrograms);
+
+        setEditProgramEn(""); // Clear input after editing
+        setEditProgramTh(""); // Clear input after editing
+        setEditAbbreviation(""); // Clear input after editing
+        setIsEditModalOpen(false); // Close the modal
+        fetchPrograms(); // Call fetchPrograms after editing a program
+      } catch (error) {
+        console.error("Error editing program:", error);
       }
     } else {
       alert("Please provide both English and Thai program names.");
@@ -321,6 +363,7 @@ export default function AdminManagePage(): JSX.Element {
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-800 text-sm"
                 />
+                {emailError && <p className="text-red-600 text-sm mt-1">{emailError}</p>}
               </div>
               <div className="mb-4">
                 <Select
@@ -407,6 +450,7 @@ export default function AdminManagePage(): JSX.Element {
                 <th scope="col" className="px-6 py-3">Program Name En</th>
                 <th scope="col" className="px-6 py-3">Program Name Th</th>
                 <th scope="col" className="px-6 py-3">Abbreviation</th>
+                <th scope="col" className="px-6 py-3">Action</th> {/* New Action column */}
               </tr>
             </thead>
             <tbody>
@@ -416,6 +460,9 @@ export default function AdminManagePage(): JSX.Element {
                   <td className="px-6 py-4 font-medium text-gray-900">{program.program_name_en}</td>
                   <td className="px-6 py-4 font-medium text-gray-900">{program.program_name_th}</td>
                   <td className="px-6 py-4 font-medium text-gray-900">{program.abbreviation}</td>
+                  <td className="px-6 py-4 font-medium text-blue-600 cursor-pointer" onClick={() => { setProgramToEdit(program); setEditProgramEn(program.program_name_en); setEditProgramTh(program.program_name_th); setEditAbbreviation(program.abbreviation); setIsEditModalOpen(true); }}>
+                    Edit
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -465,6 +512,61 @@ export default function AdminManagePage(): JSX.Element {
                 </button>
                 <button
                   onClick={() => setIsProgramModalOpen(false)}
+                  className="ml-3 px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded hover:bg-gray-300 focus:outline-none text-sm"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Program Modal */}
+      {isEditModalOpen && programToEdit && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="relative bg-white rounded-lg shadow-lg w-full max-w-md">
+            <div className="p-6">
+              <h3 className="mb-5 text-lg font-medium text-gray-800">Edit Program</h3>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Program Name (En)</label>
+                <input
+                  type="text"
+                  placeholder="Program Name (En)"
+                  value={editProgramEn}
+                  onChange={(e) => setEditProgramEn(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-800 text-sm"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Program Name (Th)</label>
+                <input
+                  type="text"
+                  placeholder="Program Name (Th)"
+                  value={editProgramTh}
+                  onChange={(e) => setEditProgramTh(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-800 text-sm"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Abbreviation</label>
+                <input
+                  type="text"
+                  placeholder="Abbreviation"
+                  value={editAbbreviation}
+                  onChange={(e) => setEditAbbreviation(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-800 text-sm"
+                />
+              </div>
+              <div className="flex justify-end">
+                <button
+                  onClick={handleEditProgram}
+                  className="px-4 py-2 bg-blue-600 text-white font-medium rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-900 text-sm"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => setIsEditModalOpen(false)}
                   className="ml-3 px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded hover:bg-gray-300 focus:outline-none text-sm"
                 >
                   Cancel

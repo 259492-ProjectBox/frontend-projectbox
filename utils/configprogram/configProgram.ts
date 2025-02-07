@@ -4,13 +4,12 @@ import axios from 'axios';
 
 export const getConfigProgram = async (programId: number): Promise<ConfigProgramSetting[]> => {
   try {
-    const response = await fetch(`https://project-service.kunmhing.me/api/v1/configs/program/${programId}`, {
-      method: 'GET',
+    const response = await axios.get(`https://project-service.kunmhing.me/api/v1/configs/program/${programId}`, {
       headers: {
         'accept': 'application/json'
       }
     });
-    const data: ConfigProgramSetting[] = await response.json();
+    const data: ConfigProgramSetting[] = response.data;
     return data;
   } catch (error) {
     console.error("Error fetching data:", error);

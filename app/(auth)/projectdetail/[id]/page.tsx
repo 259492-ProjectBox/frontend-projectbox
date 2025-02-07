@@ -58,7 +58,7 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
             )}
             <p>
               <strong className="text-gray-700">Major:</strong>{" "}
-              {project.course?.program?.program_name_en || "No Data"}
+              {project.program?.program_name_en || "No Data"}
             </p>
             <p>
               <strong className="text-gray-700">Course:</strong>{" "}
@@ -90,7 +90,7 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
                   <Image
                     className="w-8 h-8 rounded-full"
                     src="/logo-engcmu/CMU_LOGO_Crop.jpg"
-                    alt={advisor.firstName}
+                    alt={advisor.firstName || "Advisor"}
                     width={32} // Specify width (in px)
                     height={32} // Specify height (in px)
                   />
@@ -98,7 +98,9 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
                     <p className="font-semibold text-gray-800">
                       {advisor.prefix} {advisor.firstName} {advisor.lastName}
                     </p>
-                    <p className="text-gray-500 text-sm">Advisor</p>
+                    <p className="text-gray-500 text-sm">
+                      {advisor.projectRole.roleName}
+                    </p>
                   </div>
                 </li>
               ))}
@@ -125,7 +127,7 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
 
                   <div>
                     <p className="font-semibold text-gray-800">
-                      {member.id} - {member.firstName} {member.lastName}
+                      {member.studentId} - {member.firstName} {member.lastName}
                     </p>
                   </div>
                 </li>
@@ -133,6 +135,51 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
             </ul>
           ) : (
             <p className="text-gray-500">No members assigned.</p>
+          )}
+        </div>
+
+        {/* Project Resources Section */}
+        <div className="pb-6">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Resources</h2>
+          {project.project_resources?.length > 0 ? (
+            <ul className="space-y-4">
+              {project.project_resources.map((resource) => (
+                <li key={resource.id} className="flex items-center space-x-4">
+                  <div>
+                    <p className="font-semibold text-gray-800">
+                      {resource.resource.title || "No Title"}
+                    </p>
+                    {resource.resource.url && (
+                      <a
+                        href={resource.resource.url}
+                        className="text-blue-500"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {resource.resource.url}
+                      </a>
+                    )}
+                    {resource.resource.path && (
+                      <p className="text-gray-500 text-sm">
+                        Path: {resource.resource.path}
+                      </p>
+                    )}
+                    {resource.resource.resource_name && (
+                      <p className="text-gray-500 text-sm">
+                        Resource Name: {resource.resource.resource_name}
+                      </p>
+                    )}
+                    {resource.resource.created_at && (
+                      <p className="text-gray-500 text-sm">
+                        Created At: {resource.resource.created_at}
+                      </p>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-500">No resources available.</p>
           )}
         </div>
       </div>
