@@ -20,7 +20,7 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
   const menuItems = [
     { text: "My Project", icon: <PersonIcon className="w-4 h-4 text-blue-500" />, path: "/dashboard" },
     { text: "Search Project", icon: <SearchIcon className="w-4 h-4 text-teal-500" />, path: "/search" },
-    { text: "Advisor Stats", icon: <GroupsIcon className="w-4 h-4 text-red-500" />, path: "/advisorstats" },
+    { text: "Advisor Info", icon: <GroupsIcon className="w-4 h-4 text-red-500" />, path: "/advisorstats" },
     // { text: "Event Calendar", icon: <EventIcon className="w-4 h-4 text-red-500" />, path: "/eventcalendar" },
     // { text: "Assets", icon: <InventoryIcon className="w-4 h-4 text-orange-500" />, path: "/assetspage" },
   ];

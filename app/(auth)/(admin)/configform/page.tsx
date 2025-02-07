@@ -11,14 +11,13 @@ import { AllProgram } from "@/models/AllPrograms";
 import { getProgramOptions } from "@/utils/programHelpers";
 import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig";
 import updateResourceStatus from "@/utils/configform/updateProjectResourceConfig";
-import axios from "axios";
 import Image from "next/image";
 import { ProjectResourceConfig } from "@/models/ProjectRespurceConfig";
 import createProjectResource from "@/utils/configform/createProjectResource";
 
 const CreateProject: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({});
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [apiData, setApiData] = useState<ProjectConfig[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [tableData, setTableData] = useState<ProjectResourceConfig[]>([]);
@@ -38,8 +37,7 @@ const CreateProject: React.FC = () => {
       setOptions(programOptions);
 
       // Ensure selectedMajor is in options, otherwise set it to "Unknown" (0)
-      const validIds = programOptions.map((option) => option.id);
-      if (!validIds.includes(selectedMajor)) {
+      if (!programOptions.some((option) => option.id === selectedMajor)) {
         setSelectedMajor(0);
       }
     };
@@ -47,34 +45,50 @@ const CreateProject: React.FC = () => {
     fetchOptions();
   }, [user?.isAdmin]);
 
-  const fetchConfig = async () => {
+  
+  const fetchData = async () => {
     try {
-      setLoading(true);
-      if (selectedMajor === 0) {
-        setFormData({});
-        setApiData([]);
-        setLoading(false);
-        return;
-      }
-      const data: ProjectConfig[] = await getProjectConfig(selectedMajor);
-      const initialFormData = data.reduce(
-        (acc: Record<string, boolean>, item: ProjectConfig) => {
-          acc[item.title] = item.is_active;
-          return acc;
-        },
-        {}
-      );
-      setFormData(initialFormData);
-      setApiData(data);
+      if(selectedMajor === 0) return setTableData([]);
+      const data = await getProjectResourceConfig(selectedMajor);
+      
+      setTableData(data);
     } catch (error) {
       console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchConfig();
+    const fetchConfig = async () => {
+      try {
+        setLoading(true);
+        
+        if (selectedMajor === 0) {
+
+          setFormData({});
+          setApiData([]);
+          setLoading(false);
+          return;
+        }
+        const data: ProjectConfig[] = await getProjectConfig(selectedMajor);
+        
+        const initialFormData = data.reduce(
+          (acc: Record<string, boolean>, item: ProjectConfig) => {
+            acc[item.title] = item.is_active;
+            return acc;
+          },
+          {}
+        );
+        setFormData(initialFormData);
+        setApiData(data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+      fetchConfig() 
+      fetchData();
   }, [selectedMajor]);
 
   const handleToggleChange = (fieldName: string) => {
@@ -102,18 +116,11 @@ const CreateProject: React.FC = () => {
     }
   };
 
-  const fetchData = async () => {
-    try {
-      const data = await getProjectResourceConfig(selectedMajor);
-      setTableData(data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+  
 
-  useEffect(() => {
-    fetchData();
-  }, [selectedMajor]);
+  // useEffect(() => {
+  //   fetchData();
+  // }, [selectedMajor]);
 
   const handleResourceToggleChange = async (item: ProjectResourceConfig) => {
     const updatedStatus = !item.is_active;
