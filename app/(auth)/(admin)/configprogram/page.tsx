@@ -7,6 +7,7 @@ import { AllProgram } from "@/models/AllPrograms";
 import { getProgramOptions } from "@/utils/programHelpers";
 import { useAuth } from "@/hooks/useAuth";
 import { updateConfigProgram } from "@/utils/configprogram/putConfigProgram";
+import { uploadFile } from "@/utils/configform/uploadexcel";
 
 export default function ConfigProgram() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -116,17 +117,33 @@ export default function ConfigProgram() {
   // Handler for file upload
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setFile(e.target.files[0]);
+      const selectedFile = e.target.files[0];
+      const allowedTypes = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel"];
+  
+      if (!allowedTypes.includes(selectedFile.type)) {
+        alert("Please upload an Excel file.");
+        return;
+      }
+  
+      setFile(selectedFile);
     }
   };
 
   // Handler for saving the uploaded file
-  const handleSaveUpload = () => {
+  const handleSaveUpload = async () => {
     if (file) {
-      console.log("File uploaded: ", file.name);
-      // You can add additional logic here to handle the file (e.g., send it to the server)
+      try {
+        const response = await uploadFile(file, selectedMajor);
+        console.log("File uploaded successfully:", response);
+        alert("File uploaded successfully!");
+        setFile(null); // Clear the file input
+      } catch (error) {
+        console.error("Error uploading file:", error);
+        alert("Failed to upload file.");
+      }
     } else {
       console.log("No file selected for upload.");
+      alert("No file selected for upload.");
     }
   };
 
