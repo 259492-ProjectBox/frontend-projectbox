@@ -222,7 +222,7 @@ const ConfigSubmission: React.FC = () => {
     <div className="flex flex-col min-h-screen bg-stone-100 py-6">
       <div className="container mx-auto max-w-5xl">
         
-        {/* 1) Major Selector Container */}
+        {/* Major Selector Container */}
         <div className="mb-5 p-4 rounded-md shadow-sm border border-gray-200 bg-white">
           <label
             htmlFor="majorSelect"
@@ -245,236 +245,241 @@ const ConfigSubmission: React.FC = () => {
           </select>
         </div>
 
-        {/* Page Heading */}
-        <h2 className="mb-4 text-xl font-bold text-gray-800">
-          Create Project Form
-        </h2>
+        {/* Hide content if no program is selected */}
+        {selectedMajor !== 0 && (
+          <>
+            {/* Page Heading */}
+            <h2 className="mb-4 text-xl font-bold text-gray-800">
+              Create Project Form
+            </h2>
 
-        {/* 2) Single Container for BOTH sections + Save Button */}
-        <div className="p-6 bg-white border border-gray-200 rounded-md shadow-sm mb-6">
-          {/* 2-column layout for Project Details & Members */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Left Column: Project Details */}
-            <Section
-              title="Project Details"
-              fields={[
-                "title_th",
-                "title_en",
-                "abstract_text",
-                "academic_year",
-                "semester",
-                "section_id",
-                "course_id",
-              ]}
-              formData={formData}
-              onToggle={handleToggleChange}
-            />
+            {/* Single Container for BOTH sections + Save Button */}
+            <div className="p-6 bg-white border border-gray-200 rounded-md shadow-sm mb-6">
+              {/* 2-column layout for Project Details & Members */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Left Column: Project Details */}
+                <Section
+                  title="Project Details"
+                  fields={[
+                    "title_th",
+                    "title_en",
+                    "abstract_text",
+                    "academic_year",
+                    "semester",
+                    "section_id",
+                    "course_id",
+                  ]}
+                  formData={formData}
+                  onToggle={handleToggleChange}
+                />
 
-            {/* Right Column: Members */}
-            <Section
-              title="Members"
-              fields={[
-                "advisor",
-                "co_advisor",
-                "external_committee",
-                "committee",
-                "student",
-              ]}
-              formData={formData}
-              onToggle={handleToggleChange}
-            />
-          </div>
+                {/* Right Column: Members */}
+                <Section
+                  title="Members"
+                  fields={[
+                    "advisor",
+                    "co_advisor",
+                    "external_committee",
+                    "committee",
+                    "student",
+                  ]}
+                  formData={formData}
+                  onToggle={handleToggleChange}
+                />
+              </div>
 
-          {/* Save Button aligned to the right */}
-          <div className="flex justify-end">
-            <button
-              onClick={handleSubmit}
-              className="bg-primary_button text-white py-1 px-3 rounded hover:bg-blue-700"
-            >
-              Save
-            </button>
-          </div>
-        </div>
+              {/* Save Button aligned to the right */}
+              <div className="flex justify-end">
+                <button
+                  onClick={handleSubmit}
+                  className="bg-primary_button text-white py-1 px-3 rounded hover:bg-blue-700"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
 
-        {/* 3) Mock Table Section (Upload Resource) */}
-        <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
-          <div className="flex justify-between items-center mb-4">
-            <h6 className="text-lg font-bold">Upload Resource Section</h6>
-            <button
-              onClick={openModal}
-              className="bg-primary_button text-white py-1 px-3 rounded hover:bg-button_hover"
-            >
-              Add Upload Type
-            </button>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left text-gray-500">
-              <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                <tr>
-                  <th scope="col" className="px-4 py-3">
-                    Icon
-                  </th>
-                  <th scope="col" className="px-4 py-3">
-                    Title
-                  </th>
-                  <th scope="col" className="px-4 py-3">
-                    Type
-                  </th>
-                  <th scope="col" className="px-4 py-3">
-                    Is Active
-                  </th>
-                  <th scope="col" className="px-4 py-3">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {tableData.map((item: ProjectResourceConfig, index: number) => (
-                  <tr key={index} className="border-b hover:bg-gray-100">
-                    <td className="px-4 py-3">
-                      <Image
-                        className="w-8 h-8 rounded-full"
-                        src="/logo-engcmu/CMU_LOGO_Crop.jpg"
-                        alt={""}
-                        width={32}
-                        height={32}
-                      />
-                    </td>
-                    <td className="px-4 py-3">{item.title}</td>
-                    <td className="px-4 py-3">{item.resource_type_id === 1 ? "File" : "Link"}</td>
-                    <td className="px-4 py-3">
-                      <label className="inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          className="sr-only peer"
-                          checked={item.is_active || false}
-                          onChange={() => handleResourceToggleChange(item)}
-                        />
-                        <div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-white peer-checked:bg-green-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+            {/* Mock Table Section (Upload Resource) */}
+            <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
+              <div className="flex justify-between items-center mb-4">
+                <h6 className="text-lg font-bold">Upload Resource Section</h6>
+                <button
+                  onClick={openModal}
+                  className="bg-primary_button text-white py-1 px-3 rounded hover:bg-button_hover"
+                >
+                  Add Upload Type
+                </button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left text-gray-500">
+                  <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                    <tr>
+                      <th scope="col" className="px-4 py-3">
+                        Icon
+                      </th>
+                      <th scope="col" className="px-4 py-3">
+                        Title
+                      </th>
+                      <th scope="col" className="px-4 py-3">
+                        Type
+                      </th>
+                      <th scope="col" className="px-4 py-3">
+                        Is Active
+                      </th>
+                      <th scope="col" className="px-4 py-3">
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {tableData.map((item: ProjectResourceConfig, index: number) => (
+                      <tr key={index} className="border-b hover:bg-gray-100">
+                        <td className="px-4 py-3">
+                          <Image
+                            className="w-8 h-8 rounded-full"
+                            src="/logo-engcmu/CMU_LOGO_Crop.jpg"
+                            alt={""}
+                            width={32}
+                            height={32}
+                          />
+                        </td>
+                        <td className="px-4 py-3">{item.title}</td>
+                        <td className="px-4 py-3">{item.resource_type_id === 1 ? "File" : "Link"}</td>
+                        <td className="px-4 py-3">
+                          <label className="inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              className="sr-only peer"
+                              checked={item.is_active || false}
+                              onChange={() => handleResourceToggleChange(item)}
+                            />
+                            <div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-white peer-checked:bg-green-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                          </label>
+                        </td>
+                        <td className="px-4 py-3 font-medium text-blue-600 cursor-pointer" onClick={() => openEditModal(item)}>
+                          Edit
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Modal for creating new project resource */}
+              {isModalOpen && (
+                <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
+                  <div className="bg-white p-6 rounded-lg w-96">
+                    <h3 className="text-xl font-bold mb-4">Upload Details</h3>
+
+                    {/* Section 1: Icon Upload */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-semibold mb-2">
+                        Upload Icon
                       </label>
-                    </td>
-                    <td className="px-4 py-3 font-medium text-blue-600 cursor-pointer" onClick={() => openEditModal(item)}>
-                      Edit
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                      <input
+                        type="file"
+                        className="w-full p-2 border border-gray-300 rounded"
+                        onChange={handleIconChange}
+                      />
+                    </div>
 
-          {/* Modal for creating new project resource */}
-          {isModalOpen && (
-            <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
-              <div className="bg-white p-6 rounded-lg w-96">
-                <h3 className="text-xl font-bold mb-4">Upload Details</h3>
+                    {/* Section 2: Title Input */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-semibold mb-2">Title</label>
+                      <input
+                        type="text"
+                        className="w-full p-2 border border-gray-300 rounded"
+                        placeholder="Enter title"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                      />
+                    </div>
 
-                {/* Section 1: Icon Upload */}
-                <div className="mb-4">
-                  <label className="block text-sm font-semibold mb-2">
-                    Upload Icon
-                  </label>
-                  <input
-                    type="file"
-                    className="w-full p-2 border border-gray-300 rounded"
-                    onChange={handleIconChange}
-                  />
+                    {/* Section 3: Upload Type */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-semibold mb-2">
+                        Upload Type
+                      </label>
+                      <select
+                        className="w-full p-2 border border-gray-300 rounded"
+                        value={resourceTypeId}
+                        onChange={(e) => setResourceTypeId(Number(e.target.value))}
+                      >
+                        <option value="1">File</option>
+                        <option value="2">Link</option>
+                      </select>
+                    </div>
+
+                    {/* Modal buttons */}
+                    <div className="flex justify-end">
+                      <button
+                        onClick={closeModal}
+                        className="bg-gray-300 text-black px-4 py-2 rounded mr-2 hover:bg-gray-400"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleResourceSubmit}
+                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+                      >
+                        Submit
+                      </button>
+                    </div>
+                  </div>
                 </div>
+              )}
 
-                {/* Section 2: Title Input */}
-                <div className="mb-4">
-                  <label className="block text-sm font-semibold mb-2">Title</label>
-                  <input
-                    type="text"
-                    className="w-full p-2 border border-gray-300 rounded"
-                    placeholder="Enter title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                  />
-                </div>
+              {/* Modal for editing project resource */}
+              {isEditModalOpen && resourceToEdit && (
+                <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
+                  <div className="bg-white p-6 rounded-lg w-96">
+                    <h3 className="text-xl font-bold mb-4">Edit Resource</h3>
 
-                {/* Section 3: Upload Type */}
-                <div className="mb-4">
-                  <label className="block text-sm font-semibold mb-2">
-                    Upload Type
-                  </label>
-                  <select
-                    className="w-full p-2 border border-gray-300 rounded"
-                    value={resourceTypeId}
-                    onChange={(e) => setResourceTypeId(Number(e.target.value))}
-                  >
-                    <option value="1">File</option>
-                    <option value="2">Link</option>
-                  </select>
-                </div>
+                    {/* Section 1: Icon Upload */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-semibold mb-2">
+                        Upload Icon
+                      </label>
+                      <input
+                        type="file"
+                        className="w-full p-2 border border-gray-300 rounded"
+                        onChange={(e) => setEditIconName(e.target.files?.[0]?.name || "")}
+                      />
+                    </div>
 
-                {/* Modal buttons */}
-                <div className="flex justify-end">
-                  <button
-                    onClick={closeModal}
-                    className="bg-gray-300 text-black px-4 py-2 rounded mr-2 hover:bg-gray-400"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleResourceSubmit}
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-                  >
-                    Submit
-                  </button>
+                    {/* Section 2: Title Input */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-semibold mb-2">Title</label>
+                      <input
+                        type="text"
+                        className="w-full p-2 border border-gray-300 rounded"
+                        placeholder="Enter title"
+                        value={editTitle}
+                        onChange={(e) => setEditTitle(e.target.value)}
+                      />
+                    </div>
+
+                    {/* Modal buttons */}
+                    <div className="flex justify-end">
+                      <button
+                        onClick={closeEditModal}
+                        className="bg-gray-300 text-black px-4 py-2 rounded mr-2 hover:bg-gray-400"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleEditResourceSubmit}
+                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
-          )}
-
-          {/* Modal for editing project resource */}
-          {isEditModalOpen && resourceToEdit && (
-            <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
-              <div className="bg-white p-6 rounded-lg w-96">
-                <h3 className="text-xl font-bold mb-4">Edit Resource</h3>
-
-                {/* Section 1: Icon Upload */}
-                <div className="mb-4">
-                  <label className="block text-sm font-semibold mb-2">
-                    Upload Icon
-                  </label>
-                  <input
-                    type="file"
-                    className="w-full p-2 border border-gray-300 rounded"
-                    onChange={(e) => setEditIconName(e.target.files?.[0]?.name || "")}
-                  />
-                </div>
-
-                {/* Section 2: Title Input */}
-                <div className="mb-4">
-                  <label className="block text-sm font-semibold mb-2">Title</label>
-                  <input
-                    type="text"
-                    className="w-full p-2 border border-gray-300 rounded"
-                    placeholder="Enter title"
-                    value={editTitle}
-                    onChange={(e) => setEditTitle(e.target.value)}
-                  />
-                </div>
-
-                {/* Modal buttons */}
-                <div className="flex justify-end">
-                  <button
-                    onClick={closeEditModal}
-                    className="bg-gray-300 text-black px-4 py-2 rounded mr-2 hover:bg-gray-400"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleEditResourceSubmit}
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-                  >
-                    Save
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+          </>
+        )}
       </div>
     </div>
   );
