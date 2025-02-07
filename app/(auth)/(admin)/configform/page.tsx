@@ -15,7 +15,7 @@ import Image from "next/image";
 import { ProjectResourceConfig } from "@/models/ProjectRespurceConfig";
 import createProjectResource from "@/utils/configform/createProjectResource";
 
-const CreateProject: React.FC = () => {
+const ConfigSubmission: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({});
   const [loading, setLoading] = useState<boolean>(false);
   const [apiData, setApiData] = useState<ProjectConfig[]>([]);
@@ -24,6 +24,11 @@ const CreateProject: React.FC = () => {
   const [iconName, setIconName] = useState("");
   const [resourceTypeId, setResourceTypeId] = useState(1);
   const [title, setTitle] = useState("");
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false); // State for edit modal visibility
+  const [resourceToEdit, setResourceToEdit] = useState<ProjectResourceConfig | null>(null); // Resource to be edited
+  const [editIconName, setEditIconName] = useState<string>(""); // State for edit icon name
+  const [editTitle, setEditTitle] = useState<string>(""); // State for edit title
+  const [editResourceTypeId, setEditResourceTypeId] = useState<number>(1); // State for edit resource type ID
 
   // Major selector states (for display only; not filtering data)
   const { user } = useAuth();
@@ -177,6 +182,40 @@ const CreateProject: React.FC = () => {
     }
   };
 
+  const openEditModal = (resource: ProjectResourceConfig) => {
+    setResourceToEdit(resource);
+    setEditIconName(resource.icon_name);
+    setEditTitle(resource.title);
+    setEditResourceTypeId(resource.resource_type_id); // Correctly set resource type ID
+    setIsEditModalOpen(true);
+  };
+  
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+    setResourceToEdit(null);
+  };
+  
+  const handleEditResourceSubmit = async () => {
+    if (resourceToEdit) {
+      const updatedResource = {
+        ...resourceToEdit,
+        icon_name: editIconName,
+        title: editTitle,
+        resource_type_id: editResourceTypeId,
+      };
+  
+      try {
+        await updateResourceStatus(updatedResource);
+        alert("Resource updated successfully!");
+        closeEditModal();
+        fetchData();
+      } catch (error) {
+        console.log(error);
+        alert("Failed to update resource. Please try again.");
+      }
+    }
+  };
+
   if (loading) return <Spinner />;
 
   return (
@@ -279,7 +318,13 @@ const CreateProject: React.FC = () => {
                     Title
                   </th>
                   <th scope="col" className="px-4 py-3">
+                    Type
+                  </th>
+                  <th scope="col" className="px-4 py-3">
                     Is Active
+                  </th>
+                  <th scope="col" className="px-4 py-3">
+                    Action
                   </th>
                 </tr>
               </thead>
@@ -296,6 +341,7 @@ const CreateProject: React.FC = () => {
                       />
                     </td>
                     <td className="px-4 py-3">{item.title}</td>
+                    <td className="px-4 py-3">{item.resource_type_id === 1 ? "File" : "Link"}</td>
                     <td className="px-4 py-3">
                       <label className="inline-flex items-center cursor-pointer">
                         <input
@@ -306,6 +352,9 @@ const CreateProject: React.FC = () => {
                         />
                         <div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-white peer-checked:bg-green-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                       </label>
+                    </td>
+                    <td className="px-4 py-3 font-medium text-blue-600 cursor-pointer" onClick={() => openEditModal(item)}>
+                      Edit
                     </td>
                   </tr>
                 ))}
@@ -376,10 +425,59 @@ const CreateProject: React.FC = () => {
               </div>
             </div>
           )}
+
+          {/* Modal for editing project resource */}
+          {isEditModalOpen && resourceToEdit && (
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
+              <div className="bg-white p-6 rounded-lg w-96">
+                <h3 className="text-xl font-bold mb-4">Edit Resource</h3>
+
+                {/* Section 1: Icon Upload */}
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold mb-2">
+                    Upload Icon
+                  </label>
+                  <input
+                    type="file"
+                    className="w-full p-2 border border-gray-300 rounded"
+                    onChange={(e) => setEditIconName(e.target.files?.[0]?.name || "")}
+                  />
+                </div>
+
+                {/* Section 2: Title Input */}
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold mb-2">Title</label>
+                  <input
+                    type="text"
+                    className="w-full p-2 border border-gray-300 rounded"
+                    placeholder="Enter title"
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                  />
+                </div>
+
+                {/* Modal buttons */}
+                <div className="flex justify-end">
+                  <button
+                    onClick={closeEditModal}
+                    className="bg-gray-300 text-black px-4 py-2 rounded mr-2 hover:bg-gray-400"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleEditResourceSubmit}
+                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-export default CreateProject;
+export default ConfigSubmission;
