@@ -7,6 +7,7 @@ import { AllProgram } from "@/models/AllPrograms";
 import { getProgramOptions } from "@/utils/programHelpers";
 import { useAuth } from "@/hooks/useAuth";
 import { updateConfigProgram } from "@/utils/configprogram/putConfigProgram";
+import { uploadFile } from "@/utils/configform/uploadexcel";
 
 export default function ConfigProgram() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -116,17 +117,33 @@ export default function ConfigProgram() {
   // Handler for file upload
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setFile(e.target.files[0]);
+      const selectedFile = e.target.files[0];
+      const allowedTypes = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel"];
+  
+      if (!allowedTypes.includes(selectedFile.type)) {
+        alert("Please upload an Excel file.");
+        return;
+      }
+  
+      setFile(selectedFile);
     }
   };
 
   // Handler for saving the uploaded file
-  const handleSaveUpload = () => {
+  const handleSaveUpload = async () => {
     if (file) {
-      console.log("File uploaded: ", file.name);
-      // You can add additional logic here to handle the file (e.g., send it to the server)
+      try {
+        const response = await uploadFile(file, selectedMajor);
+        console.log("File uploaded successfully:", response);
+        alert("File uploaded successfully!");
+        setFile(null); // Clear the file input
+      } catch (error) {
+        console.error("Error uploading file:", error);
+        alert("Failed to upload file.");
+      }
     } else {
       console.log("No file selected for upload.");
+      alert("No file selected for upload.");
     }
   };
 
@@ -168,127 +185,131 @@ export default function ConfigProgram() {
           </select>
         </div>
 
-        {/* Config Data Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-          {configData.length > 0 ? (
-            configData.map((item: ConfigProgramSetting, index) => (
-              <div key={index} className="bg-white p-4 rounded-lg shadow-md">
-                <h2 className="text-gray-800 font-semibold">{item.config_name}</h2>
+        {/* Hide content if no program is selected */}
+        {selectedMajor !== 0 && (
+          <>
+            {/* Config Data Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+              {configData.length > 0 ? (
+                configData.map((item: ConfigProgramSetting, index) => (
+                  <div key={index} className="bg-white p-4 rounded-lg shadow-md">
+                    <h2 className="text-gray-800 font-semibold">{item.config_name}</h2>
 
-                {/* Toggling read-only vs. edit mode for specific items */}
-                {item.config_name === "semester" ? (
-                  isEditMode ? (
-                    <select
-                      value={semester}
-                      onChange={(e) => setSemester(e.target.value)}
-                      className="mt-2 p-2 border border-gray-300 rounded"
-                    >
-                      <option value="1">1</option>
-                      <option value="2">2</option>
-                      <option value="3">3 (Summer)</option>
-                    </select>
-                  ) : (
-                    <p className="text-gray-600 mt-2">{semester}</p>
-                  )
-                ) : item.config_name === "academic year" ? (
-                  isEditMode ? (
-                    <input
-                      type="text"
-                      value={academicYear}
-                      onChange={(e) => setAcademicYear(e.target.value)}
-                      className="mt-2 p-2 border border-gray-300 rounded"
-                    />
-                  ) : (
-                    <p className="text-gray-600 mt-2">{academicYear}</p>
-                  )
-                ) : (
-                  <p className="text-gray-600 mt-2">{item.value}</p>
-                )}
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-600">
-              No configuration data found for this program.
-            </p>
-          )}
-        </div>
-
-        {/* Edit/Save Buttons */}
-        <div className="mt-4 flex gap-4">
-          <button
-            onClick={() => setIsEditMode((prev) => !prev)}
-            className="text-white bg-blue-900 py-2 px-4 rounded-lg 
-                       hover:bg-blue-800 transition-colors"
-          >
-            {isEditMode ? "Cancel" : "Edit"}
-          </button>
-          {isEditMode && (
-            <button
-              onClick={handleSave}
-              className="text-white bg-blue-900 py-2 px-4 rounded-lg 
-                         hover:bg-blue-800 transition-colors"
-            >
-              Save
-            </button>
-          )}
-        </div>
-
-        {/* Space added between the sections */}
-        <div className="my-8" />
-
-        {/* File Upload Section */}
-        <div className="mt-6 p-4 rounded-md shadow-sm border border-gray-200 bg-white">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">
-            Upload Excel for Allow Students in this Semester can create Project
-          </h3>
-          <label
-            htmlFor="dropzone-file"
-            className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
-          >
-            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-              <svg
-                className="w-8 h-8 mb-4 text-gray-500"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 20 16"
-              >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                />
-              </svg>
-              <p className="mb-2 text-sm text-gray-500">
-                <span className="font-semibold">Click to upload</span> or drag and drop
-              </p>
-              <p className="text-xs text-gray-500">
-                .xlsx file only (MAX. 800 KB)
-              </p>
+                    {/* Toggling read-only vs. edit mode for specific items */}
+                    {item.config_name === "semester" ? (
+                      isEditMode ? (
+                        <select
+                          value={semester}
+                          onChange={(e) => setSemester(e.target.value)}
+                          className="mt-2 p-2 border border-gray-300 rounded"
+                        >
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3 (Summer)</option>
+                        </select>
+                      ) : (
+                        <p className="text-gray-600 mt-2">{semester}</p>
+                      )
+                    ) : item.config_name === "academic year" ? (
+                      isEditMode ? (
+                        <input
+                          type="text"
+                          value={academicYear}
+                          onChange={(e) => setAcademicYear(e.target.value)}
+                          className="mt-2 p-2 border border-gray-300 rounded"
+                        />
+                      ) : (
+                        <p className="text-gray-600 mt-2">{academicYear}</p>
+                      )
+                    ) : (
+                      <p className="text-gray-600 mt-2">{item.value}</p>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-600">
+                  No configuration data found for this program.
+                </p>
+              )}
             </div>
-            <input
-              id="dropzone-file"
-              type="file"
-              className="hidden"
-              onChange={handleFileChange}
-            />
-          </label>
-          {file && (
-            <p className="mt-2 text-gray-600">Selected File: {file.name}</p>
-          )}
 
-          {/* Save Upload Button */}
-          <button
-            onClick={handleSaveUpload}
-            className="mt-4 text-white bg-blue-900 py-2 px-4 rounded-lg 
-                       hover:bg-blue-800 transition-colors"
-          >
-            Save Upload
-          </button>
-        </div>
+            {/* Edit/Save Buttons */}
+            <div className="mt-4 flex gap-4">
+              <button
+                onClick={() => setIsEditMode((prev) => !prev)}
+                className="text-white bg-blue-900 py-2 px-4 rounded-lg 
+                           hover:bg-blue-800 transition-colors"
+              >
+                {isEditMode ? "Cancel" : "Edit"}
+              </button>
+              {isEditMode && (
+                <button
+                  onClick={handleSave}
+                  className="text-white bg-blue-900 py-2 px-4 rounded-lg 
+                             hover:bg-blue-800 transition-colors"
+                >
+                  Save
+                </button>
+              )}
+            </div>
 
+            {/* Space added between the sections */}
+            <div className="my-8" />
+
+            {/* File Upload Section */}
+            <div className="mt-6 p-4 rounded-md shadow-sm border border-gray-200 bg-white">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                Upload Excel for Allow Students in this Semester can create Project
+              </h3>
+              <label
+                htmlFor="dropzone-file"
+                className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+              >
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <svg
+                    className="w-8 h-8 mb-4 text-gray-500"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 20 16"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                    />
+                  </svg>
+                  <p className="mb-2 text-sm text-gray-500">
+                    <span className="font-semibold">Click to upload</span> or drag and drop
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    .xlsx file only (MAX. 800 KB)
+                  </p>
+                </div>
+                <input
+                  id="dropzone-file"
+                  type="file"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+              </label>
+              {file && (
+                <p className="mt-2 text-gray-600">Selected File: {file.name}</p>
+              )}
+
+              {/* Save Upload Button */}
+              <button
+                onClick={handleSaveUpload}
+                className="mt-4 text-white bg-blue-900 py-2 px-4 rounded-lg 
+                           hover:bg-blue-800 transition-colors"
+              >
+                Save Upload
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Example Modal */}

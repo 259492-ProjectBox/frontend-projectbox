@@ -180,242 +180,247 @@ export default function ConfigAdvisorPage() {
           </select>
         </div>
 
-        {/* Header + Add Staff Button */}
-        <div className="flex items-center justify-between mb-3">
-          <h1 className="text-lg font-semibold text-gray-800">
-            Config Advisor
-          </h1>
-          <button
-            onClick={() => handleOpenModal()}
-            className="px-4 py-2 bg-primary_button text-white font-medium rounded 
-                       hover:bg-button_hover focus:outline-none focus:ring-2 focus:ring-button_focus"
-          >
-            Add Advisor
-          </button>
-        </div>
-
-        {/* Modal for Add/Edit Advisor */}
-        {isModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-sm">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                {isEditMode ? "Edit Advisor" : "Add New Advisor"}
-              </h2>
-
-              {/* English Section */}
-              <div className="mb-4 p-3 border border-gray-200 rounded">
-                <h3 className="text-md font-semibold text-gray-700 mb-2">
-                  English
-                </h3>
-                <div className="mb-2">
-                  <label
-                    htmlFor="prefixEn"
-                    className="text-sm text-gray-700 block mb-1"
-                  >
-                    Position (EN)
-                  </label>
-                  <input
-                    id="prefixEn"
-                    type="text"
-                    value={prefixEn}
-                    onChange={(e) => setPrefixEn(e.target.value)}
-                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm
-                               focus:outline-none focus:ring-2 focus:ring-red-900
-                               focus:border-transparent"
-                  />
-                </div>
-                <div className="mb-2">
-                  <label
-                    htmlFor="firstNameEn"
-                    className="text-sm text-gray-700 block mb-1"
-                  >
-                    First Name (EN)
-                  </label>
-                  <input
-                    id="firstNameEn"
-                    type="text"
-                    value={firstNameEn}
-                    onChange={(e) => setFirstNameEn(e.target.value)}
-                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm
-                               focus:outline-none focus:ring-2 focus:ring-button_primary
-                               focus:border-transparent"
-                  />
-                </div>
-                <div className="mb-2">
-                  <label
-                    htmlFor="lastNameEn"
-                    className="text-sm text-gray-700 block mb-1"
-                  >
-                    Last Name (EN)
-                  </label>
-                  <input
-                    id="lastNameEn"
-                    type="text"
-                    value={lastNameEn}
-                    onChange={(e) => setLastNameEn(e.target.value)}
-                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm
-                               focus:outline-none focus:ring-2 focus:ring-button_focus
-                               focus:border-transparent"
-                  />
-                </div>
-              </div>
-
-              {/* Thai Section */}
-              <div className="mb-4 p-3 border border-gray-200 rounded">
-                <h3 className="text-md font-semibold text-gray-700 mb-2">
-                  Thai
-                </h3>
-                <div className="mb-2">
-                  <label
-                    htmlFor="prefixTh"
-                    className="text-sm text-gray-700 block mb-1"
-                  >
-                    ตำแหน่ง (TH)
-                  </label>
-                  <input
-                    id="prefixTh"
-                    type="text"
-                    value={prefixTh}
-                    onChange={(e) => setPrefixTh(e.target.value)}
-                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm
-                               focus:outline-none focus:ring-2 focus:ring-red-900
-                               focus:border-transparent"
-                  />
-                </div>
-                <div className="mb-2">
-                  <label
-                    htmlFor="firstNameTh"
-                    className="text-sm text-gray-700 block mb-1"
-                  >
-                    ชื่อจริง (TH)
-                  </label>
-                  <input
-                    id="firstNameTh"
-                    type="text"
-                    value={firstNameTh}
-                    onChange={(e) => setFirstNameTh(e.target.value)}
-                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm
-                               focus:outline-none focus:ring-2 focus:ring-button_primary
-                               focus:border-transparent"
-                  />
-                </div>
-                <div className="mb-2">
-                  <label
-                    htmlFor="lastNameTh"
-                    className="text-sm text-gray-700 block mb-1"
-                  >
-                    นามสกุล (TH)
-                  </label>
-                  <input
-                    id="lastNameTh"
-                    type="text"
-                    value={lastNameTh}
-                    onChange={(e) => setLastNameTh(e.target.value)}
-                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm
-                               focus:outline-none focus:ring-2 focus:ring-button_focus
-                               focus:border-transparent"
-                  />
-                </div>
-              </div>
-
-              {/* Email Section */}
-              <div className="mb-3">
-                <label
-                  htmlFor="email"
-                  className="text-sm text-gray-700 block mb-1"
-                >
-                  Email
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm
-                             focus:outline-none focus:ring-2 focus:ring-button_focus
-                             focus:border-transparent"
-                />
-                {emailError && <p className="text-red-600 text-sm mt-1">{emailError}</p>}
-              </div>
-              <div className="flex justify-end gap-2">
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-3 py-1 bg-gray-300 text-gray-700 rounded
-                             hover:bg-gray-400"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSaveAdvisor}
-                  className="px-3 py-1 bg-primary_button text-white rounded hover:bg-button_hover"
-                >
-                  Save
-                </button>
-              </div>
+        {/* Hide content if no program is selected */}
+        {selectedMajor !== 0 && (
+          <>
+            {/* Header + Add Staff Button */}
+            <div className="flex items-center justify-between mb-3">
+              <h1 className="text-lg font-semibold text-gray-800">
+                Config Advisor
+              </h1>
+              <button
+                onClick={() => handleOpenModal()}
+                className="px-4 py-2 bg-primary_button text-white font-medium rounded 
+                           hover:bg-button_hover focus:outline-none focus:ring-2 focus:ring-button_focus"
+              >
+                Add Advisor
+              </button>
             </div>
-          </div>
-        )}
 
-        {/* Table of Advisors */}
-        {loading ? (
-          <Spinner />
-        ) : (
-          <div className="relative overflow-x-auto shadow-md sm:rounded-lg mt-6">
-            <table className="w-full text-sm text-left text-gray-500">
-              <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                <tr>
-                  <th scope="col" className="px-6 py-3">
-                    ID
-                  </th>
-                  <th scope="col" className="px-6 py-3">
-                    Name
-                  </th>
-                  <th scope="col" className="px-6 py-3">
-                    Email
-                  </th>
-                  <th scope="col" className="px-3 py-3 text-center w-24">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {advisors && advisors.length > 0 ? (
-                  advisors.map((item) => (
-                    <tr
-                      key={item.id}
-                      className="bg-white border-b hover:bg-gray-50"
+            {/* Modal for Add/Edit Advisor */}
+            {isModalOpen && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-sm">
+                  <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                    {isEditMode ? "Edit Advisor" : "Add New Advisor"}
+                  </h2>
+
+                  {/* English Section */}
+                  <div className="mb-4 p-3 border border-gray-200 rounded">
+                    <h3 className="text-md font-semibold text-gray-700 mb-2">
+                      English
+                    </h3>
+                    <div className="mb-2">
+                      <label
+                        htmlFor="prefixEn"
+                        className="text-sm text-gray-700 block mb-1"
+                      >
+                        Position (EN)
+                      </label>
+                      <input
+                        id="prefixEn"
+                        type="text"
+                        value={prefixEn}
+                        onChange={(e) => setPrefixEn(e.target.value)}
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm
+                                   focus:outline-none focus:ring-2 focus:ring-red-900
+                                   focus:border-transparent"
+                      />
+                    </div>
+                    <div className="mb-2">
+                      <label
+                        htmlFor="firstNameEn"
+                        className="text-sm text-gray-700 block mb-1"
+                      >
+                        First Name (EN)
+                      </label>
+                      <input
+                        id="firstNameEn"
+                        type="text"
+                        value={firstNameEn}
+                        onChange={(e) => setFirstNameEn(e.target.value)}
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm
+                                   focus:outline-none focus:ring-2 focus:ring-button_primary
+                                   focus:border-transparent"
+                      />
+                    </div>
+                    <div className="mb-2">
+                      <label
+                        htmlFor="lastNameEn"
+                        className="text-sm text-gray-700 block mb-1"
+                      >
+                        Last Name (EN)
+                      </label>
+                      <input
+                        id="lastNameEn"
+                        type="text"
+                        value={lastNameEn}
+                        onChange={(e) => setLastNameEn(e.target.value)}
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm
+                                   focus:outline-none focus:ring-2 focus:ring-button_focus
+                                   focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Thai Section */}
+                  <div className="mb-4 p-3 border border-gray-200 rounded">
+                    <h3 className="text-md font-semibold text-gray-700 mb-2">
+                      Thai
+                    </h3>
+                    <div className="mb-2">
+                      <label
+                        htmlFor="prefixTh"
+                        className="text-sm text-gray-700 block mb-1"
+                      >
+                        ตำแหน่ง (TH)
+                      </label>
+                      <input
+                        id="prefixTh"
+                        type="text"
+                        value={prefixTh}
+                        onChange={(e) => setPrefixTh(e.target.value)}
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm
+                                   focus:outline-none focus:ring-2 focus:ring-red-900
+                                   focus:border-transparent"
+                      />
+                    </div>
+                    <div className="mb-2">
+                      <label
+                        htmlFor="firstNameTh"
+                        className="text-sm text-gray-700 block mb-1"
+                      >
+                        ชื่อจริง (TH)
+                      </label>
+                      <input
+                        id="firstNameTh"
+                        type="text"
+                        value={firstNameTh}
+                        onChange={(e) => setFirstNameTh(e.target.value)}
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm
+                                   focus:outline-none focus:ring-2 focus:ring-button_primary
+                                   focus:border-transparent"
+                      />
+                    </div>
+                    <div className="mb-2">
+                      <label
+                        htmlFor="lastNameTh"
+                        className="text-sm text-gray-700 block mb-1"
+                      >
+                        นามสกุล (TH)
+                      </label>
+                      <input
+                        id="lastNameTh"
+                        type="text"
+                        value={lastNameTh}
+                        onChange={(e) => setLastNameTh(e.target.value)}
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm
+                                   focus:outline-none focus:ring-2 focus:ring-button_focus
+                                   focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Email Section */}
+                  <div className="mb-3">
+                    <label
+                      htmlFor="email"
+                      className="text-sm text-gray-700 block mb-1"
                     >
-                      <td className="px-6 py-4 font-medium text-gray-900">
-                        {item.id}
-                      </td>
-                      <td className="px-6 py-4 font-medium text-gray-900">
-                        {item.prefix_en} {item.first_name_en}{" "}
-                        {item.last_name_en}
-                      </td>
-                      <td className="px-6 py-4">{item.email}</td>
-                      <td className="px-3 py-4 text-center">
-                        <button
-                          onClick={() => handleOpenModal(item)}
-                          className="text-blue-600 hover:underline"
-                        >
-                          Edit
-                        </button>
-                      </td>
+                      Email
+                    </label>
+                    <input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-2 py-1 border border-gray-300 rounded text-sm
+                                 focus:outline-none focus:ring-2 focus:ring-button_focus
+                                 focus:border-transparent"
+                    />
+                    {emailError && <p className="text-red-600 text-sm mt-1">{emailError}</p>}
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <button
+                      onClick={() => setIsModalOpen(false)}
+                      className="px-3 py-1 bg-gray-300 text-gray-700 rounded
+                                 hover:bg-gray-400"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSaveAdvisor}
+                      className="px-3 py-1 bg-primary_button text-white rounded hover:bg-button_hover"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Table of Advisors */}
+            {loading ? (
+              <Spinner />
+            ) : (
+              <div className="relative overflow-x-auto shadow-md sm:rounded-lg mt-6">
+                <table className="w-full text-sm text-left text-gray-500">
+                  <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                    <tr>
+                      <th scope="col" className="px-6 py-3">
+                        ID
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        Name
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        Email
+                      </th>
+                      <th scope="col" className="px-3 py-3 text-center w-24">
+                        Action
+                      </th>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={4}
-                      className="px-6 py-4 text-center text-gray-500"
-                    >
-                      No Data
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                  </thead>
+                  <tbody>
+                    {advisors && advisors.length > 0 ? (
+                      advisors.map((item) => (
+                        <tr
+                          key={item.id}
+                          className="bg-white border-b hover:bg-gray-50"
+                        >
+                          <td className="px-6 py-4 font-medium text-gray-900">
+                            {item.id}
+                          </td>
+                          <td className="px-6 py-4 font-medium text-gray-900">
+                            {item.prefix_en} {item.first_name_en}{" "}
+                            {item.last_name_en}
+                          </td>
+                          <td className="px-6 py-4">{item.email}</td>
+                          <td className="px-3 py-4 text-center">
+                            <button
+                              onClick={() => handleOpenModal(item)}
+                              className="text-blue-600 hover:underline"
+                            >
+                              Edit
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td
+                          colSpan={4}
+                          className="px-6 py-4 text-center text-gray-500"
+                        >
+                          No Data
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
