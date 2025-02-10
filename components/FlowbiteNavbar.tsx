@@ -52,11 +52,11 @@ export default function FlowbiteNavbar({
                 >
                   <span className="sr-only">Open user menu</span>
                   <Image
-                    className="w-8 h-8 rounded-full"
-                    src="/logo-engcmu/CMU_LOGO_Crop.jpg"
+                    className="w-8 h-8 rounded-full bg-white" // Added bg-white class
+                    src="/boy.png"
                     alt={""}
-                    width={32} // Specify width (in px)
-                    height={32} // Specify height (in px)
+                    width={24} // Specify width (in px)
+                    height={24} // Specify height (in px)
                   />
                 </button>
               </div>
