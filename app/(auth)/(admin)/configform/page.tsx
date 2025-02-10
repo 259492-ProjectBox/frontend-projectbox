@@ -335,13 +335,19 @@ const ConfigSubmission: React.FC = () => {
                     {tableData.map((item: ProjectResourceConfig, index: number) => (
                       <tr key={index} className="border-b hover:bg-gray-100">
                         <td className="px-4 py-3">
-                          <Image
-                            className="w-8 h-8 rounded-full"
-                            src="/logo-engcmu/CMU_LOGO_Crop.jpg"
-                            alt={""}
-                            width={32}
-                            height={32}
-                          />
+                          {item.icon_name ? (
+                            <Image
+                              className="w-8 h-8 rounded-full"
+                              src="/IconProjectBox/BlueBox.png"
+                              alt={""}
+                              width={32}
+                              height={32}
+                            />
+                          ) : (
+                            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                              N/A
+                            </div>
+                          )}
                         </td>
                         <td className="px-4 py-3">{item.title}</td>
                         <td className="px-4 py-3">{item.resource_type_id === 1 ? "File" : "Link"}</td>
