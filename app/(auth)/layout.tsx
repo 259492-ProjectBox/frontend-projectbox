@@ -7,7 +7,7 @@ function AuthLayout({ children }: PropsWithChildren) {
 	const token = serverGetCookie();
 
 	if (!token) {
-		redirect("/");
+		return <>{children}</>;
 	}
 
 	return (
