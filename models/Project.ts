@@ -53,7 +53,7 @@ export interface ResourceType {
   typeName: string;
 }
 
-export interface Resource {
+export interface ProjectResource {
   id: number;
   title: string | null;
   resourceName: string | null;
@@ -63,11 +63,6 @@ export interface Resource {
   resourceTypeId: number;
   resourceType: ResourceType;
   createdAt: string | null;
-}
-
-export interface ProjectResource {
-  id: number;
-  resource: Resource;
 }
 
 export interface Project {

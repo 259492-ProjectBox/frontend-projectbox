@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import quickSearchProjects from "@/utils/search/quicksearch";
+import detailSearchProjects from "@/utils/search/detailSearch"; // Import detailSearchProjects
 import { Project } from "@/models/Project";
 import ProjectComponent from "@/components/dashboard/ProjectComponent";
 import Spinner from "@/components/Spinner"; // Import Spinner component
@@ -11,7 +12,6 @@ interface SearchFields {
   projectTitle: string;
   studentNo: string;
   advisorName: string;
-  committeeName: string;
 }
 
 const SearchPage: React.FC = () => {
@@ -22,7 +22,6 @@ const SearchPage: React.FC = () => {
     projectTitle: "",
     studentNo: "",
     advisorName: "",
-    committeeName: "",
   });
   const [filteredRecords, setFilteredRecords] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(false); // State for loading
@@ -61,8 +60,16 @@ const SearchPage: React.FC = () => {
 
   const handleDetailSearch = async () => {
     setLoading(true); // Set loading to true when search starts
-    // Implement detailed search logic here
-    setLoading(false); // Set loading to false when search ends
+    try {
+      const results = await detailSearchProjects({ searchFields });
+      setFilteredRecords(results);
+      console.log("Detailed search results:", results);
+    } catch (error) {
+      console.error("Error fetching detailed search results:", error);
+      setFilteredRecords([]);
+    } finally {
+      setLoading(false); // Set loading to false when search ends
+    }
   };
 
   const toggleSearchMode = () => {
@@ -77,13 +84,13 @@ const SearchPage: React.FC = () => {
       projectTitle: "",
       studentNo: "",
       advisorName: "",
-      committeeName: "",
     });
     setFilteredRecords([]);
   };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top
   };
 
   const paginatedRecords = filteredRecords.slice(
@@ -140,12 +147,6 @@ const SearchPage: React.FC = () => {
                   value: searchFields.advisorName,
                   key: "advisorName",
                 },
-                {
-                  label: "Committee Name (EN or TH)",
-                  placeholder: "e.g. Dome Potikanond",
-                  value: searchFields.committeeName,
-                  key: "committeeName",
-                },
               ].map(({ label, placeholder, value, key }) => (
                 <div key={key} className="mb-2">
                   <label className="block mb-1 text-xs font-medium">
@@ -169,7 +170,7 @@ const SearchPage: React.FC = () => {
             <div className="flex justify-end mt-4">
               <button
                 onClick={handleDetailSearch}
-                className="bg-button text-white py-1.5 px-6 rounded-md hover:bg-button_hover focus:outline-none focus:bg-button_focus text-sm"
+                className="bg-primary_button text-white py-1.5 px-6 rounded-md hover:bg-button_hover focus:outline-none focus:bg-button_focus text-sm"
               >
                 Search
               </button>
@@ -229,10 +230,9 @@ const SearchPage: React.FC = () => {
                 ))}
               </ul>
               <Pagination
-                currentPage={currentPage}
-                totalPages={Math.ceil(filteredRecords.length / recordsPerPage)}
-                onPageChange={handlePageChange}
-              />
+                  currentPage={currentPage}
+                  totalPages={Math.ceil(filteredRecords.length / recordsPerPage)}
+                  onPageChange={handlePageChange} itemsPerPage={5}              />
             </>
           ) : (
             <p className="text-sm text-gray-500">
