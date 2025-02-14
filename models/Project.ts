@@ -9,6 +9,7 @@ export interface Course {
   course_name: string;
   program: {
     id: number;
+    abbreviation: string;
     program_name_th: string;
     program_name_en: string | null;
   };
@@ -17,19 +18,23 @@ export interface Course {
 
 export interface Employee {
   id: number;
-  prefix: string | null;
-  firstName: string | null;
-  lastName: string | null;
+  prefixTH: string | null;
+  prefixEN: string | null;
+  firstNameTH: string | null;
+  lastNameTH: string | null;
+  firstNameEN: string | null;
   email: string;
   program: {
     id: number;
+    abbreviation: string;
     program_name_th: string;
     program_name_en: string | null;
   };
   program_id: number;
   projectRole: {
     id: number;
-    roleName: string;
+    roleNameTH: string;
+    roleNameEN: string;
   };
 }
 
@@ -47,6 +52,7 @@ export interface Member {
   program_id: number;
   program: {
     id: number;
+    abbreviation: string;
     program_name_th: string;
     program_name_en: string | null;
   };
@@ -80,22 +86,23 @@ export interface Project {
   id: number;
   projectNo: string;
   titleTH: string;
-  titleEN: string;
+  titleEN: string | null;
   abstractText: string;
-  academic_year: number;
+  academicYear: number;
   semester: number;
-  section_id: string;
+  sectionId: string;
   program: {
     id: number;
+    abbreviation: string;
     program_name_th: string;
     program_name_en: string | null;
   };
-  program_id: number;
-  course_id: number;
+  programId: number;
+  courseId: number;
   course: Course;
   staffs: Employee[];
   members: Member[];
-  project_resources: ProjectResource[];
-  created_at: string;
+  projectResources: ProjectResource[];
+  createdAt: string;
   updated_at?: string | null;
 }
