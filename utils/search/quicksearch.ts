@@ -1,13 +1,11 @@
 import axios from "axios";
 import { Project } from '../../models/Project';
 
-// Define the search payload interface for type checking
 interface QuickSearchPayload {
   searchInput: string;
   fields: string[];
 }
 
-// Function to search projects for quick search mode
 const quickSearchProjects = async ({ searchInput, fields }: QuickSearchPayload): Promise<Project[]> => {
   try {
     const response = await axios.get(
@@ -24,10 +22,10 @@ const quickSearchProjects = async ({ searchInput, fields }: QuickSearchPayload):
       }
     );
     
-    return response.data; // This will return the list of projects based on the search criteria
+    return response.data;
   } catch (error) {
     console.error("Error fetching projects:", error);
-    throw error; // Handle error appropriately
+    throw error;
   }
 };
 
