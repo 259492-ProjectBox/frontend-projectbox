@@ -102,11 +102,11 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
             </p>
             <p>
               <strong className="text-gray-700">Project Title (EN):</strong>{" "}
-              {project.titleEN || "No Title"}
+              {project.titleEN !== null ? project.titleEN : "No Title"}
             </p>
             <p>
               <strong className="text-gray-700">Project Title (TH):</strong>{" "}
-              {project.titleTH || "No Title"}
+              {project.titleTH !== null ? project.titleTH : "No Title"}
             </p>
             <p>
               <strong className="text-gray-700">Project Description:</strong>{" "}
@@ -161,7 +161,7 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
                 <li key={resource.id} className="flex items-center space-x-4">
                   <div>
                     <p className="font-semibold text-gray-800">
-                      {resource.resource?.title || "No Title"}
+                      {resource.resource && resource.resource.title !== null ? resource.resource.title : "No Title"}
                     </p>
                     {resource.resource?.url && (
                       <a

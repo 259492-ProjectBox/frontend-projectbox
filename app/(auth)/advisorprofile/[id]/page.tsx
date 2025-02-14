@@ -7,25 +7,30 @@ import { Advisor } from "@/models/Advisor"; // Assuming this matches the respons
 import Spinner from "@/components/Spinner";
 import getProjectsByAdvisorId from "@/utils/advisorstats/getProjectsByAdvisorId";
 import getEmployeeById from "@/utils/advisorstats/getAdvisorById";
+import ProjectComponent from "@/components/dashboard/ProjectComponent"; // Import ProjectComponent
 
 export default function AdvisorProfilePage() {
   const params = useParams();
-  const id = Array.isArray(params.id) ? params.id[0] : params.id; // Ensure id is a string
+  const id = params && Array.isArray(params.id) ? params.id[0] : params?.id; // Ensure id is a string
   const [advisor, setAdvisor] = useState<Advisor | null>(null); // State for advisor details
   const [projects, setProjects] = useState<Project[]>([]);
+  const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [searchInput, setSearchInput] = useState<string>("");
+  const [selectedRole, setSelectedRole] = useState<string>("");
 
   useEffect(() => {
     if (id) {
       const fetchData = async () => {
         try {
           // Fetch advisor details
-          const advisorData = await getEmployeeById(id);
+          const advisorData = await getEmployeeById(id as string);
           setAdvisor(advisorData);
 
           // Fetch projects associated with the advisor
-          const projectData: Project[] = await getProjectsByAdvisorId(id);
+          const projectData: Project[] = await getProjectsByAdvisorId(id as string);
           setProjects(projectData);
+          setFilteredProjects(projectData);
         } catch (error) {
           console.error("Error fetching data:", error);
         } finally {
@@ -36,14 +41,37 @@ export default function AdvisorProfilePage() {
     }
   }, [id]);
 
+  useEffect(() => {
+    const filtered = projects.filter((project) => {
+      const searchLower = searchInput.toLowerCase();
+      return (
+        (project.titleEN?.toLowerCase().includes(searchLower) ||
+          project.titleTH?.toLowerCase().includes(searchLower) ||
+          project.abstractText?.toLowerCase().includes(searchLower) ||
+          project.academicYear.toString().includes(searchLower) ||
+          project.courseId.toString().includes(searchLower) ||
+          project.members.some((member) =>
+            `${member.firstName} ${member.lastName}`.toLowerCase().includes(searchLower)
+          ) ||
+          project.staffs.some((staff) =>
+            `${staff.firstNameEN} ${staff.lastNameEN}`.toLowerCase().includes(searchLower)
+          )) &&
+        (selectedRole === "" || project.staffs.some(staff => staff.projectRole.roleNameEN === selectedRole))
+      );
+    });
+    setFilteredProjects(filtered);
+  }, [searchInput, selectedRole, projects]);
+
   if (loading) return <Spinner />;
+
+  const roles = ["Advisor", "Co Advisor", "Committee", "External Committee"];
 
   return (
     <div className="min-h-screen p-6 bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300">
       <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden">
         {/* Advisor Details Section */}
         <section className="bg-gray-800 text-white p-6">
-          <h1 className="text-2xl font-bold">Advisor Profile</h1>
+          {/* <h1 className="text-2xl font-bold">Advisor Profile</h1> */}
           {advisor ? (
             <div className="mt-4 space-y-2">
               <p className="text-lg font-semibold">
@@ -65,35 +93,34 @@ export default function AdvisorProfilePage() {
 
         {/* Advisor Projects Section */}
         <section className="p-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Projects</h2>
-          {projects.length > 0 ? (
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-gray-800">Projects</h2>
+            <div className="flex gap-4">
+              <input
+                type="text"
+                placeholder="Search projects..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                className="p-2 border border-gray-300 rounded"
+              />
+              <select
+                value={selectedRole}
+                onChange={(e) => setSelectedRole(e.target.value)}
+                className="p-2 border border-gray-300 rounded"
+              >
+                <option value="">All Roles</option>
+                {roles.map((role) => (
+                  <option key={role} value={role}>
+                    {role}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          {filteredProjects.length > 0 ? (
             <ul className="space-y-6">
-              {projects.map((project) => (
-                <li
-                  key={project.id}
-                  className="p-4 bg-gray-100 rounded-lg shadow hover:shadow-md transition-shadow"
-                >
-                  <h3 className="text-lg font-semibold text-gray-800">
-                    {project.title_en || "No Title Available"}
-                    <span className="text-sm text-gray-500 ml-2">
-                      ({project.project_no})
-                    </span>
-                  </h3>
-                  <p className="text-sm text-gray-600 italic">{project.title_th}</p>
-                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <p className="text-sm text-gray-600">
-                      <strong>Abstract:</strong> {project.abstract_text || "N/A"}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      <strong>Academic Year:</strong> {project.academic_year}, 
-                      <strong> Semester:</strong> {project.semester}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      <strong>Created At:</strong>{" "}
-                      {new Date(project.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                </li>
+              {filteredProjects.map((project) => (
+                <ProjectComponent key={project.id} project={project} />
               ))}
             </ul>
           ) : (
