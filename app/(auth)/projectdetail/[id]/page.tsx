@@ -161,31 +161,31 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
                 <li key={resource.id} className="flex items-center space-x-4">
                   <div>
                     <p className="font-semibold text-gray-800">
-                      {resource.resource && resource.resource.title !== null ? resource.resource.title : "No Title"}
+                      {resource && resource.title !== null ? resource.title : "No Title"}
                     </p>
-                    {resource.resource?.url && (
+                    {resource?.url && (
                       <a
-                        href={resource.resource.url}
+                        href={resource.url}
                         className="text-blue-500"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        {resource.resource.url}
+                        {resource.url}
                       </a>
                     )}
-                    {resource.resource?.path && (
+                    {resource?.path && (
                       <p className="text-gray-500 text-sm">
-                        Path: {resource.resource.path}
+                        Path: {resource.path}
                       </p>
                     )}
-                    {resource.resource?.resourceName && (
+                    {resource?.resourceName && (
                       <p className="text-gray-500 text-sm">
-                        Resource Name: {resource.resource.resourceName}
+                        Resource Name: {resource.resourceName}
                       </p>
                     )}
-                    {resource.resource?.createdAt && (
+                    {resource?.createdAt && (
                       <p className="text-gray-500 text-sm">
-                        Created At: {resource.resource.createdAt}
+                        Created At: {resource.createdAt}
                       </p>
                     )}
                   </div>

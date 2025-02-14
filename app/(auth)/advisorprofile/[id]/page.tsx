@@ -8,6 +8,7 @@ import Spinner from "@/components/Spinner";
 import getProjectsByAdvisorId from "@/utils/advisorstats/getProjectsByAdvisorId";
 import getEmployeeById from "@/utils/advisorstats/getAdvisorById";
 import ProjectComponent from "@/components/dashboard/ProjectComponent"; // Import ProjectComponent
+import Pagination from "@/components/Pagination"; // Import Pagination component
 
 export default function AdvisorProfilePage() {
   const params = useParams();
@@ -18,6 +19,19 @@ export default function AdvisorProfilePage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [searchInput, setSearchInput] = useState<string>("");
   const [selectedRole, setSelectedRole] = useState<string>("");
+  const itemsPerPage = 5; // Items per page
+  const [currentPage, setCurrentPage] = useState<number>(1); // Current page state
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page); // Set current page
+    window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top
+  };
+
+  // Calculate the current page's projects
+  const currentProjects = filteredProjects.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   useEffect(() => {
     if (id) {
@@ -118,11 +132,19 @@ export default function AdvisorProfilePage() {
             </div>
           </div>
           {filteredProjects.length > 0 ? (
-            <ul className="space-y-6">
-              {filteredProjects.map((project) => (
-                <ProjectComponent key={project.id} project={project} />
-              ))}
-            </ul>
+            <>
+              <ul className="space-y-6">
+                {currentProjects.map((project) => (
+                  <ProjectComponent key={project.id} project={project} />
+                ))}
+              </ul>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={Math.ceil(filteredProjects.length / itemsPerPage)}
+                onPageChange={handlePageChange}
+                itemsPerPage={itemsPerPage}
+              />
+            </>
           ) : (
             <p className="text-gray-600">No projects found for this advisor.</p>
           )}
