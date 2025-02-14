@@ -80,6 +80,7 @@ export interface PdfPage {
   }
   
   export interface Member {
+    student_id: number;
     id: string;       // e.g. "640610308"
     firstName: string;
     lastName: string;

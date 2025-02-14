@@ -4,7 +4,12 @@ import { Project } from "@/models/Project";
 const getProjectsByAdvisorId = async (advisorId: string): Promise<Project[]> => {
   try {
     const response = await axios.get(
-      `https://project-service.kunmhing.me/projects/advisor/${advisorId}`
+      `https://search-service.kunmhing.me/api/v1/projects/fields?fields=staffs.id&searchInput=${advisorId}`,
+      {
+        headers: {
+          accept: "*/*",
+        },
+      }
     );
     return response.data; // Adjust this to match your API response structure
   } catch (error) {

@@ -1,56 +1,74 @@
 "use client";
-import { Project } from "@/models/SearchContenetPdf";
-import { fetchPdfProjects } from "@/utils/search/pdfSearchApi";
 import React, { useState } from "react";
-
-// 1. Import the PDF search API and the Project model
+import quickSearchProjects from "@/utils/search/quicksearch";
+import detailSearchProjects from "@/utils/search/detailSearch"; // Import detailSearchProjects
+import { Project } from "@/models/Project";
+import ProjectComponent from "@/components/dashboard/ProjectComponent";
+import Spinner from "@/components/Spinner"; // Import Spinner component
+import Pagination from "@/components/Pagination"; // Import Pagination component
 
 interface SearchFields {
   courseNo: string;
   projectTitle: string;
   studentNo: string;
   advisorName: string;
-  committeeName: string;
 }
 
 const SearchPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [searchAllMajor, setSearchAllMajor] = useState<boolean>(false);
-  const [selectedFields, setSelectedFields] = useState<string[]>([
-    "ProjectTitle(EN)",
-    "ProjectTitle(TH)",
-    "Abstract",
-    "ProjectAdvisor",
-    "Student",
-  ]); // Removed ID
   const [searchMode, setSearchMode] = useState<string>("quick");
   const [searchFields, setSearchFields] = useState<SearchFields>({
     courseNo: "",
     projectTitle: "",
     studentNo: "",
     advisorName: "",
-    committeeName: "",
   });
+  const [filteredRecords, setFilteredRecords] = useState<Project[]>([]);
+  const [loading, setLoading] = useState<boolean>(false); // State for loading
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const recordsPerPage = 5;
 
-  // State for showing non-PDF (quick/detail) results (UI-only placeholder)
-  const [filteredRecords, setFilteredRecords] = useState<SearchFields[]>([]);
-
-  // 2. Add state for PDF search results
-  const [pdfResults, setPdfResults] = useState<Project[]>([]);
-
-  // 3. Modify handleSearch to call the PDF API if we're in PDF mode
   const handleSearch = async () => {
-    if (searchMode === "pdf") {
+    setLoading(true); // Set loading to true when search starts
+    if (searchMode === "quick") {
       try {
-        const results = await fetchPdfProjects(searchTerm);
-        setPdfResults(results);
+        const results = await quickSearchProjects({
+          searchInput: searchTerm,
+          fields: [
+            "titleTH",
+            "titleEN",
+            "abstractText",
+            "staffs.firstNameTH",
+            "staffs.lastNameTH",
+            "staffs.firstNameEN",
+            "staffs.lastNameEN",
+            "members.studentId",
+            "members.firstName",
+            "members.lastName",
+          ],
+        });
+        setFilteredRecords(results);
+        console.log("Quick search results:", results);
       } catch (error) {
-        console.error("Error fetching PDF results:", error);
-        setPdfResults([]);
+        console.error("Error fetching quick search results:", error);
+        setFilteredRecords([]);
+      } finally {
+        setLoading(false); // Set loading to false when search ends
       }
-    } else {
-      // For UI-only (quick/detail), we're just clearing results to demonstrate "No records found."
+    }
+  };
+
+  const handleDetailSearch = async () => {
+    setLoading(true); // Set loading to true when search starts
+    try {
+      const results = await detailSearchProjects({ searchFields });
+      setFilteredRecords(results);
+      console.log("Detailed search results:", results);
+    } catch (error) {
+      console.error("Error fetching detailed search results:", error);
       setFilteredRecords([]);
+    } finally {
+      setLoading(false); // Set loading to false when search ends
     }
   };
 
@@ -60,7 +78,25 @@ const SearchPage: React.FC = () => {
       if (prevMode === "detail") return "pdf";
       return "quick";
     });
+    setSearchTerm("");
+    setSearchFields({
+      courseNo: "",
+      projectTitle: "",
+      studentNo: "",
+      advisorName: "",
+    });
+    setFilteredRecords([]);
   };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top
+  };
+
+  const paginatedRecords = filteredRecords.slice(
+    (currentPage - 1) * recordsPerPage,
+    currentPage * recordsPerPage
+  );
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-stone-100">
@@ -81,7 +117,7 @@ const SearchPage: React.FC = () => {
         </button>
       </div>
 
-      <div className="w-full max-w-3xl mt-4">
+      <div className="w-full max-w-5xl mt-4">
         {/* DETAILED SEARCH */}
         {searchMode === "detail" ? (
           <div className="bg-white rounded-lg p-3 shadow mb-4">
@@ -111,12 +147,6 @@ const SearchPage: React.FC = () => {
                   value: searchFields.advisorName,
                   key: "advisorName",
                 },
-                {
-                  label: "Committee Name (EN or TH)",
-                  placeholder: "e.g. Dome Potikanond",
-                  value: searchFields.committeeName,
-                  key: "committeeName",
-                },
               ].map(({ label, placeholder, value, key }) => (
                 <div key={key} className="mb-2">
                   <label className="block mb-1 text-xs font-medium">
@@ -139,8 +169,8 @@ const SearchPage: React.FC = () => {
             </div>
             <div className="flex justify-end mt-4">
               <button
-                onClick={handleSearch}
-                className="bg-button text-white py-1.5 px-6 rounded-md hover:bg-button_hover focus:outline-none focus:bg-button_focus text-sm"
+                onClick={handleDetailSearch}
+                className="bg-primary_button text-white py-1.5 px-6 rounded-md hover:bg-button_hover focus:outline-none focus:bg-button_focus text-sm"
               >
                 Search
               </button>
@@ -158,7 +188,6 @@ const SearchPage: React.FC = () => {
                 className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-button_focus text-sm"
               />
               <button
-                onClick={handleSearch}
                 className="bg-primary_button text-white py-2 px-4 rounded-r-md hover:bg-button_hover focus:outline-none focus:bg-button_focus text-sm"
               >
                 Search
@@ -183,127 +212,32 @@ const SearchPage: React.FC = () => {
                 Search
               </button>
             </div>
-            <div className="flex flex-wrap gap-2 mb-4">
-              {[
-                {
-                  label: "Title (EN)",
-                  field: "ProjectTitle(EN)",
-                  color: "bg-teal-100 text-teal-800",
-                },
-                {
-                  label: "Title (TH)",
-                  field: "ProjectTitle(TH)",
-                  color: "bg-blue-100 text-blue-800",
-                },
-                {
-                  label: "Abstract",
-                  field: "Abstract",
-                  color: "bg-yellow-100 text-yellow-800",
-                },
-                {
-                  label: "Advisor",
-                  field: "ProjectAdvisor",
-                  color: "bg-red-100 text-red-800",
-                },
-                {
-                  label: "Student",
-                  field: "Student",
-                  color: "bg-purple-100 text-purple-800",
-                },
-              ].map(({ label, field, color }) => (
-                <span
-                  key={field}
-                  className={`inline-flex items-center px-2 py-1 text-sm font-medium rounded cursor-pointer ${
-                    selectedFields.includes(field)
-                      ? color
-                      : "bg-gray-100 text-gray-800"
-                  }`}
-                  onClick={() =>
-                    setSelectedFields((prevFields) =>
-                      prevFields.includes(field)
-                        ? prevFields.filter((f) => f !== field)
-                        : [...prevFields, field]
-                    )
-                  }
-                >
-                  {label}
-                </span>
-              ))}
-            </div>
-            <div className="flex items-center justify-center mb-4">
-              <input
-                type="checkbox"
-                checked={searchAllMajor}
-                onChange={() => setSearchAllMajor(!searchAllMajor)}
-                id="searchAllMajor"
-                className="w-3.5 h-3.5 text-primary_text border-gray-300 rounded focus:ring-button_focus"
-              />
-              <label htmlFor="searchAllMajor" className="ml-2 text-gray-700 text-sm">
-                Search All Major
-              </label>
-            </div>
           </div>
         )}
 
         {/* SEARCH RESULTS */}
-        <div className="bg-white rounded-lg shadow p-4 mt-4">
+        <div className="bg-white rounded-lg shadow p-4 mt-4 w-full max-w-5xl"> {/* Increased max-width */}
           <h2 className="text-lg font-semibold mb-4">Search Results</h2>
-          {searchMode === "pdf" ? (
-            /* PDF MODE RESULTS */
-            pdfResults.length > 0 ? (
+          {loading ? (
+            <Spinner /> // Show spinner when loading
+          ) : filteredRecords.length > 0 ? (
+            <>
               <ul>
-                {pdfResults.map((project) => (
-                  <li key={project.id} className="mb-4 border-b border-gray-200 pb-4">
-                    <h3 className="text-primary_button font-bold">{project.titleEN}</h3>
-                    <h4 className="text-gray-700">{project.titleTH}</h4>
-                    <p className="text-sm text-gray-600">
-                      {project.abstractText || "No Abstract available"}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      <strong>Course:</strong> {project.course?.courseNo || "N/A"}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      <strong>Academic Year:</strong> {project.academicYear}
-                    </p>
-                    {/* Additional fields or logic as needed */}
+                {paginatedRecords.map((record) => (
+                  <li key={record.id}>
+                    <ProjectComponent project={record} />
                   </li>
                 ))}
               </ul>
-            ) : (
-              <p className="text-sm text-gray-500">
-                {searchTerm
-                  ? "No PDF results found."
-                  : "Enter a search term to see PDF results."}
-              </p>
-            )
+              <Pagination
+                  currentPage={currentPage}
+                  totalPages={Math.ceil(filteredRecords.length / recordsPerPage)}
+                  onPageChange={handlePageChange} itemsPerPage={5}              />
+            </>
           ) : (
-            /* QUICK or DETAIL MODE RESULTS */
-            filteredRecords.length > 0 ? (
-              <ul>
-                {filteredRecords.map((record, index) => (
-                  <li
-                    key={index}
-                    className="mb-4 border-b border-gray-200 pb-4"
-                  >
-                    <h3 className="text-primary_button font-bold">Project Title (EN)</h3>
-                    <h4 className="text-gray-700">Project Title (TH)</h4>
-                    <p className="text-sm text-gray-600">Abstract...</p>
-                    <p className="text-sm text-gray-600">
-                      <strong>Advisor(s):</strong> Some advisor
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      <strong>Student(s):</strong> Some student
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-gray-500">
-                {searchTerm || searchMode === "detail"
-                  ? "No records found."
-                  : "Enter a search term to see results."}
-              </p>
-            )
+            <p className="text-sm text-gray-500">
+              {searchTerm ? "No records found." : "Enter a search term to see results."}
+            </p>
           )}
         </div>
       </div>

@@ -1,5 +1,4 @@
 "use client";
-import { AllProgram } from "@/models/AllPrograms";
 import getAllProgram from "@/utils/getAllProgram";
 import postCreateProgram from "@/utils/platformadmin/postCreateProgram";
 import { getAdmins } from "@/utils/superadmin/getAdmin";
