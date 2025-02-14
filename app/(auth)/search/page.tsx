@@ -167,70 +167,69 @@ const SearchPage: React.FC = () => {
           </div>
         ) : (
           // QUICK SEARCH
-          <div>
+            <div>
             <div className="flex items-center mb-3">
               <input
-                type="text"
-                placeholder="Enter search term..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-button_focus text-sm"
+              type="text"
+              placeholder="Enter search term..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-button_focus text-sm"
               />
               <button
-                onClick={handleSearch}
-                className="bg-primary_button text-white py-2 px-4 rounded-r-md hover:bg-button_hover focus:outline-none focus:bg-button_focus text-sm"
+              onClick={handleSearch}
+              className="bg-primary_button text-white py-2 px-4 rounded-r-md hover:bg-button_hover focus:outline-none focus:bg-button_focus text-sm"
               >
-                Search
+              Search
               </button>
             </div>
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="flex flex-wrap gap-2 mb-4 items-center">
               {[
-                {
-                  label: "Title (EN)",
-                  field: "ProjectTitle(EN)",
-                  color: "bg-teal-100 text-teal-800",
-                },
-                {
-                  label: "Title (TH)",
-                  field: "ProjectTitle(TH)",
-                  color: "bg-blue-100 text-blue-800",
-                },
-                {
-                  label: "Abstract",
-                  field: "Abstract",
-                  color: "bg-yellow-100 text-yellow-800",
-                },
-                {
-                  label: "Advisor",
-                  field: "ProjectAdvisor",
-                  color: "bg-red-100 text-red-800",
-                },
-                {
-                  label: "Student",
-                  field: "Student",
-                  color: "bg-purple-100 text-purple-800",
-                },
+              {
+                label: "Title (EN)",
+                field: "ProjectTitle(EN)",
+                color: "bg-teal-100 text-teal-800",
+              },
+              {
+                label: "Title (TH)",
+                field: "ProjectTitle(TH)",
+                color: "bg-blue-100 text-blue-800",
+              },
+              {
+                label: "Abstract",
+                field: "Abstract",
+                color: "bg-yellow-100 text-yellow-800",
+              },
+              {
+                label: "Advisor",
+                field: "ProjectAdvisor",
+                color: "bg-red-100 text-red-800",
+              },
+              {
+                label: "Student",
+                field: "Student",
+                color: "bg-purple-100 text-purple-800",
+              },
               ].map(({ label, field, color }) => (
-                <span
-                  key={field}
-                  className={`inline-flex items-center px-2 py-1 text-sm font-medium rounded cursor-pointer ${
-                    selectedFields.includes(field)
-                      ? color
-                      : "bg-gray-100 text-gray-800"
-                  }`}
-                  onClick={() =>
-                    setSelectedFields((prevFields) =>
-                      prevFields.includes(field)
-                        ? prevFields.filter((f) => f !== field)
-                        : [...prevFields, field]
-                    )
-                  }
-                >
-                  {label}
-                </span>
+              <span
+                key={field}
+                className={`inline-flex items-center px-2 py-1 text-sm font-medium rounded cursor-pointer ${
+                selectedFields.includes(field)
+                  ? color
+                  : "bg-gray-100 text-gray-800"
+                }`}
+                onClick={() =>
+                setSelectedFields((prevFields) =>
+                  prevFields.includes(field)
+                  ? prevFields.filter((f) => f !== field)
+                  : [...prevFields, field]
+                )
+                }
+              >
+                {label}
+              </span>
               ))}
-            </div>
-            <div className="flex items-center justify-center mb-4">
+              <div className="flex items-center ml-2">
               <input
                 type="checkbox"
                 checked={searchAllMajor}
@@ -241,8 +240,9 @@ const SearchPage: React.FC = () => {
               <label htmlFor="searchAllMajor" className="ml-2 text-gray-700 text-sm">
                 Search All Major
               </label>
+              </div>
             </div>
-          </div>
+            </div>
         )}
 
         {/* SEARCH RESULTS */}

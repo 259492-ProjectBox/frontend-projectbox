@@ -51,6 +51,7 @@ const CreateProject: React.FC = () => {
   const [studentList, setStudentList] = useState<Student[]>([]); // Store student list
   const [configProgram, setConfigProgram] = useState<ConfigProgramSetting[]>([]);
   const [data, setData] = useState<Student | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { user } = useAuth(); // Get user from useAuth
   const router = useRouter(); // Initialize useRouter
@@ -338,6 +339,8 @@ const CreateProject: React.FC = () => {
   };
 
   const handleSubmit = async () => {
+    if (isSubmitting) return; // Prevent duplicate submissions
+    setIsSubmitting(true);
     try {
       // 1. Create a FormData instance.
       const formDataToSend = new FormData();
@@ -352,12 +355,12 @@ const CreateProject: React.FC = () => {
         section_id: formData.section_id,
         program_id: data?.program_id,
         course_id: data?.course_id,
-        staffs: staffList.map((staff) => ({
-          staff_id: staff.id,
+        staffs: (formData.advisor as { value: number; label: string }[]).map((advisor) => ({
+          staff_id: advisor.value,
           project_role_id: 1, // example
         })),
-        members: studentList.map((student) => ({
-          id: student.id,
+        members: (formData.student as { value: number; label: string }[]).map((student) => ({
+          id: student.value,
         })),
       };
   
@@ -421,6 +424,8 @@ const CreateProject: React.FC = () => {
     } catch (error) {
       console.error("Error submitting form:", error);
       alert("Failed to submit the form.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
   
@@ -498,7 +503,8 @@ const CreateProject: React.FC = () => {
         </div>
         <button
           onClick={handleSubmit}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className={`bg-blue-500 text-white px-4 py-2 rounded ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`}
+          disabled={isSubmitting}
         >
           Submit
         </button>
