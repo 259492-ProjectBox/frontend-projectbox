@@ -1,19 +1,22 @@
-export interface Major {
+export interface Program {
   id: number;
-  major_name: string;
+  abbreviation: string;
+  programNameTH: string;
+  programNameEN: string | null;
 }
 
 export interface Course {
   id: number;
-  course_no: string;
-  course_name: string;
-  program: {
-    id: number;
-    abbreviation: string;
-    program_name_th: string;
-    program_name_en: string | null;
-  };
-  program_id: number;
+  courseNo: string;
+  courseName: string;
+  programId: number;
+  program: Program;
+}
+
+export interface ProjectRole {
+  id: number;
+  roleNameTH: string;
+  roleNameEN: string;
 }
 
 export interface Employee {
@@ -23,19 +26,11 @@ export interface Employee {
   firstNameTH: string | null;
   lastNameTH: string | null;
   firstNameEN: string | null;
+  lastNameEN: string | null;
   email: string;
-  program: {
-    id: number;
-    abbreviation: string;
-    program_name_th: string;
-    program_name_en: string | null;
-  };
-  program_id: number;
-  projectRole: {
-    id: number;
-    roleNameTH: string;
-    roleNameEN: string;
-  };
+  programId: number;
+  program: Program;
+  projectRole: ProjectRole;
 }
 
 export interface Member {
@@ -46,35 +41,28 @@ export interface Member {
   lastName: string;
   email: string;
   semester: number;
-  academic_year: number;
-  course_id: number;
+  academicYear: number;
+  courseId: number;
   course: Course;
-  program_id: number;
-  program: {
-    id: number;
-    abbreviation: string;
-    program_name_th: string;
-    program_name_en: string | null;
-  };
+  programId: number;
+  program: Program;
 }
 
 export interface ResourceType {
   id: number;
-  type_name: string;
+  typeName: string;
 }
 
 export interface Resource {
   id: number;
   title: string | null;
-  resource_name: string | null;
+  resourceName: string | null;
   path: string | null;
-  pdf: null | string;
-  resource_type_id: number;
-  resource_type: ResourceType;
-  created_at: string | null;
-  url?: string | null;
-  file_extension_id?: number | null;
-  file_extension?: string | null;
+  url: string | null;
+  pdf: string | null;
+  resourceTypeId: number;
+  resourceType: ResourceType;
+  createdAt: string | null;
 }
 
 export interface ProjectResource {
@@ -91,13 +79,8 @@ export interface Project {
   academicYear: number;
   semester: number;
   sectionId: string;
-  program: {
-    id: number;
-    abbreviation: string;
-    program_name_th: string;
-    program_name_en: string | null;
-  };
   programId: number;
+  program: Program;
   courseId: number;
   course: Course;
   staffs: Employee[];

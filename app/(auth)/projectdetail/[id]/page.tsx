@@ -29,6 +29,41 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
   if (loading) return <Spinner />;
   if (!project) return <p>No project found.</p>;
 
+  const renderProfessorsByRole = (roleNameEN: string, roleNameTH: string) => {
+    const professors = project.staffs.filter(
+      (staff) => staff.projectRole.roleNameEN === roleNameEN
+    );
+
+    if (professors.length === 0) return null;
+
+    return (
+      <div className="pb-6">
+        <h2 className="text-m font-bold text-gray-800 mb-4">{roleNameTH}</h2>
+        <ul className="space-y-4">
+          {professors.map((professor) => (
+            <li key={professor.id} className="flex items-center space-x-4">
+              <Image
+                className="w-8 h-8 rounded-full"
+                src="/logo-engcmu/CMU_LOGO_Crop.jpg"
+                alt={professor.firstNameTH || "Professor"}
+                width={32} // Specify width (in px)
+                height={32} // Specify height (in px)
+              />
+              <div>
+                <p className="font-semibold text-gray-800">
+                  {professor.prefixTH} {professor.firstNameTH} {professor.lastNameTH}
+                </p>
+                <p className="text-gray-500 text-sm">
+                  {professor.projectRole.roleNameTH}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-stone-100 py-6">
       <div className="container mx-auto max-w-4xl bg-white p-6 shadow-md rounded-lg space-y-12">
@@ -58,12 +93,12 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
             )}
             <p>
               <strong className="text-gray-700">Major:</strong>{" "}
-              {project.program?.program_name_en || "No Data"}
+              {project.program?.programNameEN || "No Data"}
             </p>
             <p>
               <strong className="text-gray-700">Course:</strong>{" "}
-              {project.course?.course_no || "No Data"} -{" "}
-              {project.course?.course_name || "No Data"}
+              {project.course?.courseNo || "No Data"} -{" "}
+              {project.course?.courseName || "No Data"}
             </p>
             <p>
               <strong className="text-gray-700">Project Title (EN):</strong>{" "}
@@ -80,34 +115,13 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
           </div>
         </div>
 
-        {/* Advisor Section */}
+        {/* Professors Section */}
         <div className="border-b pb-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Advisor</h2>
-          {project.staffs?.length > 0 ? (
-            <ul className="space-y-4">
-              {project.staffs.map((advisor) => (
-                <li key={advisor.id} className="flex items-center space-x-4">
-                  <Image
-                    className="w-8 h-8 rounded-full"
-                    src="/logo-engcmu/CMU_LOGO_Crop.jpg"
-                    alt={advisor.firstNameTH || "Advisor"}
-                    width={32} // Specify width (in px)
-                    height={32} // Specify height (in px)
-                  />
-                  <div>
-                    <p className="font-semibold text-gray-800">
-                      {advisor.prefixTH} {advisor.firstNameTH} {advisor.lastNameTH}
-                    </p>
-                    <p className="text-gray-500 text-sm">
-                      {advisor.projectRole.roleNameTH}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-500">No advisor assigned.</p>
-          )}
+          <h2 className="text-xl font-bold text-gray-800 mb-4">Professors</h2>
+          {renderProfessorsByRole("Advisor", "Advisor")}
+          {renderProfessorsByRole("Co Advisor", "Co Advisor")}
+          {renderProfessorsByRole("Committee", "Committee")}
+          {renderProfessorsByRole("External Committee", "External Committee")}
         </div>
 
         {/* Members Section */}
@@ -164,14 +178,14 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
                         Path: {resource.resource.path}
                       </p>
                     )}
-                    {resource.resource?.resource_name && (
+                    {resource.resource?.resourceName && (
                       <p className="text-gray-500 text-sm">
-                        Resource Name: {resource.resource.resource_name}
+                        Resource Name: {resource.resource.resourceName}
                       </p>
                     )}
-                    {resource.resource?.created_at && (
+                    {resource.resource?.createdAt && (
                       <p className="text-gray-500 text-sm">
-                        Created At: {resource.resource.created_at}
+                        Created At: {resource.resource.createdAt}
                       </p>
                     )}
                   </div>
