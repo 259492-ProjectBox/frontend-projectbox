@@ -44,16 +44,16 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
             </p>
             <p>
               <strong className="text-gray-700">Academic Year:</strong>{" "}
-              {project.academic_year || "No Data"}
+              {project.academicYear || "No Data"}
             </p>
             <p>
               <strong className="text-gray-700">Semester:</strong>{" "}
               {project.semester || "No Data"}
             </p>
-            {project.section_id && (
+            {project.sectionId && (
               <p>
                 <strong className="text-gray-700">Section:</strong>{" "}
-                {project.section_id}
+                {project.sectionId}
               </p>
             )}
             <p>
@@ -90,16 +90,16 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
                   <Image
                     className="w-8 h-8 rounded-full"
                     src="/logo-engcmu/CMU_LOGO_Crop.jpg"
-                    alt={advisor.firstName || "Advisor"}
+                    alt={advisor.firstNameTH || "Advisor"}
                     width={32} // Specify width (in px)
                     height={32} // Specify height (in px)
                   />
                   <div>
                     <p className="font-semibold text-gray-800">
-                      {advisor.prefix} {advisor.firstName} {advisor.lastName}
+                      {advisor.prefixTH} {advisor.firstNameTH} {advisor.lastNameTH}
                     </p>
                     <p className="text-gray-500 text-sm">
-                      {advisor.projectRole.roleName}
+                      {advisor.projectRole.roleNameTH}
                     </p>
                   </div>
                 </li>
@@ -141,15 +141,15 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
         {/* Project Resources Section */}
         <div className="pb-6">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Resources</h2>
-          {project.project_resources?.length > 0 ? (
+          {project.projectResources?.length > 0 ? (
             <ul className="space-y-4">
-              {project.project_resources.map((resource) => (
+              {project.projectResources.map((resource) => (
                 <li key={resource.id} className="flex items-center space-x-4">
                   <div>
                     <p className="font-semibold text-gray-800">
-                      {resource.resource.title || "No Title"}
+                      {resource.resource?.title || "No Title"}
                     </p>
-                    {resource.resource.url && (
+                    {resource.resource?.url && (
                       <a
                         href={resource.resource.url}
                         className="text-blue-500"
@@ -159,17 +159,17 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
                         {resource.resource.url}
                       </a>
                     )}
-                    {resource.resource.path && (
+                    {resource.resource?.path && (
                       <p className="text-gray-500 text-sm">
                         Path: {resource.resource.path}
                       </p>
                     )}
-                    {resource.resource.resource_name && (
+                    {resource.resource?.resource_name && (
                       <p className="text-gray-500 text-sm">
                         Resource Name: {resource.resource.resource_name}
                       </p>
                     )}
-                    {resource.resource.created_at && (
+                    {resource.resource?.created_at && (
                       <p className="text-gray-500 text-sm">
                         Created At: {resource.resource.created_at}
                       </p>

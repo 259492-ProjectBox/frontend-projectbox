@@ -212,7 +212,7 @@ function Dashboard() {
                 />
                 <LimitedList
                   items={project.staffs.map((staff) => ({
-                    name: `${staff.prefix || ""} ${staff.firstName || "No First Name"} ${staff.lastName || "No Last Name"}`,
+                    name: `${staff.prefixEN || ""} ${staff.firstNameTH || "No First Name"} ${staff.lastNameTH || "No Last Name"}`,
                   }))}
                   title="Advisor"
                 />
