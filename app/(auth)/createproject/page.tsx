@@ -15,6 +15,8 @@ import { Student } from "@/models/Student"; // Import the new Student type
 import { ConfigProgramSetting } from "@/models/ConfigProgram";
 import axios from "axios"; // Import axios for making API requests
 import { useRouter } from "next/navigation"; // Import useRouter from next/navigation
+import { getProjectRoles } from "@/utils/createproject/getProjectRoles"; // Import the getProjectRoles function
+import { ProjectRole } from "@/models/ProjectRoles"; // Import the ProjectRole type
 
 // Types
 interface ProjectResourceConfig {
@@ -52,6 +54,7 @@ const CreateProject: React.FC = () => {
   const [configProgram, setConfigProgram] = useState<ConfigProgramSetting[]>([]);
   const [data, setData] = useState<Student | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [projectRoles, setProjectRoles] = useState<ProjectRole[]>([]); // Store project roles
 
   const { user } = useAuth(); // Get user from useAuth
   const router = useRouter(); // Initialize useRouter
@@ -112,6 +115,9 @@ const CreateProject: React.FC = () => {
 
           const programConfig = await getConfigProgram(data.program_id); // Fetch program config
           setConfigProgram(programConfig);
+
+          const roles = await getProjectRoles(); // Fetch project roles
+          setProjectRoles(roles);
 
           // Pre-fill course and section
           setFormData((prevData) => ({
@@ -355,10 +361,24 @@ const CreateProject: React.FC = () => {
         section_id: formData.section_id,
         program_id: data?.program_id,
         course_id: data?.course_id,
-        staffs: (formData.advisor as { value: number; label: string }[]).map((advisor) => ({
-          staff_id: advisor.value,
-          project_role_id: 1, // example
-        })),
+        staffs: [
+          ...(formData.advisor as { value: number; label: string }[]).map((advisor) => ({
+            staff_id: advisor.value,
+            project_role_id: projectRoles.find(role => role.role_name_en === "Advisor")?.id || 1,
+          })),
+          ...(formData.co_advisor as { value: number; label: string }[]).map((coAdvisor) => ({
+            staff_id: coAdvisor.value,
+            project_role_id: projectRoles.find(role => role.role_name_en === "Co-Advisor")?.id || 2,
+          })),
+          ...(formData.committee as { value: number; label: string }[]).map((committee) => ({
+            staff_id: committee.value,
+            project_role_id: projectRoles.find(role => role.role_name_en === "Committee")?.id || 3,
+          })),
+          ...(formData.external_committee as { value: number; label: string }[]).map((externalCommittee) => ({
+            staff_id: externalCommittee.value,
+            project_role_id: projectRoles.find(role => role.role_name_en === "External Committee Members")?.id || 4,
+          })),
+        ],
         members: (formData.student as { value: number; label: string }[]).map((student) => ({
           id: student.value,
         })),
