@@ -49,7 +49,7 @@ export default function ConfigProgram() {
       };
   
       fetchOptions();
-    }, [user?.isAdmin]); // Re-fetch when `isAdmin` changes
+    }, [user, selectedMajor]); // Re-fetch when `user` or `selectedMajor` changes
   
     
     // Fetch configuration data for selected program
