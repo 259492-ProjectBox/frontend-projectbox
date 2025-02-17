@@ -142,7 +142,6 @@ export default function AdvisorProfilePage() {
                 currentPage={currentPage}
                 totalPages={Math.ceil(filteredProjects.length / itemsPerPage)}
                 onPageChange={handlePageChange}
-                itemsPerPage={itemsPerPage}
               />
             </>
           ) : (

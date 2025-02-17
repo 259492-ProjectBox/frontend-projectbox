@@ -232,7 +232,7 @@ const SearchPage: React.FC = () => {
               <Pagination
                   currentPage={currentPage}
                   totalPages={Math.ceil(filteredRecords.length / recordsPerPage)}
-                  onPageChange={handlePageChange} itemsPerPage={5}              />
+                  onPageChange={handlePageChange}             />
             </>
           ) : (
             <p className="text-sm text-gray-500">
