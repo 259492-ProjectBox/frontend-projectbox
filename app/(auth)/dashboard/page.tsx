@@ -50,35 +50,6 @@ function Dashboard() {
 
   if (loading) return <Spinner />;
 
-  const LimitedList = ({
-    items,
-    title,
-  }: {
-    items: { name?: string; role?: string; id?: string }[];
-    title: string;
-  }) => {
-    const [seeMore, setSeeMore] = useState(false);
-    const visibleItems = seeMore ? items : items.slice(0, 3);
-
-    return (
-      <div>
-        <h4 className="font-bold text-primary_text">{title}</h4>
-        {visibleItems.map((item, index) => (
-          <p key={index} className="text-sm">
-            {item.name || "No Data"} {item.id ? `(${item.id})` : ""} {item.role ? `(${item.role})` : ""}
-          </p>
-        ))}
-        {items.length > 3 && (
-          <p
-            className="text-sm text-primary_text underline cursor-pointer mt-2"
-            onClick={() => setSeeMore(!seeMore)}
-          >
-            {seeMore ? "See Less" : "See More"}
-          </p>
-        )}
-      </div>
-    );
-  };
 
   return (
     <div className="bg-stone-100 min-h-screen p-8">

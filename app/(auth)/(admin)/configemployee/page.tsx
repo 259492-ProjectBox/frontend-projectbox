@@ -35,19 +35,27 @@ export default function ConfigAdvisorPage() {
 
   useEffect(() => {
     const fetchOptions = async () => {
-      if(!user) return;
-      const programOptions = await getProgramOptions(user.isAdmin);
-      setOptions(programOptions);
+      if (!user) return;
+      setLoading(true);
+      try {
+        const programOptions = await getProgramOptions(user.isAdmin);
+        setOptions(programOptions);
 
-      // Ensure selectedMajor is in options, otherwise set it to "Unknown" (0)
-      const validIds = programOptions.map((option) => option.id);
-      if (!validIds.includes(selectedMajor)) {
-        setSelectedMajor(0);
+        // Ensure selectedMajor is in options; otherwise, reset to default (0)
+        if (!programOptions.some((option) => option.id === selectedMajor)) {
+          setSelectedMajor(0);
+        }
+      } catch (err) {
+        console.error("Error fetching program options:", err);
+        setError("Failed to load program options.");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchOptions();
-  }, [user?.isAdmin]);
+  }, [user, selectedMajor]); // Re-fetch when `user` or `selectedMajor` changes
+
   // Fetch advisors by selected major ID
   useEffect(() => {
     const fetchAdvisors = async () => {
@@ -64,7 +72,7 @@ export default function ConfigAdvisorPage() {
     };
     
     fetchAdvisors();
-  }, [selectedMajor]);
+  }, [selectedMajor, user]);
 
   // Handler for opening the modal (edit or add mode)
   const handleOpenModal = (advisor: Advisor | null = null) => {

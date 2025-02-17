@@ -195,7 +195,7 @@ export default function AdvisorStatsPage() {
               currentPage={currentPage}
               totalPages={Math.ceil(filteredAdvisors.length / itemsPerPage)}
               onPageChange={handlePageChange}
-              itemsPerPage={itemsPerPage}
+              
             />
           </>
         )}

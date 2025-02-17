@@ -37,18 +37,25 @@ const ConfigSubmission: React.FC = () => {
   
   useEffect(() => {
     const fetchOptions = async () => {
-      if(!user) return;
-      const programOptions = await getProgramOptions(user.isAdmin);
-      setOptions(programOptions);
+      if (!user) return;
+      setLoading(true);
+      try {
+        const programOptions = await getProgramOptions(user.isAdmin);
+        setOptions(programOptions);
 
-      // Ensure selectedMajor is in options, otherwise set it to "Unknown" (0)
-      if (!programOptions.some((option) => option.id === selectedMajor)) {
-        setSelectedMajor(0);
+        // Ensure selectedMajor is in options; otherwise, reset to default (0)
+        if (!programOptions.some((option) => option.id === selectedMajor)) {
+          setSelectedMajor(0);
+        }
+      } catch (err) {
+        console.error("Error fetching program options:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchOptions();
-  }, [user?.isAdmin]);
+  }, [user, selectedMajor]); // Re-fetch when `user` or `selectedMajor` changes
 
   
   const fetchData = async () => {
@@ -95,6 +102,10 @@ const ConfigSubmission: React.FC = () => {
       fetchConfig() 
       fetchData();
   }, [selectedMajor]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]); // Include 'fetchData' in the dependency array
 
   const handleToggleChange = (fieldName: string) => {
     setFormData((prevData) => ({
