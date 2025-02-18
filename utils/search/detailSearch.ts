@@ -33,15 +33,14 @@ const detailSearchProjects = async ({ searchFields }: DetailSearchPayload): Prom
     }
 
     const response = await axios.get(
-      `https://search-service.kunmhing.me/api/v1/projects/fields`,
+      `https://search-service.kunmhing.me/api/v1/projects/selected-fields`,
       {
         params: {
-          searchInput: searchInput.join(" "),
-          fields,
+          fields: fields.join(","),
+          searchInputs: searchInput.join(",")
         },
         headers: {
-          "Content-Type": "application/json",
-          "accept": "application/json",
+          "accept": "*/*",
         },
       }
     );
