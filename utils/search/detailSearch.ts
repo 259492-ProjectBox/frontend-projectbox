@@ -15,22 +15,17 @@ const detailSearchProjects = async ({ searchFields }: DetailSearchPayload): Prom
     const fields = [];
     const searchInput = [];
 
-    if (searchFields.courseNo) {
-      fields.push("course.courseNo");
-      searchInput.push(searchFields.courseNo);
-    }
-    if (searchFields.projectTitle) {
-      fields.push("titleTH", "titleEN");
-      searchInput.push(searchFields.projectTitle);
-    }
-    if (searchFields.studentNo) {
-      fields.push("members.studentId");
-      searchInput.push(searchFields.studentNo);
-    }
-    if (searchFields.advisorName) {
-      fields.push("staffs.firstNameTH", "staffs.lastNameTH", "staffs.firstNameEN", "staffs.lastNameEN");
-      searchInput.push(searchFields.advisorName);
-    }
+    fields.push("course.courseNo");
+    searchInput.push(searchFields.courseNo || "");
+
+    fields.push("titleTH/titleEN");
+    searchInput.push(searchFields.projectTitle || "");
+
+    fields.push("members.studentId");
+    searchInput.push(searchFields.studentNo || "");
+
+    fields.push("staffs.firstNameTH/staffs.lastNameTH/staffs.firstNameEN/staffs.lastNameEN");
+    searchInput.push(searchFields.advisorName || "");
 
     const response = await axios.get(
       `https://search-service.kunmhing.me/api/v1/projects/selected-fields`,
