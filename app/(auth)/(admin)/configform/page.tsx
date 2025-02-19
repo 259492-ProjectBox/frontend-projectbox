@@ -12,29 +12,32 @@ import { getProgramOptions } from "@/utils/programHelpers";
 import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig";
 import updateResourceStatus from "@/utils/configform/updateProjectResourceConfig";
 import Image from "next/image";
-import { ProjectResourceConfig } from "@/models/ProjectRespurceConfig";
 import createProjectResource from "@/utils/configform/createProjectResource";
+import { ProjectResourceConfig } from "@/models/ProjectResourceConfig";
 
 const ConfigSubmission: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({});
   const [loading, setLoading] = useState<boolean>(false);
   const [apiData, setApiData] = useState<ProjectConfig[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [tableData, setTableData] = useState<ProjectResourceConfig[]>([]);
+  const [tableData, setTableData] = useState<ProjectResourceConfig[] | null>(
+    null
+  );
   const [iconName, setIconName] = useState("");
   const [resourceTypeId, setResourceTypeId] = useState(1);
   const [title, setTitle] = useState("");
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false); // State for edit modal visibility
-  const [resourceToEdit, setResourceToEdit] = useState<ProjectResourceConfig | null>(null); // Resource to be edited
+  const [resourceToEdit, setResourceToEdit] =
+    useState<ProjectResourceConfig | null>(null); // Resource to be edited
   const [editIconName, setEditIconName] = useState<string>(""); // State for edit icon name
   const [editTitle, setEditTitle] = useState<string>(""); // State for edit title
   const [editResourceTypeId, setEditResourceTypeId] = useState<number>(1); // State for edit resource type ID
 
   // Major selector states (for display only; not filtering data)
   const { user } = useAuth();
-  const [selectedMajor, setSelectedMajor] = useState<number>(0); 
+  const [selectedMajor, setSelectedMajor] = useState<number>(0);
   const [options, setOptions] = useState<AllProgram[]>([]);
-  
+
   useEffect(() => {
     const fetchOptions = async () => {
       if (!user) return;
@@ -57,15 +60,17 @@ const ConfigSubmission: React.FC = () => {
     fetchOptions();
   }, [user, selectedMajor]); // Re-fetch when `user` or `selectedMajor` changes
 
-  
   const fetchData = async () => {
     try {
-      if(selectedMajor === 0) return setTableData([]);
+      if (selectedMajor === 0) {
+        setTableData([]);
+        return;
+      }
       const data = await getProjectResourceConfig(selectedMajor);
-      
       setTableData(data);
     } catch (error) {
       console.error("Error fetching data:", error);
+      setTableData([]); // Set to empty array on error
     }
   };
 
@@ -73,16 +78,15 @@ const ConfigSubmission: React.FC = () => {
     const fetchConfig = async () => {
       try {
         setLoading(true);
-        
-        if (selectedMajor === 0) {
 
+        if (selectedMajor === 0) {
           setFormData({});
           setApiData([]);
           setLoading(false);
           return;
         }
         const data: ProjectConfig[] = await getProjectConfig(selectedMajor);
-        
+
         const initialFormData = data.reduce(
           (acc: Record<string, boolean>, item: ProjectConfig) => {
             acc[item.title] = item.is_active;
@@ -99,8 +103,8 @@ const ConfigSubmission: React.FC = () => {
       }
     };
 
-      fetchConfig() 
-      fetchData();
+    fetchConfig();
+    fetchData();
   }, [selectedMajor]);
 
   useEffect(() => {
@@ -131,8 +135,6 @@ const ConfigSubmission: React.FC = () => {
       alert("Failed to update configuration. Please try again.");
     }
   };
-
-  
 
   // useEffect(() => {
   //   fetchData();
@@ -200,12 +202,12 @@ const ConfigSubmission: React.FC = () => {
     setEditResourceTypeId(resource.resource_type_id); // Correctly set resource type ID
     setIsEditModalOpen(true);
   };
-  
+
   const closeEditModal = () => {
     setIsEditModalOpen(false);
     setResourceToEdit(null);
   };
-  
+
   const handleEditResourceSubmit = async () => {
     if (resourceToEdit) {
       const updatedResource = {
@@ -214,7 +216,7 @@ const ConfigSubmission: React.FC = () => {
         title: editTitle,
         resource_type_id: editResourceTypeId,
       };
-  
+
       try {
         await updateResourceStatus(updatedResource);
         alert("Resource updated successfully!");
@@ -232,7 +234,6 @@ const ConfigSubmission: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen bg-stone-100 py-6">
       <div className="container mx-auto max-w-5xl">
-        
         {/* Major Selector Container */}
         <div className="mb-5 p-4 rounded-md shadow-sm border border-gray-200 bg-white">
           <label
@@ -343,41 +344,61 @@ const ConfigSubmission: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {tableData.map((item: ProjectResourceConfig, index: number) => (
-                      <tr key={index} className="border-b hover:bg-gray-100">
-                        <td className="px-4 py-3">
-                          {item.icon_name ? (
-                            <Image
-                              className="w-8 h-8 rounded-full"
-                              src="/IconProjectBox/BlueBox.png"
-                              alt={""}
-                              width={32}
-                              height={32}
-                            />
-                          ) : (
-                            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
-                              N/A
-                            </div>
-                          )}
-                        </td>
-                        <td className="px-4 py-3">{item.title}</td>
-                        <td className="px-4 py-3">{item.resource_type_id === 1 ? "File" : "Link"}</td>
-                        <td className="px-4 py-3">
-                          <label className="inline-flex items-center cursor-pointer">
-                            <input
-                              type="checkbox"
-                              className="sr-only peer"
-                              checked={item.is_active || false}
-                              onChange={() => handleResourceToggleChange(item)}
-                            />
-                            <div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-white peer-checked:bg-green-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                          </label>
-                        </td>
-                        <td className="px-4 py-3 font-medium text-blue-600 cursor-pointer" onClick={() => openEditModal(item)}>
-                          Edit
+                    {tableData && tableData.length > 0 ? (
+                      tableData.map(
+                        (item: ProjectResourceConfig, index: number) => (
+                          <tr
+                            key={index}
+                            className="border-b hover:bg-gray-100"
+                          >
+                            <td className="px-4 py-3">
+                              {item.icon_name ? (
+                                <Image
+                                  className="w-8 h-8 rounded-full"
+                                  src="/IconProjectBox/BlueBox.png"
+                                  alt={""}
+                                  width={32}
+                                  height={32}
+                                />
+                              ) : (
+                                <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                                  N/A
+                                </div>
+                              )}
+                            </td>
+                            <td className="px-4 py-3">{item.title}</td>
+                            <td className="px-4 py-3">
+                              {item.resource_type_id === 1 ? "File" : "Link"}
+                            </td>
+                            <td className="px-4 py-3">
+                              <label className="inline-flex items-center cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  className="sr-only peer"
+                                  checked={item.is_active || false}
+                                  onChange={() =>
+                                    handleResourceToggleChange(item)
+                                  }
+                                />
+                                <div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-white peer-checked:bg-green-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                              </label>
+                            </td>
+                            <td
+                              className="px-4 py-3 font-medium text-blue-600 cursor-pointer"
+                              onClick={() => openEditModal(item)}
+                            >
+                              Edit
+                            </td>
+                          </tr>
+                        )
+                      )
+                    ) : (
+                      <tr>
+                        <td colSpan={5} className="px-4 py-3 text-center">
+                          No resources available
                         </td>
                       </tr>
-                    ))}
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -402,7 +423,9 @@ const ConfigSubmission: React.FC = () => {
 
                     {/* Section 2: Title Input */}
                     <div className="mb-4">
-                      <label className="block text-sm font-semibold mb-2">Title</label>
+                      <label className="block text-sm font-semibold mb-2">
+                        Title
+                      </label>
                       <input
                         type="text"
                         className="w-full p-2 border border-gray-300 rounded"
@@ -420,7 +443,9 @@ const ConfigSubmission: React.FC = () => {
                       <select
                         className="w-full p-2 border border-gray-300 rounded"
                         value={resourceTypeId}
-                        onChange={(e) => setResourceTypeId(Number(e.target.value))}
+                        onChange={(e) =>
+                          setResourceTypeId(Number(e.target.value))
+                        }
                       >
                         <option value="1">File</option>
                         <option value="2">Link</option>
@@ -460,13 +485,17 @@ const ConfigSubmission: React.FC = () => {
                       <input
                         type="file"
                         className="w-full p-2 border border-gray-300 rounded"
-                        onChange={(e) => setEditIconName(e.target.files?.[0]?.name || "")}
+                        onChange={(e) =>
+                          setEditIconName(e.target.files?.[0]?.name || "")
+                        }
                       />
                     </div>
 
                     {/* Section 2: Title Input */}
                     <div className="mb-4">
-                      <label className="block text-sm font-semibold mb-2">Title</label>
+                      <label className="block text-sm font-semibold mb-2">
+                        Title
+                      </label>
                       <input
                         type="text"
                         className="w-full p-2 border border-gray-300 rounded"
