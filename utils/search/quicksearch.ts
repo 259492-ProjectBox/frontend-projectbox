@@ -9,15 +9,14 @@ interface QuickSearchPayload {
 const quickSearchProjects = async ({ searchInput, fields }: QuickSearchPayload): Promise<Project[]> => {
   try {
     const response = await axios.get(
-      `https://search-service.kunmhing.me/api/v1/projects/fields`,
+      `https://search-service.kunmhing.me/api/v1/projects/all-fields`,
       {
         params: {
-          searchInput,
-          fields,
+          fields: fields.join(","),
+          searchInput
         },
         headers: {
-          "Content-Type": "application/json",
-          "accept": "application/json",
+          "accept": "*/*",
         },
       }
     );

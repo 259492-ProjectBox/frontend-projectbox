@@ -10,6 +10,7 @@ import { updateConfigProgram } from "@/utils/configprogram/putConfigProgram";
 import { uploadStudentList } from "@/utils/configprogram/uploadstudentlist";
 import { uploadCreateProject } from "@/utils/configprogram/uploadcreateproject";
 import AccordionSection from "@/components/AccordionSection";
+import ExcelTemplateSection from "@/components/ExcelTemplateSection";
 
 export default function ConfigProgram() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -291,6 +292,12 @@ export default function ConfigProgram() {
               <h3 className="text-lg font-semibold text-gray-800 mb-4">
                 Allow Students in this Semester can create Project
               </h3>
+                <div className="my-2 border border-gray-300 rounded-lg p-4">
+                <ExcelTemplateSection
+                title="Example Template for Student List"
+                templateUrl="/path/to/studentlist-template.xlsx"
+                />
+                </div>
               <label
                 htmlFor="dropzone-file"
                 className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
@@ -337,6 +344,7 @@ export default function ConfigProgram() {
               >
                 Save Upload
               </button>
+              
             </AccordionSection>
 
             <AccordionSection
@@ -348,6 +356,12 @@ export default function ConfigProgram() {
               <h3 className="text-lg font-semibold text-gray-800 mb-4">
                 Create Existing Project
               </h3>
+              <div className="my-2 border border-gray-300 rounded-lg p-4">
+              <ExcelTemplateSection
+                title="Example Template for Project Creation"
+                templateUrl="/path/to/projectcreate-template.xlsx"
+              />
+              </div>
               <label
                 htmlFor="dropzone-file-existing"
                 className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
@@ -394,6 +408,7 @@ export default function ConfigProgram() {
               >
                 Save Upload
               </button>
+              
             </AccordionSection>
           </>
         )}

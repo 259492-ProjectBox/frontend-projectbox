@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { Project } from "@/models/Project"; // Import the Project type
 import EditIcon from "@/public/Svg/EditIcon";
@@ -11,19 +12,26 @@ import PowerPointIcon from "@/public/Svg/PowerPointIcon";
 import SketchupIcon from "@/public/Svg/SketchupIcon";
 import Link from "next/link";
 import { LimitedList, LimitedText } from "@/components/dashboard/LimitedComponents";
+import { useAuth } from "@/hooks/useAuth";
 
 const ProjectComponent = ({ project }: { project: Project }) => {
+  const { user } = useAuth();
+  const isMember = project.members.some(member => member.studentId === user?.studentId);
+
   return (
     <div className="relative mb-6 border border-gray-200 rounded-lg shadow-sm bg-white">
       <div className="p-4">
         {/* Edit Button - Top Right */}
-        <button
-          onClick={() => console.log("Edit", project.projectNo)}
-          className="absolute top-4 right-4 p-2 rounded-full bg-blue-100 hover:bg-blue-200"
-          aria-label="Edit Project"
-        >
-          <EditIcon />
-        </button>
+        {isMember && (
+          <Link href={`/editproject/${project.id}`}>
+            <div
+              className="absolute top-4 right-4 p-2 rounded-full bg-blue-100 hover:bg-blue-200"
+              aria-label="Edit Project"
+            >
+              <EditIcon />
+            </div>
+          </Link>
+        )}
 
         {/* Project Title */}
         <div>
