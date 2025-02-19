@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import getProjectByStudentId from "@/utils/dashboard/getProjectByStudentId";
+import getProjectByName from "@/utils/dashboard/getProjectByName"; // Import the new utility function
 import { Project } from "@/models/Project";
 import Spinner from "@/components/Spinner";
 import AddIcon from "@mui/icons-material/Add";
@@ -9,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { createProjectCheckPermission } from "@/utils/dashboard/createProjectCheckPermission"; // Import the new utility function
 import ProjectComponent from "@/components/dashboard/ProjectComponent"; // Import the new ProjectComponent
+import PriorityProjectComponent from "@/components/dashboard/PriorityProjectComponent"; // Import the new PriorityProjectComponent
 
 function Dashboard() {
   const router = useRouter();
@@ -16,6 +18,9 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [hasPermission, setHasPermission] = useState(false); // State to track permission
   const { user } = useAuth();
+
+  // Check if the user has any of the specified roles
+  const shouldShowPriorityView = user?.roles.includes("mis_employee") || user?.roles.includes("admin") || user?.roles.includes("platform_admin");
 
   useEffect(() => {
     const loadProjects = async () => {
@@ -26,7 +31,9 @@ function Dashboard() {
       }
 
       try {
-        const records = await getProjectByStudentId(user.studentId);
+        const records = shouldShowPriorityView
+          ? await getProjectByName(`${user.firstName},${user.lastName}`)
+          : await getProjectByStudentId(user.studentId);
         // Ensure we are always setting an array
         setProjects(Array.isArray(records) ? records : []); // If it's not an array, set an empty array
       } catch (error) {
@@ -50,6 +57,8 @@ function Dashboard() {
 
   if (loading) return <Spinner />;
 
+  // If the user has any of the specified roles, display the PriorityProjectComponent
+  if (shouldShowPriorityView) return <PriorityProjectComponent projects={projects} />;
 
   return (
     <div className="bg-stone-100 min-h-screen p-8">
