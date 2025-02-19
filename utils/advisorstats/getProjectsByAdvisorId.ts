@@ -4,7 +4,7 @@ import { Project } from "@/models/Project";
 const getProjectsByAdvisorId = async (advisorId: string): Promise<Project[]> => {
   try {
     const response = await axios.get(
-      `https://search-service.kunmhing.me/api/v1/projects/selected-fields?fields=staffs.id&searchInput=${advisorId}`,
+      `https://search-service.kunmhing.me/api/v1/projects/selected-fields?fields=staffs.id&searchInputs=${advisorId}`,
       {
         headers: {
           accept: "*/*",
