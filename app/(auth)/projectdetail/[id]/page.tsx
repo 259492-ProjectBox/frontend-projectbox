@@ -166,30 +166,32 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
           )}
         </div>
 
-        {/* Project Resources Section */}
-        <div className="pb-6">
+       {/* Project Resources Section */}
+       <div className="pb-6">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Resources</h2>
           <p className="text-gray-500">Below are the resources related to this project:</p>
           {project.projectResources?.length > 0 ? (
             <ul className="space-y-4">
               {project.projectResources.map((resource) => (
-                <li key={resource.id} className="flex items-center space-x-4">
-                  <div>
-                    <p className="font-semibold text-gray-800">
-                      {resource && resource.title !== null ? resource.title : "No Title"}
-                    </p>
+                <li key={resource.id} className="flex items-start space-x-4">
+                  <div style={{ wordBreak: 'break-all' }}>
                     {resource?.url && (
                       <a
                         href={resource.url}
-                        className="text-blue-500"
+                        className="font-semibold text-blue-500 hover:underline"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        {resource.url}
+                        {resource.title !== null ? resource.title : "No Title"}
                       </a>
                     )}
+                    {!resource?.url && (
+                      <p className="font-semibold text-gray-800">
+                        {resource.title !== null ? resource.title : "No Title"}
+                      </p>
+                    )}
                     {resource?.path && (
-                      <p className="text-gray-500 text-sm">
+                      <p className="text-gray-500 text-sm break-all">
                         Path: {resource.path}
                       </p>
                     )}
