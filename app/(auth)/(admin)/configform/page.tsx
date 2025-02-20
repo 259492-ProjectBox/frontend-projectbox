@@ -25,10 +25,12 @@ const ConfigSubmission: React.FC = () => {
   const [resourceTypeId, setResourceTypeId] = useState(1);
   const [title, setTitle] = useState("");
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false); // State for edit modal visibility
+
   const [resourceToEdit, setResourceToEdit] = useState<ProjectResourceConfig | null>(null); // Resource to be edited
   const [editIconName, setEditIconName] = useState<string>(""); // State for edit icon name
   const [editTitle, setEditTitle] = useState<string>(""); // State for edit title
   const [editResourceTypeId, setEditResourceTypeId] = useState<number>(1); // State for edit resource type ID
+  const [editIconId , setEditIconId] = useState<number>(0);
 
   // Major selector states (for display only; not filtering data)
   const { user } = useAuth();
@@ -57,6 +59,7 @@ const ConfigSubmission: React.FC = () => {
       const data = await getProjectResourceConfig(selectedMajor);
       
       setTableData(data);
+      
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -142,6 +145,7 @@ const ConfigSubmission: React.FC = () => {
             : dataItem
         )
       );
+      
     } catch (error) {
       console.error("Error updating resource status:", error);
     }
@@ -184,6 +188,7 @@ const ConfigSubmission: React.FC = () => {
 
   const openEditModal = (resource: ProjectResourceConfig) => {
     setResourceToEdit(resource);
+    setEditIconId(resource.id);
     setEditIconName(resource.icon_name);
     setEditTitle(resource.title);
     setEditResourceTypeId(resource.resource_type_id); // Correctly set resource type ID
@@ -332,16 +337,19 @@ const ConfigSubmission: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {tableData.map((item: ProjectResourceConfig, index: number) => (
+                    {tableData?.map((item: ProjectResourceConfig, index: number) => (
                       <tr key={index} className="border-b hover:bg-gray-100">
                         <td className="px-4 py-3">
                           {item.icon_name ? (
                             <Image
                               className="w-8 h-8 rounded-full"
-                              src="/IconProjectBox/BlueBox.png"
+                              // src="/IconProjectBox/BlueBox.png"
+                              src={item.icon_url || "/IconProjectBox/BlueBox.png"}
+                              style={{objectFit: "contain" , objectPosition: "center"}}
                               alt={""}
                               width={32}
                               height={32}
+                             
                             />
                           ) : (
                             <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">

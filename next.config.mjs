@@ -6,6 +6,14 @@ const nextConfig = {
         CMU_ENTRAID_GET_BASIC_INFO: process.env.CMU_ENTRAID_GET_BASIC_INFO,
         CMU_ENTRAID_LOGOUT_URL: process.env.CMU_ENTRAID_LOGOUT_URL,
       },
+    images: {
+      remotePatterns: [
+        {
+          protocol: 'http',
+          hostname: 'minio.kunmhing.me',
+        }
+      ]
+    },
 };
 
 export default nextConfig;

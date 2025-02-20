@@ -15,4 +15,5 @@ export interface ProjectResourceConfig {
   };
   resource_type_id: number;
   title: string;
+  icon_url: string;
 }
