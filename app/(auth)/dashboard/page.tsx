@@ -22,6 +22,10 @@ function Dashboard() {
   // Check if the user has any of the specified roles
   const shouldShowPriorityView = user?.roles.includes("mis_employee") || user?.roles.includes("admin") || user?.roles.includes("platform_admin");
 
+  const capitalizeName = (name: string) => {
+    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+  };
+
   useEffect(() => {
     const loadProjects = async () => {
       if (!user?.studentId) {
@@ -31,8 +35,9 @@ function Dashboard() {
       }
 
       try {
+        const fullName = `${capitalizeName(user.firstName)},${capitalizeName(user.lastName)}`;
         const records = shouldShowPriorityView
-          ? await getProjectByName(`${user.firstName},${user.lastName}`)
+          ? await getProjectByName(fullName)
           : await getProjectByStudentId(user.studentId);
         // Ensure we are always setting an array
         setProjects(Array.isArray(records) ? records : []); // If it's not an array, set an empty array
