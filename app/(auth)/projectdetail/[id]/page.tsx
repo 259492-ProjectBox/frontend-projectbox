@@ -128,14 +128,14 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
 
         {/* Professors Section */}
         <div className="border-b pb-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Professors</h2>
+          <h2 className="text-xl font-bold text-gray-800 mb-4">Committees</h2>
           <div className="grid grid-cols-2 gap-6">
             <div>
               {renderProfessorsByRole("Advisor", "Advisor")}
               {renderProfessorsByRole("Co Advisor", "Co Advisor")}
             </div>
             <div>
-              {renderProfessorsByRole("Committee", "Committee")}
+              {renderProfessorsByRole("Committee", "Internal Committee")}
               {renderProfessorsByRole("External Committee", "External Committee")}
             </div>
           </div>
