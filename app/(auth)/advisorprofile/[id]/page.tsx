@@ -9,6 +9,8 @@ import getProjectsByAdvisorId from "@/utils/advisorstats/getProjectsByAdvisorId"
 import getEmployeeById from "@/utils/advisorstats/getAdvisorById";
 import ProjectComponent from "@/components/dashboard/ProjectComponent"; // Import ProjectComponent
 import Pagination from "@/components/Pagination"; // Import Pagination component
+import { getProgramName } from "@/utils/programHelpers";
+import { deobfuscateId } from "@/utils/encodePath";
 
 export default function AdvisorProfilePage() {
   const params = useParams();
@@ -21,7 +23,7 @@ export default function AdvisorProfilePage() {
   const [selectedRole, setSelectedRole] = useState<string>("");
   const itemsPerPage = 5; // Items per page
   const [currentPage, setCurrentPage] = useState<number>(1); // Current page state
-
+  const [programName, setProgramName] = useState<string | undefined>("");
   const handlePageChange = (page: number) => {
     setCurrentPage(page); // Set current page
     window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top
@@ -38,11 +40,16 @@ export default function AdvisorProfilePage() {
       const fetchData = async () => {
         try {
           // Fetch advisor details
-          const advisorData = await getEmployeeById(id as string);
+          const originalId = deobfuscateId(id as string); // Deobfuscate the ID
+          console.log("originalId", originalId);
+          
+          const advisorData = await getEmployeeById(originalId.toString());
           setAdvisor(advisorData);
-
+          const programId = advisorData?.program_id;
+          const programN = programId ? await getProgramName(programId) : "";
+          setProgramName(programN);
           // Fetch projects associated with the advisor
-          const projectData: Project[] = await getProjectsByAdvisorId(id as string);
+          const projectData: Project[] = await getProjectsByAdvisorId(originalId.toString());
           setProjects(projectData);
           setFilteredProjects(projectData);
         } catch (error) {
@@ -79,8 +86,7 @@ export default function AdvisorProfilePage() {
   if (loading) return <Spinner />;
 
   const roles = ["Advisor", "Co Advisor", "Committee", "External Committee"];
-
-  return (
+ return (
     <div className="min-h-screen p-6 bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300">
       <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden">
         {/* Advisor Details Section */}
@@ -97,7 +103,7 @@ export default function AdvisorProfilePage() {
                 <span className="font-medium">Email:</span> {advisor.email}
               </p>
               <p className="text-sm">
-                <span className="font-medium">Major ID:</span> {advisor.program_id}
+                <span className="font-medium">Major :</span> {programName}
               </p>
             </div>
           ) : (
@@ -135,7 +141,7 @@ export default function AdvisorProfilePage() {
             <>
               <ul className="space-y-6">
                 {currentProjects.map((project) => (
-                  <ProjectComponent key={project.id} project={project} />
+                  <ProjectComponent key={project.id} project={project}  />
                 ))}
               </ul>
               <Pagination

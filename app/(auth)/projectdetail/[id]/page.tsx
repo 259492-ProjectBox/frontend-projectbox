@@ -5,16 +5,19 @@ import Spinner from "@/components/Spinner";
 import { Project } from "@/models/Project";
 import getProjectById from "@/utils/projects/getProjectById";
 import Image from "next/image";
+import { deobfuscateId} from "@/utils/encodePath";
 
 const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
   const { id } = params; // Get project ID from the route params
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
-
+  
   useEffect(() => {
     const loadProject = async () => {
       try {
-        const projectData = await getProjectById(parseInt(id)); // Fetch project by ID
+        
+        const originalId = deobfuscateId(id); // Deobfuscate the ID
+        const projectData = await getProjectById(originalId); // Fetch project by ID
         setProject(projectData);
       } catch (error) {
         console.error("Error fetching project details:", error);

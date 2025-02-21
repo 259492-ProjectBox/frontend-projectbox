@@ -12,6 +12,11 @@ import { uploadCreateProject } from "@/utils/configprogram/uploadcreateproject";
 import AccordionSection from "@/components/AccordionSection";
 import ExcelTemplateSection from "@/components/ExcelTemplateSection";
 
+// Function to convert string to title case
+const toTitleCase = (str: string) => {
+  return str.replace(/\b\w/g, char => char.toUpperCase());
+};
+
 export default function ConfigProgram() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -107,7 +112,7 @@ export default function ConfigProgram() {
         });
       }
   
-      console.log("Saved values - Academic Year:", academicYear, "Semester:", semester);
+      // console.log("Saved values - Academic Year:", academicYear, "Semester:", semester);
       alert("Update successful!");
       setIsEditMode(false); // Turn off edit mode
     } catch (error) {
@@ -182,6 +187,7 @@ export default function ConfigProgram() {
     );
   }
 
+  
   return (
     <div className="min-h-screen p-6 bg-gray-100">
       <div className="max-w-6xl mx-auto bg-white rounded-lg shadow p-6">
@@ -218,7 +224,7 @@ export default function ConfigProgram() {
               {configData.length > 0 ? (
                 configData.map((item: ConfigProgramSetting, index) => (
                   <div key={index} className="bg-white p-4 rounded-lg shadow-md">
-                    <h2 className="text-gray-800 font-semibold">{item.config_name}</h2>
+                    <h2 className="text-gray-800 font-semibold">{toTitleCase(item.config_name)}</h2>
 
                     {/* Toggling read-only vs. edit mode for specific items */}
                     {item.config_name === "semester" ? (
@@ -294,7 +300,7 @@ export default function ConfigProgram() {
               </h3>
                 <div className="my-2 border border-gray-300 rounded-lg p-4">
                 <ExcelTemplateSection
-                title="Example Template for Student List"
+                title="Roster_Student_Template"
                 templateUrl="/path/to/studentlist-template.xlsx"
                 />
                 </div>
@@ -358,7 +364,7 @@ export default function ConfigProgram() {
               </h3>
               <div className="my-2 border border-gray-300 rounded-lg p-4">
               <ExcelTemplateSection
-                title="Example Template for Project Creation"
+                title="Roster_Project_Template"
                 templateUrl="/path/to/projectcreate-template.xlsx"
               />
               </div>

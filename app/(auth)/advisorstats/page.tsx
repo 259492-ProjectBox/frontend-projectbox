@@ -10,6 +10,7 @@ import { AllProgram } from "@/models/AllPrograms";
 import getAllEmployees from "@/utils/advisorstats/getAllEmployee"; // Import the getAllEmployees function
 import Image from "next/image";
 import Pagination from "@/components/Pagination"; // Import Pagination component
+import { obfuscateId } from "@/utils/encodePath";
 
 export default function AdvisorStatsPage() {
   const [advisors, setAdvisors] = useState<Advisor[]>([]); // Default to empty array
@@ -167,7 +168,7 @@ export default function AdvisorStatsPage() {
                         height={32} // Specify height (in px)
                       />
                       <div className="pl-3">
-                        <Link href={`/advisorprofile/${advisor.id}`}>
+                        <Link href={`/advisorprofile/${obfuscateId(advisor.id)}`}>
                           <span className="text-base font-semibold text-primary_text hover:underline cursor-pointer">
                             {advisor.prefix_en} {advisor.first_name_en}{" "}
                             {advisor.last_name_en}
