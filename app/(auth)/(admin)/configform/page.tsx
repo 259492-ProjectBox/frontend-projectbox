@@ -24,26 +24,24 @@ const ConfigSubmission: React.FC = () => {
   const [iconName, setIconName] = useState("");
   const [resourceTypeId, setResourceTypeId] = useState(1);
   const [title, setTitle] = useState("");
-  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false); // State for edit modal visibility
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+  const [resourceToEdit, setResourceToEdit] = useState<ProjectResourceConfig | null>(null);
+  const [editIconName, setEditIconName] = useState<string>("");
+  const [editTitle, setEditTitle] = useState<string>("");
+  const [editResourceTypeId, setEditResourceTypeId] = useState<number>(1);
+  const [iconFile, setIconFile] = useState<File | null>(null);
+  const [editIconFile, setEditIconFile] = useState<File | null>(null);
 
-  const [resourceToEdit, setResourceToEdit] = useState<ProjectResourceConfig | null>(null); // Resource to be edited
-  const [editIconName, setEditIconName] = useState<string>(""); // State for edit icon name
-  const [editTitle, setEditTitle] = useState<string>(""); // State for edit title
-  const [editResourceTypeId, setEditResourceTypeId] = useState<number>(1); // State for edit resource type ID
-  const [editIconId , setEditIconId] = useState<number>(0);
-
-  // Major selector states (for display only; not filtering data)
   const { user } = useAuth();
-  const [selectedMajor, setSelectedMajor] = useState<number>(0); 
+  const [selectedMajor, setSelectedMajor] = useState<number>(0);
   const [options, setOptions] = useState<AllProgram[]>([]);
-  
+
   useEffect(() => {
     const fetchOptions = async () => {
-      if(!user) return;
+      if (!user) return;
       const programOptions = await getProgramOptions(user.isAdmin);
       setOptions(programOptions);
 
-      // Ensure selectedMajor is in options, otherwise set it to "Unknown" (0)
       if (!programOptions.some((option) => option.id === selectedMajor)) {
         setSelectedMajor(0);
       }
@@ -52,14 +50,11 @@ const ConfigSubmission: React.FC = () => {
     fetchOptions();
   }, [user?.isAdmin]);
 
-  
   const fetchData = async () => {
     try {
-      if(selectedMajor === 0) return setTableData([]);
+      if (selectedMajor === 0) return setTableData([]);
       const data = await getProjectResourceConfig(selectedMajor);
-      
       setTableData(data);
-      
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -69,16 +64,15 @@ const ConfigSubmission: React.FC = () => {
     const fetchConfig = async () => {
       try {
         setLoading(true);
-        
-        if (selectedMajor === 0) {
 
+        if (selectedMajor === 0) {
           setFormData({});
           setApiData([]);
           setLoading(false);
           return;
         }
         const data: ProjectConfig[] = await getProjectConfig(selectedMajor);
-        
+
         const initialFormData = data.reduce(
           (acc: Record<string, boolean>, item: ProjectConfig) => {
             acc[item.title] = item.is_active;
@@ -95,8 +89,8 @@ const ConfigSubmission: React.FC = () => {
       }
     };
 
-      fetchConfig() 
-      fetchData();
+    fetchConfig();
+    fetchData();
   }, [selectedMajor]);
 
   const handleToggleChange = (fieldName: string) => {
@@ -124,12 +118,6 @@ const ConfigSubmission: React.FC = () => {
     }
   };
 
-  
-
-  // useEffect(() => {
-  //   fetchData();
-  // }, [selectedMajor]);
-
   const handleResourceToggleChange = async (item: ProjectResourceConfig) => {
     const updatedStatus = !item.is_active;
     const updatedData: ProjectResourceConfig = {
@@ -137,15 +125,12 @@ const ConfigSubmission: React.FC = () => {
       is_active: updatedStatus,
     };
     try {
-      await updateResourceStatus(updatedData);
+      await updateResourceStatus(null, updatedData);
       setTableData((prevData) =>
         prevData.map((dataItem) =>
-          dataItem.id === item.id
-            ? { ...dataItem, is_active: updatedStatus }
-            : dataItem
+          dataItem.id === item.id ? { ...dataItem, is_active: updatedStatus } : dataItem
         )
       );
-      
     } catch (error) {
       console.error("Error updating resource status:", error);
     }
@@ -162,7 +147,16 @@ const ConfigSubmission: React.FC = () => {
   const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setIconFile(file);
       setIconName(file.name);
+    }
+  };
+
+  const handleEditIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setEditIconFile(file);
+      setEditIconName(file.name);
     }
   };
 
@@ -176,7 +170,11 @@ const ConfigSubmission: React.FC = () => {
     };
 
     try {
-      await createProjectResource(data);
+      if (!iconFile) {
+        alert("Please select an icon file.");
+        return;
+      }
+      await createProjectResource(iconFile, data);
       alert("Project resource created successfully!");
       closeModal();
       fetchData();
@@ -188,18 +186,17 @@ const ConfigSubmission: React.FC = () => {
 
   const openEditModal = (resource: ProjectResourceConfig) => {
     setResourceToEdit(resource);
-    // setEditIconId(resource.id);
     setEditIconName(resource.icon_name);
     setEditTitle(resource.title);
-    setEditResourceTypeId(resource.resource_type_id); // Correctly set resource type ID
+    setEditResourceTypeId(resource.resource_type_id);
     setIsEditModalOpen(true);
   };
-  
+
   const closeEditModal = () => {
     setIsEditModalOpen(false);
     setResourceToEdit(null);
   };
-  
+
   const handleEditResourceSubmit = async () => {
     if (resourceToEdit) {
       const updatedResource = {
@@ -208,9 +205,9 @@ const ConfigSubmission: React.FC = () => {
         title: editTitle,
         resource_type_id: editResourceTypeId,
       };
-  
+
       try {
-        await updateResourceStatus(updatedResource);
+        await updateResourceStatus(editIconFile, updatedResource);
         alert("Resource updated successfully!");
         closeEditModal();
         fetchData();
@@ -226,7 +223,6 @@ const ConfigSubmission: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen bg-stone-100 py-6">
       <div className="container mx-auto max-w-5xl">
-        
         {/* Major Selector Container */}
         <div className="mb-5 p-4 rounded-md shadow-sm border border-gray-200 bg-white">
           <label
@@ -343,13 +339,11 @@ const ConfigSubmission: React.FC = () => {
                           {item.icon_name ? (
                             <Image
                               className="w-8 h-8 rounded-full"
-                              // src="/IconProjectBox/BlueBox.png"
                               src={item.icon_url || "/IconProjectBox/BlueBox.png"}
-                              style={{objectFit: "contain" , objectPosition: "center"}}
+                              style={{ objectFit: "contain", objectPosition: "center" }}
                               alt={""}
                               width={32}
                               height={32}
-                             
                             />
                           ) : (
                             <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
@@ -457,7 +451,7 @@ const ConfigSubmission: React.FC = () => {
                       <input
                         type="file"
                         className="w-full p-2 border border-gray-300 rounded"
-                        onChange={(e) => setEditIconName(e.target.files?.[0]?.name || "")}
+                        onChange={handleEditIconChange}
                       />
                     </div>
 
