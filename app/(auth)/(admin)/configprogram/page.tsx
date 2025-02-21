@@ -7,7 +7,10 @@ import { AllProgram } from "@/models/AllPrograms";
 import { getProgramOptions } from "@/utils/programHelpers";
 import { useAuth } from "@/hooks/useAuth";
 import { updateConfigProgram } from "@/utils/configprogram/putConfigProgram";
-import { uploadFile } from "@/utils/configform/uploadexcel";
+import { uploadStudentList } from "@/utils/configprogram/uploadstudentlist";
+import { uploadCreateProject } from "@/utils/configprogram/uploadcreateproject";
+import AccordionSection from "@/components/AccordionSection";
+import ExcelTemplateSection from "@/components/ExcelTemplateSection";
 
 export default function ConfigProgram() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -49,7 +52,7 @@ export default function ConfigProgram() {
       };
   
       fetchOptions();
-    }, [user?.isAdmin]); // Re-fetch when `isAdmin` changes
+    }, [user, selectedMajor]); // Re-fetch when `user` or `selectedMajor` changes
   
     
     // Fetch configuration data for selected program
@@ -133,7 +136,7 @@ export default function ConfigProgram() {
   const handleSaveUpload = async () => {
     if (file) {
       try {
-        const response = await uploadFile(file, selectedMajor);
+        const response = await uploadStudentList(file, selectedMajor);
         console.log("File uploaded successfully:", response);
         alert("File uploaded successfully!");
         setFile(null); // Clear the file input
@@ -146,6 +149,28 @@ export default function ConfigProgram() {
       alert("No file selected for upload.");
     }
   };
+
+  // Handler for saving the uploaded project creation file
+  const handleSaveProjectUpload = async () => {
+    if (file) {
+      try {
+        const response = await uploadCreateProject(file, selectedMajor);
+        console.log("File uploaded successfully:", response);
+        alert("File uploaded successfully!");
+        setFile(null); // Clear the file input
+      } catch (error) {
+        console.error("Error uploading file:", error);
+        alert("Failed to upload file.");
+      }
+    } else {
+      console.log("No file selected for upload.");
+      alert("No file selected for upload.");
+    }
+  };
+
+  // Accordion state
+  const [isAccordionOpen1, setIsAccordionOpen1] = useState(true);
+  const [isAccordionOpen2, setIsAccordionOpen2] = useState(false);
 
   // Show loading or error
   if (loading) return <Spinner />;
@@ -257,10 +282,22 @@ export default function ConfigProgram() {
             <div className="my-8" />
 
             {/* File Upload Section */}
-            <div className="mt-6 p-4 rounded-md shadow-sm border border-gray-200 bg-white">
+            <AccordionSection
+              id="1"
+              title="Upload Excel for Allow Students in this Semester can create Project
+"
+              isOpen={isAccordionOpen1}
+              onToggle={() => setIsAccordionOpen1(!isAccordionOpen1)}
+            >
               <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                Upload Excel for Allow Students in this Semester can create Project
+                Allow Students in this Semester can create Project
               </h3>
+                <div className="my-2 border border-gray-300 rounded-lg p-4">
+                <ExcelTemplateSection
+                title="Example Template for Student List"
+                templateUrl="/path/to/studentlist-template.xlsx"
+                />
+                </div>
               <label
                 htmlFor="dropzone-file"
                 className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
@@ -307,7 +344,72 @@ export default function ConfigProgram() {
               >
                 Save Upload
               </button>
-            </div>
+              
+            </AccordionSection>
+
+            <AccordionSection
+              id="2"
+              title="Upload Excel for Create Existing Project"
+              isOpen={isAccordionOpen2}
+              onToggle={() => setIsAccordionOpen2(!isAccordionOpen2)}
+            >
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                Create Existing Project
+              </h3>
+              <div className="my-2 border border-gray-300 rounded-lg p-4">
+              <ExcelTemplateSection
+                title="Example Template for Project Creation"
+                templateUrl="/path/to/projectcreate-template.xlsx"
+              />
+              </div>
+              <label
+                htmlFor="dropzone-file-existing"
+                className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+              >
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <svg
+                    className="w-8 h-8 mb-4 text-gray-500"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 20 16"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                    />
+                  </svg>
+                  <p className="mb-2 text-sm text-gray-500">
+                    <span className="font-semibold">Click to upload</span> or drag and drop
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    .xlsx file only (MAX. 800 KB)
+                  </p>
+                </div>
+                <input
+                  id="dropzone-file-existing"
+                  type="file"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+              </label>
+              {file && (
+                <p className="mt-2 text-gray-600">Selected File: {file.name}</p>
+              )}
+
+              {/* Save Upload Button */}
+              <button
+                onClick={handleSaveProjectUpload}
+                className="mt-4 text-white bg-blue-900 py-2 px-4 rounded-lg 
+                           hover:bg-blue-800 transition-colors"
+              >
+                Save Upload
+              </button>
+              
+            </AccordionSection>
           </>
         )}
       </div>

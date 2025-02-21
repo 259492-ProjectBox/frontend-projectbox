@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const uploadFile = async (file: File, programId: number) => {
+export const uploadStudentList = async (file: File, programId: number) => {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("program_id", programId.toString());

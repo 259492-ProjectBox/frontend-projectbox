@@ -2,9 +2,9 @@
 import React, { PropsWithChildren } from "react";
 
 function AuthLayout({ children }: PropsWithChildren) {
-	// redirect("/");
+    // redirect("/");
 
-	return <>{children}</>;
+    return <>{children}</>;
 }
 
 export default AuthLayout;

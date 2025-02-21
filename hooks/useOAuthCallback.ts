@@ -11,7 +11,7 @@ interface OAuthCallbackState {
 export function useOAuthCallback() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
-	const code = searchParams.get("code");
+	const code = searchParams ? searchParams.get("code") : null;
 	const [state, setState] = useState<OAuthCallbackState>({
 		isLoading: true,
 		error: null,

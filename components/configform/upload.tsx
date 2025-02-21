@@ -1,4 +1,4 @@
-import { fetchProjectResourceConfigs } from "@/utils/configform/getProjectResourceConfig";
+import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig";
 import updateResourceStatus from "@/utils/configform/updateProjectResourceConfig";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
@@ -42,7 +42,7 @@ const UploadResourceSection: React.FC = () => {
   // Fetch data using the controller
   const fetchData = async () => {
     try {
-      const data = await fetchProjectResourceConfigs(1); // Fetch data for programId 2
+      const data = await getProjectResourceConfig(1); 
       setTableData(data); // Set table data from API response
     } catch (error) {
       console.error("Error fetching data:", error);

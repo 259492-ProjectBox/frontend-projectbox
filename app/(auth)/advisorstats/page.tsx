@@ -9,6 +9,7 @@ import getAllProgram from "@/utils/getAllProgram";
 import { AllProgram } from "@/models/AllPrograms";
 import getAllEmployees from "@/utils/advisorstats/getAllEmployee"; // Import the getAllEmployees function
 import Image from "next/image";
+import Pagination from "@/components/Pagination"; // Import Pagination component
 
 export default function AdvisorStatsPage() {
   const [advisors, setAdvisors] = useState<Advisor[]>([]); // Default to empty array
@@ -17,6 +18,8 @@ export default function AdvisorStatsPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [majorList, setMajorList] = useState<AllProgram[]>([]); // Store major list
   const [selectedMajor, setSelectedMajor] = useState<number | null>(null); // Selected major id state
+  const [currentPage, setCurrentPage] = useState<number>(1); // Current page state
+  const itemsPerPage = 5; // Items per page
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,6 +66,17 @@ export default function AdvisorStatsPage() {
   const handleMajorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedMajor(Number(event.target.value)); // Set selected major
   };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page); // Set current page
+    window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top
+  };
+
+  // Calculate the current page's advisors
+  const currentAdvisors = filteredAdvisors.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
     <div className="min-h-screen p-4 bg-stone-100">
@@ -120,62 +134,70 @@ export default function AdvisorStatsPage() {
         ) : filteredAdvisors?.length === 0 ? (
           <div className="text-center text-gray-500">No advisors found.</div>
         ) : (
-          <table className="w-full text-sm text-left text-gray-500 rounded-lg">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-              <tr>
-                <th scope="col" className="px-6 py-3">
-                  Name
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Email
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Program
-                </th>{" "}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredAdvisors?.map((advisor) => (
-                <tr
-                  key={advisor.id}
-                  className="bg-white border-b hover:bg-gray-50"
-                >
-                  <th
-                    scope="row"
-                    className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap"
-                  >
-                    <Image
-                      className="w-8 h-8 rounded-full"
-                      src="/logo-engcmu/CMU_LOGO_Crop.jpg"
-                      alt={advisor.first_name_en}
-                      width={32} // Specify width (in px)
-                      height={32} // Specify height (in px)
-                    />
-                    <div className="pl-3">
-                      <Link href={`/advisorprofile/${advisor.id}`}>
-                        <span className="text-base font-semibold text-primary_text hover:underline cursor-pointer">
-                          {advisor.prefix_en} {advisor.first_name_en}{" "}
-                          {advisor.last_name_en}
-                        </span>
-                        <br />
-                        <span className="text-sm text-gray-500">
-                          {advisor.prefix_th} {advisor.first_name_th}{" "}
-                          {advisor.last_name_th}
-                        </span>
-                      </Link>
-                    </div>
+          <>
+            <table className="w-full text-sm text-left text-gray-500 rounded-lg">
+              <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                <tr>
+                  <th scope="col" className="px-6 py-3">
+                    Name
                   </th>
-                  <td className="px-6 py-4">{advisor.email}</td>
-                  <td className="px-6 py-4">
-                    {majorList.find(
-                      (program) => program.id === advisor.program_id
-                    )?.program_name_en ?? "N/A"}
-                  </td>{" "}
-                  {/* Displaying program name */}
+                  <th scope="col" className="px-6 py-3">
+                    Email
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    Program
+                  </th>{" "}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {currentAdvisors.map((advisor) => (
+                  <tr
+                    key={advisor.id}
+                    className="bg-white border-b hover:bg-gray-50"
+                  >
+                    <th
+                      scope="row"
+                      className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap"
+                    >
+                      <Image
+                        className="w-8 h-8 rounded-full"
+                        src="/icon/teacher.png"
+                        alt={advisor.first_name_en}
+                        width={32} // Specify width (in px)
+                        height={32} // Specify height (in px)
+                      />
+                      <div className="pl-3">
+                        <Link href={`/advisorprofile/${advisor.id}`}>
+                          <span className="text-base font-semibold text-primary_text hover:underline cursor-pointer">
+                            {advisor.prefix_en} {advisor.first_name_en}{" "}
+                            {advisor.last_name_en}
+                          </span>
+                          <br />
+                          <span className="text-sm text-gray-500">
+                            {advisor.prefix_th} {advisor.first_name_th}{" "}
+                            {advisor.last_name_th}
+                          </span>
+                        </Link>
+                      </div>
+                    </th>
+                    <td className="px-6 py-4">{advisor.email}</td>
+                    <td className="px-6 py-4">
+                      {majorList.find(
+                        (program) => program.id === advisor.program_id
+                      )?.program_name_en ?? "N/A"}
+                    </td>{" "}
+                    {/* Displaying program name */}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={Math.ceil(filteredAdvisors.length / itemsPerPage)}
+              onPageChange={handlePageChange}
+              
+            />
+          </>
         )}
       </div>
     </div>

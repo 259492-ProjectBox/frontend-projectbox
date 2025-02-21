@@ -12,7 +12,7 @@ import { getProgramOptions } from "@/utils/programHelpers";
 import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig";
 import updateResourceStatus from "@/utils/configform/updateProjectResourceConfig";
 import Image from "next/image";
-import { ProjectResourceConfig } from "@/models/ProjectRespurceConfig";
+import { ProjectResourceConfig } from "@/models/ProjectResourceConfig";
 import createProjectResource from "@/utils/configform/createProjectResource";
 
 const ConfigSubmission: React.FC = () => {
@@ -188,7 +188,7 @@ const ConfigSubmission: React.FC = () => {
 
   const openEditModal = (resource: ProjectResourceConfig) => {
     setResourceToEdit(resource);
-    setEditIconId(resource.id);
+    // setEditIconId(resource.id);
     setEditIconName(resource.icon_name);
     setEditTitle(resource.title);
     setEditResourceTypeId(resource.resource_type_id); // Correctly set resource type ID
