@@ -13,6 +13,7 @@ import SketchupIcon from "@/public/Svg/SketchupIcon";
 import Link from "next/link";
 import { LimitedList, LimitedText } from "@/components/dashboard/LimitedComponents";
 import { useAuth } from "@/hooks/useAuth";
+import { obfuscateId } from "@/utils/encodePath";
 
 const ProjectComponent = ({ project }: { project: Project }) => {
   const { user } = useAuth();
@@ -39,7 +40,7 @@ const ProjectComponent = ({ project }: { project: Project }) => {
             Project No: {project.projectNo || "No Data"}
           </h3>
           <h4 className="text-xl font-bold text-primary_text hover:underline cursor-pointer mb-2">
-            <Link href={`/projectdetail/${project.id}`}>
+            <Link href={`/projectdetail/${obfuscateId(project.id)}`}>
               {project.titleTH || "No Title"} — {project.titleEN || "No Title"}
             </Link>
           </h4>

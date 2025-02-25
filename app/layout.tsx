@@ -25,9 +25,9 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en">
-			<head>
+			{/* <head>
 				<link rel="icon" type="image/jpeg" href="/logo-engcmu/RibbinENG2.png" />
-			</head>
+			</head> */}
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			>

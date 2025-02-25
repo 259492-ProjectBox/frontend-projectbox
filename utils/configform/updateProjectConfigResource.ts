@@ -1,8 +1,8 @@
 import axios from "axios";
-import { ProjectResourceConfig } from "@/models/ProjectRespurceConfig";
+import { ProjectResourceConfig } from "@/models/ProjectResourceConfig";
 
 export const fetchProjectResourceConfigs = async (programId: number) => {
-  const API_URL = `https://project-service.kunmhing.me/api/v1/projectResourceConfigs/program/${programId}`;
+  const API_URL = `https://project-service.kunmhing.me/api/v2/projectResourceConfigs/program/${programId}`;
   try {
     const response = await axios.get(API_URL, {
       headers: {

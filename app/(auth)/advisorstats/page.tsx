@@ -10,6 +10,7 @@ import { AllProgram } from "@/models/AllPrograms";
 import getAllEmployees from "@/utils/advisorstats/getAllEmployee"; // Import the getAllEmployees function
 import Image from "next/image";
 import Pagination from "@/components/Pagination"; // Import Pagination component
+import { obfuscateId } from "@/utils/encodePath";
 
 export default function AdvisorStatsPage() {
   const [advisors, setAdvisors] = useState<Advisor[]>([]); // Default to empty array
@@ -17,7 +18,7 @@ export default function AdvisorStatsPage() {
   const [searchTerm, setSearchTerm] = useState<string>(""); // Search term state
   const [loading, setLoading] = useState<boolean>(true);
   const [majorList, setMajorList] = useState<AllProgram[]>([]); // Store major list
-  const [selectedMajor, setSelectedMajor] = useState<number | null>(null); // Selected major id state
+  const [selectedMajor, setSelectedMajor] = useState<number>(0); // Default to 0 for "Select Major"
   const [currentPage, setCurrentPage] = useState<number>(1); // Current page state
   const itemsPerPage = 5; // Items per page
 
@@ -27,12 +28,13 @@ export default function AdvisorStatsPage() {
         const programData = await getAllProgram(); // Fetch all programs
         setMajorList(programData);
 
-        // Fetch all employees by default or by selected major
         let data: Advisor[];
-        if (selectedMajor) {
+        if (selectedMajor === -1) {
+          data = await getAllEmployees(); // Fetch all employees if "All Majors" is selected
+        } else if (selectedMajor !== 0) {
           data = await getEmployeeByMajorId(selectedMajor); // Fetch employees by major
         } else {
-          data = await getAllEmployees(); // Fetch all employees if no major selected
+          data = [];
         }
 
         setAdvisors(data);
@@ -88,11 +90,12 @@ export default function AdvisorStatsPage() {
           {/* Major Selector */}
           <select
             id="majorSelect"
-            value={selectedMajor ?? ""}
+            value={selectedMajor}
             onChange={handleMajorChange}
-            className="block w-40 p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+            className="block w-80 p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
           >
-            <option value="">All Majors</option>
+            <option value={0}>Select Major</option>
+            <option value={-1}>All Majors</option>
             {majorList.map((program) => (
               <option key={program.id} value={program.id}>
                 {program.program_name_en}
@@ -167,7 +170,7 @@ export default function AdvisorStatsPage() {
                         height={32} // Specify height (in px)
                       />
                       <div className="pl-3">
-                        <Link href={`/advisorprofile/${advisor.id}`}>
+                        <Link href={`/advisorprofile/${obfuscateId(advisor.id)}`}>
                           <span className="text-base font-semibold text-primary_text hover:underline cursor-pointer">
                             {advisor.prefix_en} {advisor.first_name_en}{" "}
                             {advisor.last_name_en}
