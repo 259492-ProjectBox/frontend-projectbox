@@ -24,6 +24,8 @@ export default function AdvisorProfilePage() {
   const itemsPerPage = 5; // Items per page
   const [currentPage, setCurrentPage] = useState<number>(1); // Current page state
   const [programName, setProgramName] = useState<string | undefined>("");
+  const originalId = deobfuscateId(id as string); // Deobfuscate the ID
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page); // Set current page
     window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top
@@ -40,8 +42,6 @@ export default function AdvisorProfilePage() {
       const fetchData = async () => {
         try {
           // Fetch advisor details
-          const originalId = deobfuscateId(id as string); // Deobfuscate the ID
-          console.log("originalId", originalId);
           
           const advisorData = await getEmployeeById(originalId.toString());
           setAdvisor(advisorData);
@@ -65,6 +65,10 @@ export default function AdvisorProfilePage() {
   useEffect(() => {
     const filtered = projects.filter((project) => {
       const searchLower = searchInput.toLowerCase();
+      console.log("Select role " ,selectedRole)
+      console.log("Project staffs", project.staffs);
+      console.log("id", originalId);
+      
       return (
         (project.titleEN?.toLowerCase().includes(searchLower) ||
           project.titleTH?.toLowerCase().includes(searchLower) ||
@@ -77,7 +81,8 @@ export default function AdvisorProfilePage() {
           project.staffs.some((staff) =>
             `${staff.firstNameEN} ${staff.lastNameEN}`.toLowerCase().includes(searchLower)
           )) &&
-        (selectedRole === "" || project.staffs.some(staff => staff.projectRole.roleNameEN === selectedRole))
+          
+        (selectedRole === "" || project.staffs.some(staff => staff.projectRole.roleNameEN === selectedRole && staff.id === originalId))
       );
     });
     setFilteredProjects(filtered);

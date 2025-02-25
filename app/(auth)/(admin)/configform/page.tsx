@@ -337,14 +337,19 @@ const ConfigSubmission: React.FC = () => {
                       <tr key={index} className="border-b hover:bg-gray-100">
                         <td className="px-4 py-3">
                           {item.icon_name ? (
-                            <Image
-                              className="w-8 h-8 rounded-full"
-                              src={item.icon_url || "/IconProjectBox/BlueBox.png"}
-                              style={{ objectFit: "contain", objectPosition: "center" }}
-                              alt={""}
-                              width={32}
-                              height={32}
-                            />
+                             <div className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center ">
+                              <div className="w-7 h-7 flex items-center justify-center">
+                             <Image
+                               src={item.icon_url || "/IconProjectBox/BlueBox.png"}
+                               alt="icon"
+                               width={32}
+                               height={32}
+                               style={{ objectFit: "contain" }}
+                               className="w-full h-full object-contain"
+                               unoptimized
+                             />
+                             </div>
+                           </div>
                           ) : (
                             <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
                               N/A
