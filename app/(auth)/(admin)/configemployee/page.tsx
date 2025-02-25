@@ -196,13 +196,23 @@ export default function ConfigAdvisorPage() {
               <h1 className="text-lg font-semibold text-gray-800">
                 Config Advisor
               </h1>
+              <div className="flex gap-2">
+
               <button
                 onClick={() => handleOpenModal()}
                 className="px-4 py-2 bg-primary_button text-white font-medium rounded 
                            hover:bg-button_hover focus:outline-none focus:ring-2 focus:ring-button_focus"
               >
-                Add Advisor
+                Add Staff
               </button>
+              <button
+                onClick={() => handleOpenModal()}
+                className="px-4 py-2 bg-green-600 text-white font-medium rounded 
+                           hover:bg-button_hover focus:outline-none focus:ring-2 focus:ring-button_focus"
+              >
+                Add Staff From Excel
+              </button>
+              </div>
             </div>
 
             {/* Modal for Add/Edit Advisor */}

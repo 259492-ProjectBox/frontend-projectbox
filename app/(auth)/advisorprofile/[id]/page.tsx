@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation"; // Import useParams for dynamic routing
+import { useParams, useRouter } from "next/navigation"; // Import useRouter for navigation
 import { Project } from "@/models/Project";
 import { Advisor } from "@/models/Advisor"; // Assuming this matches the response structure
 import Spinner from "@/components/Spinner";
@@ -14,6 +14,7 @@ import { deobfuscateId } from "@/utils/encodePath";
 
 export default function AdvisorProfilePage() {
   const params = useParams();
+  const router = useRouter(); // Initialize useRouter
   const id = params && Array.isArray(params.id) ? params.id[0] : params?.id; // Ensure id is a string
   const [advisor, setAdvisor] = useState<Advisor | null>(null); // State for advisor details
   const [projects, setProjects] = useState<Project[]>([]);
@@ -31,6 +32,10 @@ export default function AdvisorProfilePage() {
     window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top
   };
 
+  const handleGoBack = () => {
+    router.push(`/advisorstats?major=${advisor?.program_id}`); // Navigate back with query parameter
+  };
+
   // Calculate the current page's projects
   const currentProjects = filteredProjects.slice(
     (currentPage - 1) * itemsPerPage,
@@ -42,7 +47,6 @@ export default function AdvisorProfilePage() {
       const fetchData = async () => {
         try {
           // Fetch advisor details
-          
           const advisorData = await getEmployeeById(originalId.toString());
           setAdvisor(advisorData);
           const programId = advisorData?.program_id;
@@ -92,8 +96,17 @@ export default function AdvisorProfilePage() {
 
   const roles = ["Advisor", "Co Advisor", "Committee", "External Committee"];
  return (
-    <div className="min-h-screen p-6 bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300">
-      <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden">
+    <div className="min-h-screen p-6 bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 ">
+      
+      <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden">
+      <div className=" flex items-start">
+        <button
+          onClick={handleGoBack}
+          className="bg-primary_button text-white py-2 px-4 rounded hover:bg-button_hover"
+        >
+          Go Back
+        </button>
+      </div>
         {/* Advisor Details Section */}
         <section className="bg-gray-800 text-white p-6">
           {/* <h1 className="text-2xl font-bold">Advisor Profile</h1> */}

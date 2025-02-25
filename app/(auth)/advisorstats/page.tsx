@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation"; // Import useRouter for navigation
 import getEmployeeByMajorId from "@/utils/advisorstats/getEmployeebyProgramId";
 import { Advisor } from "@/models/Advisor"; // Import the Advisor interface
 import Spinner from "@/components/Spinner"; // Import the Spinner component
@@ -13,6 +14,7 @@ import Pagination from "@/components/Pagination"; // Import Pagination component
 import { obfuscateId } from "@/utils/encodePath";
 
 export default function AdvisorStatsPage() {
+  const router = useRouter();
   const [advisors, setAdvisors] = useState<Advisor[]>([]); // Default to empty array
   const [filteredAdvisors, setFilteredAdvisors] = useState<Advisor[]>([]); // Default to empty array
   const [searchTerm, setSearchTerm] = useState<string>(""); // Search term state
@@ -23,6 +25,14 @@ export default function AdvisorStatsPage() {
   const itemsPerPage = 5; // Items per page
 
   useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    const major = query.get("major");
+    if (major) {
+      setSelectedMajor(Number(major));
+    }
+  }, []);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const programData = await getAllProgram(); // Fetch all programs
@@ -31,10 +41,10 @@ export default function AdvisorStatsPage() {
         let data: Advisor[];
         if (selectedMajor === -1) {
           data = await getAllEmployees(); // Fetch all employees if "All Majors" is selected
-        } else if (selectedMajor !== 0) {
-          data = await getEmployeeByMajorId(selectedMajor); // Fetch employees by major
-        } else {
+        } else if (selectedMajor === 0) {
           data = [];
+        } else {
+          data = await getEmployeeByMajorId(selectedMajor); // Fetch employees by major
         }
 
         setAdvisors(data);
@@ -75,10 +85,12 @@ export default function AdvisorStatsPage() {
   };
 
   // Calculate the current page's advisors
-  const currentAdvisors = filteredAdvisors.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const currentAdvisors = filteredAdvisors
+    ? filteredAdvisors.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+      )
+    : [];
 
   return (
     <div className="min-h-screen p-4 bg-stone-100">
@@ -141,27 +153,15 @@ export default function AdvisorStatsPage() {
             <table className="w-full text-sm text-left text-gray-500 rounded-lg">
               <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                 <tr>
-                  <th scope="col" className="px-6 py-3">
-                    Name
-                  </th>
-                  <th scope="col" className="px-6 py-3">
-                    Email
-                  </th>
-                  <th scope="col" className="px-6 py-3">
-                    Program
-                  </th>{" "}
+                  <th scope="col" className="px-6 py-3">Name</th>
+                  <th scope="col" className="px-6 py-3">Email</th>
+                  <th scope="col" className="px-6 py-3">Program</th>
                 </tr>
               </thead>
               <tbody>
                 {currentAdvisors.map((advisor) => (
-                  <tr
-                    key={advisor.id}
-                    className="bg-white border-b hover:bg-gray-50"
-                  >
-                    <th
-                      scope="row"
-                      className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap"
-                    >
+                  <tr key={advisor.id} className="bg-white border-b hover:bg-gray-50">
+                    <th scope="row" className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap">
                       <Image
                         className="w-8 h-8 rounded-full"
                         src="/icon/teacher.png"
@@ -172,33 +172,27 @@ export default function AdvisorStatsPage() {
                       <div className="pl-3">
                         <Link href={`/advisorprofile/${obfuscateId(advisor.id)}`}>
                           <span className="text-base font-semibold text-primary_text hover:underline cursor-pointer">
-                            {advisor.prefix_en} {advisor.first_name_en}{" "}
-                            {advisor.last_name_en}
+                            {advisor.prefix_en} {advisor.first_name_en} {advisor.last_name_en}
                           </span>
                           <br />
                           <span className="text-sm text-gray-500">
-                            {advisor.prefix_th} {advisor.first_name_th}{" "}
-                            {advisor.last_name_th}
+                            {advisor.prefix_th} {advisor.first_name_th} {advisor.last_name_th}
                           </span>
                         </Link>
                       </div>
                     </th>
                     <td className="px-6 py-4">{advisor.email}</td>
                     <td className="px-6 py-4">
-                      {majorList.find(
-                        (program) => program.id === advisor.program_id
-                      )?.program_name_en ?? "N/A"}
-                    </td>{" "}
-                    {/* Displaying program name */}
+                      {majorList.find((program) => program.id === advisor.program_id)?.program_name_en ?? "N/A"}
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
             <Pagination
               currentPage={currentPage}
-              totalPages={Math.ceil(filteredAdvisors.length / itemsPerPage)}
+              totalPages={filteredAdvisors ? Math.ceil(filteredAdvisors.length / itemsPerPage) : 0}
               onPageChange={handlePageChange}
-              
             />
           </>
         )}
