@@ -60,7 +60,7 @@ export function useAuth() {
 	// Effect to load user info when the hook is first used
 	useEffect(() => {
 		fetchAuthUser();
-	}, [authState.user]);
+	}, []);
 
 	return {
 		...authState,
