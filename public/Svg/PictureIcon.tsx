@@ -13,16 +13,16 @@ const PictureIcon: React.FC = () => {
     >
       <path
         fill-rule="evenodd"
-        clip-rule="evenodd"
+        clipRule="evenodd"
         d="M2.71429 1H11.2857C11.7404 1 12.1764 1.18061 12.4979 1.5021C12.8194 1.82359 13 2.25963 13 2.71429V11.2857C13 11.7404 12.8194 12.1764 12.4979 12.4979C12.1764 12.8194 11.7404 13 11.2857 13H2.71429C2.25963 13 1.82359 12.8194 1.5021 12.4979C1.18061 12.1764 1 11.7404 1 11.2857V2.71429C1 2.25963 1.18061 1.82359 1.5021 1.5021C1.82359 1.18061 2.25963 1 2.71429 1Z"
         stroke="#4897FF"
-        stroke-linecap="round"
+        strokeLinecap="round"
         stroke-linejoin="round"
       />
       <path
         d="M13 9.57136L10.4286 6.99993L7.85714 9.5585M11.2857 12.9999L3.57143 5.28564L1 7.85707"
         stroke="#4897FF"
-        stroke-linecap="round"
+        strokeLinecap="round"
         stroke-linejoin="round"
       />
       <path

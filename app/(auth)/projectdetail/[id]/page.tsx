@@ -120,6 +120,8 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
             <div className="p-4 border rounded-md">
               <p className="space-y-2">
                 <strong className="text-gray-700">Project Description:</strong>{" "}
+              </p>
+              <p className="ml-6 mt-2 text-gray-600">
                 {project.abstractText || "No Description Available"}
               </p>
             </div>

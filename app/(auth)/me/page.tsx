@@ -36,7 +36,7 @@ export default function MePage() {
 					setErrorMessage("Unknown error occurred. Please try again later");
 				}
 			});
-	}, []);
+	}, [cmuAccount]);
 
 	return (
 		<div className="p-3">

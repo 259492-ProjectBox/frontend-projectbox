@@ -10,10 +10,10 @@ const SketchupIcon: React.FC = () => {
       xmlns="http://www.w3.org/2000/svg"
       className="w-5 h-5"
     >
-      <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+      <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
       <g
         id="SVGRepo_tracerCarrier"
-        stroke-linecap="round"
+        strokeLinecap="round"
         stroke-linejoin="round"
       ></g>
       <g id="SVGRepo_iconCarrier">
