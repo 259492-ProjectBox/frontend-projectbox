@@ -301,7 +301,7 @@ export default function ConfigProgram() {
                 <div className="my-2 border border-gray-300 rounded-lg p-4">
                 <ExcelTemplateSection
                 title="Roster_Student_Template"
-                templateUrl="/path/to/studentlist-template.xlsx"
+                templateUrl="/UploadExample/studentlist_261492-267.xlsx"
                 />
                 </div>
               <label
@@ -365,7 +365,7 @@ export default function ConfigProgram() {
               <div className="my-2 border border-gray-300 rounded-lg p-4">
               <ExcelTemplateSection
                 title="Roster_Project_Template"
-                templateUrl="/path/to/projectcreate-template.xlsx"
+                templateUrl="/UploadExample/projectcreate.xlsx"
               />
               </div>
               <label
