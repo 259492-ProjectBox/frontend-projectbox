@@ -2,12 +2,13 @@
 import React, { useEffect, useState } from "react";
 import { Advisor } from "@/models/Advisor";
 import Spinner from "@/components/Spinner";
-import postCreateEmployee from "@/utils/configemployee/postCreateEmployee";
+import postCreateEmployee, { uploadStaffFromExcel } from "@/utils/configemployee/postCreateEmployee";
 import getEmployeeByProgramId from "@/utils/advisorstats/getEmployeebyProgramId";
 import putUpdateEmployee from "@/utils/configemployee/putEditEmployee";
 import { useAuth } from "@/hooks/useAuth";
 import { AllProgram } from "@/models/AllPrograms";
 import { getProgramOptions } from "@/utils/programHelpers";
+import ExcelTemplateSection from "@/components/ExcelTemplateSection";
 
 export default function ConfigAdvisorPage() {
   const [advisors, setAdvisors] = useState<Advisor[]>([]);
@@ -28,10 +29,19 @@ export default function ConfigAdvisorPage() {
   const [lastNameTh, setLastNameTh] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [isActive, setIsActive] = useState<boolean>(true); // State for is_active toggle
 
   // Major selector states
   const [selectedMajor, setSelectedMajor] = useState<number>(0);
   const [options, setOptions] = useState<AllProgram[]>([]);
+
+  // File upload states
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  // Confirmation modal states
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState<boolean>(false);
+  const [advisorToToggle, setAdvisorToToggle] = useState<Advisor | null>(null);
 
   useEffect(() => {
     const fetchOptions = async () => {
@@ -57,20 +67,20 @@ export default function ConfigAdvisorPage() {
   }, [user, selectedMajor]); // Re-fetch when `user` or `selectedMajor` changes
 
   // Fetch advisors by selected major ID
+  const fetchAdvisors = async () => {
+    setLoading(true);
+    try {
+      const data: Advisor[] = await getEmployeeByProgramId(selectedMajor);
+      setAdvisors(data);
+    } catch (err) {
+      console.error("Error fetching advisors:", err);
+      setError("Failed to load advisors.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   useEffect(() => {
-    const fetchAdvisors = async () => {
-      setLoading(true);
-      try {
-        const data: Advisor[] = await getEmployeeByProgramId(selectedMajor);
-        setAdvisors(data);
-      } catch (err) {
-        console.error("Error fetching advisors:", err);
-        setError("Failed to load advisors.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    
     fetchAdvisors();
   }, [selectedMajor, user]);
 
@@ -87,6 +97,7 @@ export default function ConfigAdvisorPage() {
       setLastNameEn(advisor.last_name_en);
       setLastNameTh(advisor.last_name_th);
       setEmail(advisor.email);
+      setIsActive(!advisor.is_resigned); // Set isActive based on is_resigned
     } else {
       setPrefixEn("");
       setPrefixTh("");
@@ -95,9 +106,31 @@ export default function ConfigAdvisorPage() {
       setLastNameEn("");
       setLastNameTh("");
       setEmail("");
+      setIsActive(true); // Default to active
     }
 
     setIsModalOpen(true);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
+
+  const handleUpLoadStaffFile = async () => {
+    if (selectedFile) {
+      try {
+        const message = await uploadStaffFromExcel(selectedMajor, selectedFile);
+        alert(message);
+        setSelectedFile(null);
+        fetchAdvisors();
+      } catch (error) {
+        alert("Failed to upload staff from Excel. Please try again.");
+      }
+    }
+    setIsUploadModalOpen(false);
   };
 
   // Save (create or update) advisor
@@ -119,6 +152,7 @@ export default function ConfigAdvisorPage() {
           last_name_en: lastNameEn,
           last_name_th: lastNameTh,
           email,
+          is_resigned: !isActive, // Update is_resigned based on isActive
         };
         const updatedEmployee = await putUpdateEmployee(updatedAdvisor);
         setAdvisors((prev) =>
@@ -138,6 +172,7 @@ export default function ConfigAdvisorPage() {
           last_name_th: lastNameTh,
           email,
           program_id: selectedMajor,
+          is_resigned: !isActive, // Set is_resigned based on isActive
         };
         const newAdvisor = await postCreateEmployee(newAdvisorPayload);
         setAdvisors((prev) => [...prev, newAdvisor]);
@@ -147,6 +182,34 @@ export default function ConfigAdvisorPage() {
     } catch (err) {
       console.error("Error saving advisor:", err);
       alert("Failed to save advisor.");
+    }
+  };
+
+  // Handler for confirming toggle action
+  const handleConfirmToggle = async () => {
+    if (advisorToToggle) {
+      console.log("Resigned 1", advisorToToggle);
+
+      const updatedAdvisor = {
+        ...advisorToToggle,
+        is_resigned: true,
+      };
+      console.log("Resigned 2", updatedAdvisor);
+
+      try {
+        const updatedEmployee = await putUpdateEmployee(updatedAdvisor);
+        console.log("Updated employee response:", updatedEmployee);
+        setAdvisors((prev) =>
+          prev.map((advisor) =>
+            advisor.id === advisorToToggle.id ? updatedEmployee : advisor
+          )
+        );
+        setIsConfirmModalOpen(false);
+        setAdvisorToToggle(null);
+      } catch (error) {
+        console.error("Error updating advisor:", error);
+        alert("Failed to update advisor.");
+      }
     }
   };
 
@@ -186,8 +249,10 @@ export default function ConfigAdvisorPage() {
             ))  
             }
           </select>
+        <div className="my-8 border border-gray-300 rounded-lg p-4 ">
+          <ExcelTemplateSection title="Roster_Staff_Template" templateUrl="/UploadExample/staff_form.xlsx" />
         </div>
-
+        </div>
         {/* Hide content if no program is selected */}
         {selectedMajor !== 0 && (
           <>
@@ -196,13 +261,23 @@ export default function ConfigAdvisorPage() {
               <h1 className="text-lg font-semibold text-gray-800">
                 Config Advisor
               </h1>
+              <div className="flex gap-2">
+
               <button
                 onClick={() => handleOpenModal()}
                 className="px-4 py-2 bg-primary_button text-white font-medium rounded 
                            hover:bg-button_hover focus:outline-none focus:ring-2 focus:ring-button_focus"
               >
-                Add Advisor
+                Add Staff
               </button>
+              <button
+                onClick={() => setIsUploadModalOpen(true)}
+                className="px-4 py-2 bg-green-600 text-white font-medium rounded 
+                           hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-button_focus"
+              >
+                Add Staff From Excel
+              </button>
+              </div>
             </div>
 
             {/* Modal for Add/Edit Advisor */}
@@ -348,6 +423,23 @@ export default function ConfigAdvisorPage() {
                     />
                     {emailError && <p className="text-red-600 text-sm mt-1">{emailError}</p>}
                   </div>
+
+                  {/* Is Active Toggle */}
+                  <div className="mb-3">
+                    <label className="text-sm text-gray-700 block mb-1">
+                      Active
+                    </label>
+                    <label className="inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="sr-only peer"
+                        checked={isActive}
+                        onChange={() => setIsActive(!isActive)}
+                      />
+                      <div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-white peer-checked:bg-green-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                    </label>
+                  </div>
+
                   <div className="flex justify-end gap-2">
                     <button
                       onClick={() => setIsModalOpen(false)}
@@ -361,6 +453,98 @@ export default function ConfigAdvisorPage() {
                       className="px-3 py-1 bg-primary_button text-white rounded hover:bg-button_hover"
                     >
                       Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Modal for Uploading Staff File */}
+            {isUploadModalOpen && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-sm">
+                  <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                    Upload Staff File
+                  </h2>
+                  <label
+                    htmlFor="dropzone-file"
+                    className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                  >
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <svg
+                        className="w-8 h-8 mb-4 text-gray-500"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 20 16"
+                      >
+                        <path
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                        />
+                      </svg>
+                      <p className="mb-2 text-sm text-gray-500">
+                        <span className="font-semibold">Click to upload</span> or drag and drop
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        .xlsx file only (MAX. 800 KB)
+                      </p>
+                    </div>
+                    <input
+                      id="dropzone-file"
+                      type="file"
+                      className="hidden"
+                      onChange={handleFileChange}
+                    />
+                  </label>
+                  {selectedFile && (
+                    <p className="mt-2 text-sm text-gray-500">Selected file: {selectedFile.name}</p>
+                  )}
+                  <div className="flex justify-end gap-2 mt-4">
+                    <button
+                      onClick={() => setIsUploadModalOpen(false)}
+                      className="px-3 py-1 bg-gray-300 text-gray-700 rounded
+                                 hover:bg-gray-400"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleUpLoadStaffFile}
+                      className="px-3 py-1 bg-primary_button text-white rounded hover:bg-button_hover"
+                    >
+                      Upload
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Confirmation Modal for Toggle */}
+            {isConfirmModalOpen && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-sm">
+                  <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                    Confirm Action
+                  </h2>
+                  <p className="text-gray-700 mb-4">
+                    Are you sure you want to set this advisor to inactive?
+                  </p>
+                  <div className="flex justify-end gap-2">
+                    <button
+                      onClick={() => setIsConfirmModalOpen(false)}
+                      className="px-3 py-1 bg-gray-300 text-gray-700 rounded
+                                 hover:bg-gray-400"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleConfirmToggle}
+                      className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                    >
+                      Confirm
                     </button>
                   </div>
                 </div>
@@ -385,19 +569,22 @@ export default function ConfigAdvisorPage() {
                         Email
                       </th>
                       <th scope="col" className="px-3 py-3 text-center w-24">
-                        Action
+                        Edit
+                      </th>
+                      <th scope="col" className="px-3 py-3 text-center w-24">
+                        ISACTIVE
                       </th>
                     </tr>
                   </thead>
                   <tbody>
                     {advisors && advisors.length > 0 ? (
-                      advisors.map((item) => (
+                      advisors.map((item , index) => (
                         <tr
                           key={item.id}
                           className="bg-white border-b hover:bg-gray-50"
                         >
                           <td className="px-6 py-4 font-medium text-gray-900">
-                            {item.id}
+                            {index + 1} 
                           </td>
                           <td className="px-6 py-4 font-medium text-gray-900">
                             {item.prefix_en} {item.first_name_en}{" "}
@@ -411,6 +598,34 @@ export default function ConfigAdvisorPage() {
                             >
                               Edit
                             </button>
+                          </td>
+                          <td className="px-3 py-4 text-center">
+                            <label className="inline-flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                className="sr-only peer"
+                                checked={!item.is_resigned}
+                                onChange={() => {
+                                  if (!item.is_resigned) {
+                                    setAdvisorToToggle(item);
+                                    setIsConfirmModalOpen(true);
+                                  } else {
+                                    const updatedAdvisor = {
+                                      ...item,
+                                      is_resigned: !item.is_resigned,
+                                    };
+                                    putUpdateEmployee(updatedAdvisor).then(() => {
+                                      setAdvisors((prev) =>
+                                        prev.map((advisor) =>
+                                          advisor.id === item.id ? updatedAdvisor : advisor
+                                        )
+                                      );
+                                    });
+                                  }
+                                }}
+                              />
+                              <div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-white peer-checked:bg-green-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                            </label>
                           </td>
                         </tr>
                       ))

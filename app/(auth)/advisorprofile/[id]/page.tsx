@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation"; // Import useParams for dynamic routing
+import { useParams, useRouter } from "next/navigation"; // Import useRouter for navigation
 import { Project } from "@/models/Project";
 import { Advisor } from "@/models/Advisor"; // Assuming this matches the response structure
 import Spinner from "@/components/Spinner";
@@ -9,9 +9,12 @@ import getProjectsByAdvisorId from "@/utils/advisorstats/getProjectsByAdvisorId"
 import getEmployeeById from "@/utils/advisorstats/getAdvisorById";
 import ProjectComponent from "@/components/dashboard/ProjectComponent"; // Import ProjectComponent
 import Pagination from "@/components/Pagination"; // Import Pagination component
+import { getProgramName } from "@/utils/programHelpers";
+import { deobfuscateId } from "@/utils/encodePath";
 
 export default function AdvisorProfilePage() {
   const params = useParams();
+  const router = useRouter(); // Initialize useRouter
   const id = params && Array.isArray(params.id) ? params.id[0] : params?.id; // Ensure id is a string
   const [advisor, setAdvisor] = useState<Advisor | null>(null); // State for advisor details
   const [projects, setProjects] = useState<Project[]>([]);
@@ -21,10 +24,16 @@ export default function AdvisorProfilePage() {
   const [selectedRole, setSelectedRole] = useState<string>("");
   const itemsPerPage = 5; // Items per page
   const [currentPage, setCurrentPage] = useState<number>(1); // Current page state
+  const [programName, setProgramName] = useState<string | undefined>("");
+  const originalId = deobfuscateId(id as string); // Deobfuscate the ID
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page); // Set current page
     window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top
+  };
+
+  const handleGoBack = () => {
+    router.push(`/advisorstats?major=${advisor?.program_id}`); // Navigate back with query parameter
   };
 
   // Calculate the current page's projects
@@ -38,11 +47,13 @@ export default function AdvisorProfilePage() {
       const fetchData = async () => {
         try {
           // Fetch advisor details
-          const advisorData = await getEmployeeById(id as string);
+          const advisorData = await getEmployeeById(originalId.toString());
           setAdvisor(advisorData);
-
+          const programId = advisorData?.program_id;
+          const programN = programId ? await getProgramName(programId) : "";
+          setProgramName(programN);
           // Fetch projects associated with the advisor
-          const projectData: Project[] = await getProjectsByAdvisorId(id as string);
+          const projectData: Project[] = await getProjectsByAdvisorId(originalId.toString());
           setProjects(projectData);
           setFilteredProjects(projectData);
         } catch (error) {
@@ -58,6 +69,10 @@ export default function AdvisorProfilePage() {
   useEffect(() => {
     const filtered = projects.filter((project) => {
       const searchLower = searchInput.toLowerCase();
+      console.log("Select role " ,selectedRole)
+      console.log("Project staffs", project.staffs);
+      console.log("id", originalId);
+      
       return (
         (project.titleEN?.toLowerCase().includes(searchLower) ||
           project.titleTH?.toLowerCase().includes(searchLower) ||
@@ -70,7 +85,8 @@ export default function AdvisorProfilePage() {
           project.staffs.some((staff) =>
             `${staff.firstNameEN} ${staff.lastNameEN}`.toLowerCase().includes(searchLower)
           )) &&
-        (selectedRole === "" || project.staffs.some(staff => staff.projectRole.roleNameEN === selectedRole))
+          
+        (selectedRole === "" || project.staffs.some(staff => staff.projectRole.roleNameEN === selectedRole && staff.id === originalId))
       );
     });
     setFilteredProjects(filtered);
@@ -79,10 +95,18 @@ export default function AdvisorProfilePage() {
   if (loading) return <Spinner />;
 
   const roles = ["Advisor", "Co Advisor", "Committee", "External Committee"];
-
-  return (
-    <div className="min-h-screen p-6 bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300">
-      <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden">
+ return (
+    <div className="min-h-screen p-6 bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 ">
+      
+      <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden">
+      <div className=" flex items-start">
+        <button
+          onClick={handleGoBack}
+          className="bg-primary_button text-white py-2 px-4 rounded hover:bg-button_hover"
+        >
+          Go Back
+        </button>
+      </div>
         {/* Advisor Details Section */}
         <section className="bg-gray-800 text-white p-6">
           {/* <h1 className="text-2xl font-bold">Advisor Profile</h1> */}
@@ -97,7 +121,7 @@ export default function AdvisorProfilePage() {
                 <span className="font-medium">Email:</span> {advisor.email}
               </p>
               <p className="text-sm">
-                <span className="font-medium">Major ID:</span> {advisor.program_id}
+                <span className="font-medium">Major :</span> {programName}
               </p>
             </div>
           ) : (
@@ -135,7 +159,7 @@ export default function AdvisorProfilePage() {
             <>
               <ul className="space-y-6">
                 {currentProjects.map((project) => (
-                  <ProjectComponent key={project.id} project={project} />
+                  <ProjectComponent key={project.id} project={project}  />
                 ))}
               </ul>
               <Pagination

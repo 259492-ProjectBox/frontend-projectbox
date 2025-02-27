@@ -24,4 +24,28 @@ const postCreateEmployee = async (payload: CreateAdvisorPayload): Promise<Adviso
   }
 };
 
+export const uploadStaffFromExcel = async (programId: number, file: File): Promise<string> => {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await axios.post(
+      `https://project-service.kunmhing.me/api/v1/uploads/program/${programId}/create-staff`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          accept: "application/json",
+        },
+      }
+    );
+    return response.data.message;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      return error.response.data.error;
+    }
+    console.error("Error uploading staff from excel:", error);
+    throw error;
+  }
+};
+
 export default postCreateEmployee;

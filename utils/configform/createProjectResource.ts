@@ -1,14 +1,15 @@
 import axios from "axios";
-import { ProjectResourceConfig } from "@/models/ProjectResourceConfig";
 
-const createProjectResource = async (data: ProjectResourceConfig) => {
-  const API_URL =
-    "https://project-service.kunmhing.me/api/v1/projectResourceConfigs";
+const createProjectResource = async (iconFile: File, data: any) => {
+  const API_URL = "https://project-service.kunmhing.me/api/v2/projectResourceConfigs";
+  const formData = new FormData();
+  formData.append("icon", iconFile);
+  formData.append("projectResourceConfig", JSON.stringify(data));
+
   try {
-    const response = await axios.put(API_URL, data, {
+    const response = await axios.put(API_URL, formData, {
       headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
+        "Content-Type": "multipart/form-data",
       },
     });
     return response.data;

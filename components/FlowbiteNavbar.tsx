@@ -39,11 +39,11 @@ export default function FlowbiteNavbar({
                   <p className="font-semibold text-gray-800">
                     {user?.firstName} {user?.lastName}
                   </p>
-                  <p className="text-gray-500">{user?.studentId}</p>
+                  <p className="text-gray-600">{user?.studentId}</p>
                 </div>
               </div>
               {/* Profile Icon Section (Optional, uncomment if needed) */}
-              <div className="ml-4">
+              {/* <div className="ml-4">
                 <button
                   type="button"
                   className="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300"
@@ -59,7 +59,25 @@ export default function FlowbiteNavbar({
                     height={24} // Specify height (in px)
                   />
                 </button>
-              </div>
+              </div> */}
+              <div className="ml-4">
+                <button
+                  type="button"
+                  className="flex text-sm bg-black rounded-full focus:ring-4 focus:ring-gray-300 border-2 border-black"
+                  aria-expanded="false"
+                  data-dropdown-toggle="dropdown-user"
+                >
+                  <span className="sr-only">Open user menu</span>
+                  {/* User Initials */}
+                  <div className="w-8 h-8 flex items-center justify-center bg-white text-gray-800 font-bold rounded-full">
+                    {/* Replace 'A' with the first 2  character of the user's name */}
+                    {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
+                    {/* {user?.firstName?.charAt(0 )} */}
+
+                  </div>
+                </button>
+            </div>
+
             </div>
           </div>
         </div>

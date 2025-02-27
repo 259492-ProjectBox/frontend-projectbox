@@ -1,16 +1,19 @@
 import axios from "axios";
 import { ProjectResourceConfig } from "@/models/ProjectResourceConfig";
 
-// Define the endpoint for updating the project resource
-const API_URL = "https://project-service.kunmhing.me/api/v1/projectResourceConfigs";
+const API_URL = "https://project-service.kunmhing.me/api/v2/projectResourceConfigs";
 
-// Define a function to update the resource's active status
-const updateResourceStatus = async (data: ProjectResourceConfig) => {
+const updateResourceStatus = async (iconFile: File | null, data: ProjectResourceConfig) => {
+  const formData = new FormData();
+  if (iconFile) {
+    formData.append("icon", iconFile);
+  }
+  formData.append("projectResourceConfig", JSON.stringify(data));
+
   try {
-    const response = await axios.put(API_URL, data, {
+    const response = await axios.put(API_URL, formData, {
       headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
+        "Content-Type": "multipart/form-data",
       },
     });
     return response.data;

@@ -11,6 +11,12 @@ import { uploadStudentList } from "@/utils/configprogram/uploadstudentlist";
 import { uploadCreateProject } from "@/utils/configprogram/uploadcreateproject";
 import AccordionSection from "@/components/AccordionSection";
 import ExcelTemplateSection from "@/components/ExcelTemplateSection";
+import axios from "axios";
+
+// Function to convert string to title case
+const toTitleCase = (str: string) => {
+  return str.replace(/\b\w/g, char => char.toUpperCase());
+};
 
 export default function ConfigProgram() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -107,7 +113,7 @@ export default function ConfigProgram() {
         });
       }
   
-      console.log("Saved values - Academic Year:", academicYear, "Semester:", semester);
+      // console.log("Saved values - Academic Year:", academicYear, "Semester:", semester);
       alert("Update successful!");
       setIsEditMode(false); // Turn off edit mode
     } catch (error) {
@@ -159,8 +165,13 @@ export default function ConfigProgram() {
         alert("File uploaded successfully!");
         setFile(null); // Clear the file input
       } catch (error) {
-        console.error("Error uploading file:", error);
-        alert("Failed to upload file.");
+        if (axios.isAxiosError(error) && error.response) {
+          console.error("Error uploading file:", error.response.data);
+          alert("Failed to upload file: " + error.response.data.error);
+        } else {
+          console.error("Error uploading file:", error);
+          alert("Failed to upload file.");
+        }
       }
     } else {
       console.log("No file selected for upload.");
@@ -182,6 +193,7 @@ export default function ConfigProgram() {
     );
   }
 
+  
   return (
     <div className="min-h-screen p-6 bg-gray-100">
       <div className="max-w-6xl mx-auto bg-white rounded-lg shadow p-6">
@@ -218,7 +230,7 @@ export default function ConfigProgram() {
               {configData.length > 0 ? (
                 configData.map((item: ConfigProgramSetting, index) => (
                   <div key={index} className="bg-white p-4 rounded-lg shadow-md">
-                    <h2 className="text-gray-800 font-semibold">{item.config_name}</h2>
+                    <h2 className="text-gray-800 font-semibold">{toTitleCase(item.config_name)}</h2>
 
                     {/* Toggling read-only vs. edit mode for specific items */}
                     {item.config_name === "semester" ? (
@@ -294,8 +306,8 @@ export default function ConfigProgram() {
               </h3>
                 <div className="my-2 border border-gray-300 rounded-lg p-4">
                 <ExcelTemplateSection
-                title="Example Template for Student List"
-                templateUrl="/path/to/studentlist-template.xlsx"
+                title="Roster_Student_Template"
+                templateUrl="/UploadExample/studentlist_261492-267.xlsx"
                 />
                 </div>
               <label
@@ -358,8 +370,8 @@ export default function ConfigProgram() {
               </h3>
               <div className="my-2 border border-gray-300 rounded-lg p-4">
               <ExcelTemplateSection
-                title="Example Template for Project Creation"
-                templateUrl="/path/to/projectcreate-template.xlsx"
+                title="Roster_Project_Template"
+                templateUrl="/UploadExample/projectcreate.xlsx"
               />
               </div>
               <label

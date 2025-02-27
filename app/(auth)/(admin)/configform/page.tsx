@@ -12,28 +12,26 @@ import { getProgramOptions } from "@/utils/programHelpers";
 import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig";
 import updateResourceStatus from "@/utils/configform/updateProjectResourceConfig";
 import Image from "next/image";
-import createProjectResource from "@/utils/configform/createProjectResource";
 import { ProjectResourceConfig } from "@/models/ProjectResourceConfig";
+import createProjectResource from "@/utils/configform/createProjectResource";
 
 const ConfigSubmission: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({});
   const [loading, setLoading] = useState<boolean>(false);
   const [apiData, setApiData] = useState<ProjectConfig[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [tableData, setTableData] = useState<ProjectResourceConfig[] | null>(
-    null
-  );
+  const [tableData, setTableData] = useState<ProjectResourceConfig[]>([]);
   const [iconName, setIconName] = useState("");
   const [resourceTypeId, setResourceTypeId] = useState(1);
   const [title, setTitle] = useState("");
-  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false); // State for edit modal visibility
-  const [resourceToEdit, setResourceToEdit] =
-    useState<ProjectResourceConfig | null>(null); // Resource to be edited
-  const [editIconName, setEditIconName] = useState<string>(""); // State for edit icon name
-  const [editTitle, setEditTitle] = useState<string>(""); // State for edit title
-  const [editResourceTypeId, setEditResourceTypeId] = useState<number>(1); // State for edit resource type ID
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+  const [resourceToEdit, setResourceToEdit] = useState<ProjectResourceConfig | null>(null);
+  const [editIconName, setEditIconName] = useState<string>("");
+  const [editTitle, setEditTitle] = useState<string>("");
+  const [editResourceTypeId, setEditResourceTypeId] = useState<number>(1);
+  const [iconFile, setIconFile] = useState<File | null>(null);
+  const [editIconFile, setEditIconFile] = useState<File | null>(null);
 
-  // Major selector states (for display only; not filtering data)
   const { user } = useAuth();
   const [selectedMajor, setSelectedMajor] = useState<number>(0);
   const [options, setOptions] = useState<AllProgram[]>([]);
@@ -41,36 +39,24 @@ const ConfigSubmission: React.FC = () => {
   useEffect(() => {
     const fetchOptions = async () => {
       if (!user) return;
-      setLoading(true);
-      try {
-        const programOptions = await getProgramOptions(user.isAdmin);
-        setOptions(programOptions);
+      const programOptions = await getProgramOptions(user.isAdmin);
+      setOptions(programOptions);
 
-        // Ensure selectedMajor is in options; otherwise, reset to default (0)
-        if (!programOptions.some((option) => option.id === selectedMajor)) {
-          setSelectedMajor(0);
-        }
-      } catch (err) {
-        console.error("Error fetching program options:", err);
-      } finally {
-        setLoading(false);
+      if (!programOptions.some((option) => option.id === selectedMajor)) {
+        setSelectedMajor(0);
       }
     };
 
     fetchOptions();
-  }, [user, selectedMajor]); // Re-fetch when `user` or `selectedMajor` changes
+  }, [user?.isAdmin]);
 
   const fetchData = async () => {
     try {
-      if (selectedMajor === 0) {
-        setTableData([]);
-        return;
-      }
+      if (selectedMajor === 0) return setTableData([]);
       const data = await getProjectResourceConfig(selectedMajor);
       setTableData(data);
     } catch (error) {
       console.error("Error fetching data:", error);
-      setTableData([]); // Set to empty array on error
     }
   };
 
@@ -107,10 +93,6 @@ const ConfigSubmission: React.FC = () => {
     fetchData();
   }, [selectedMajor]);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]); // Include 'fetchData' in the dependency array
-
   const handleToggleChange = (fieldName: string) => {
     setFormData((prevData) => ({
       ...prevData,
@@ -136,10 +118,6 @@ const ConfigSubmission: React.FC = () => {
     }
   };
 
-  // useEffect(() => {
-  //   fetchData();
-  // }, [selectedMajor]);
-
   const handleResourceToggleChange = async (item: ProjectResourceConfig) => {
     const updatedStatus = !item.is_active;
     const updatedData: ProjectResourceConfig = {
@@ -147,12 +125,10 @@ const ConfigSubmission: React.FC = () => {
       is_active: updatedStatus,
     };
     try {
-      await updateResourceStatus(updatedData);
+      await updateResourceStatus(null, updatedData);
       setTableData((prevData) =>
         prevData.map((dataItem) =>
-          dataItem.id === item.id
-            ? { ...dataItem, is_active: updatedStatus }
-            : dataItem
+          dataItem.id === item.id ? { ...dataItem, is_active: updatedStatus } : dataItem
         )
       );
     } catch (error) {
@@ -171,7 +147,16 @@ const ConfigSubmission: React.FC = () => {
   const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setIconFile(file);
       setIconName(file.name);
+    }
+  };
+
+  const handleEditIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setEditIconFile(file);
+      setEditIconName(file.name);
     }
   };
 
@@ -185,7 +170,11 @@ const ConfigSubmission: React.FC = () => {
     };
 
     try {
-      await createProjectResource(data);
+      if (!iconFile) {
+        alert("Please select an icon file.");
+        return;
+      }
+      await createProjectResource(iconFile, data);
       alert("Project resource created successfully!");
       closeModal();
       fetchData();
@@ -199,7 +188,7 @@ const ConfigSubmission: React.FC = () => {
     setResourceToEdit(resource);
     setEditIconName(resource.icon_name);
     setEditTitle(resource.title);
-    setEditResourceTypeId(resource.resource_type_id); // Correctly set resource type ID
+    setEditResourceTypeId(resource.resource_type_id);
     setIsEditModalOpen(true);
   };
 
@@ -218,7 +207,7 @@ const ConfigSubmission: React.FC = () => {
       };
 
       try {
-        await updateResourceStatus(updatedResource);
+        await updateResourceStatus(editIconFile, updatedResource);
         alert("Resource updated successfully!");
         closeEditModal();
         fetchData();
@@ -344,61 +333,47 @@ const ConfigSubmission: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {tableData && tableData.length > 0 ? (
-                      tableData.map(
-                        (item: ProjectResourceConfig, index: number) => (
-                          <tr
-                            key={index}
-                            className="border-b hover:bg-gray-100"
-                          >
-                            <td className="px-4 py-3">
-                              {item.icon_name ? (
-                                <Image
-                                  className="w-8 h-8 rounded-full"
-                                  src="/IconProjectBox/BlueBox.png"
-                                  alt={""}
-                                  width={32}
-                                  height={32}
-                                />
-                              ) : (
-                                <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
-                                  N/A
-                                </div>
-                              )}
-                            </td>
-                            <td className="px-4 py-3">{item.title}</td>
-                            <td className="px-4 py-3">
-                              {item.resource_type_id === 1 ? "File" : "Link"}
-                            </td>
-                            <td className="px-4 py-3">
-                              <label className="inline-flex items-center cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  className="sr-only peer"
-                                  checked={item.is_active || false}
-                                  onChange={() =>
-                                    handleResourceToggleChange(item)
-                                  }
-                                />
-                                <div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-white peer-checked:bg-green-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                              </label>
-                            </td>
-                            <td
-                              className="px-4 py-3 font-medium text-blue-600 cursor-pointer"
-                              onClick={() => openEditModal(item)}
-                            >
-                              Edit
-                            </td>
-                          </tr>
-                        )
-                      )
-                    ) : (
-                      <tr>
-                        <td colSpan={5} className="px-4 py-3 text-center">
-                          No resources available
+                    {tableData?.map((item: ProjectResourceConfig, index: number) => (
+                      <tr key={index} className="border-b hover:bg-gray-100">
+                        <td className="px-4 py-3">
+                          {item.icon_name ? (
+                             <div className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center ">
+                              <div className="w-7 h-7 flex items-center justify-center">
+                             <Image
+                               src={item.icon_url || "/IconProjectBox/BlueBox.png"}
+                               alt="icon"
+                               width={32}
+                               height={32}
+                               style={{ objectFit: "contain" }}
+                               className="w-full h-full object-contain"
+                               unoptimized
+                             />
+                             </div>
+                           </div>
+                          ) : (
+                            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                              N/A
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">{item.title}</td>
+                        <td className="px-4 py-3">{item.resource_type_id === 1 ? "File" : "Link"}</td>
+                        <td className="px-4 py-3">
+                          <label className="inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              className="sr-only peer"
+                              checked={item.is_active || false}
+                              onChange={() => handleResourceToggleChange(item)}
+                            />
+                            <div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-white peer-checked:bg-green-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                          </label>
+                        </td>
+                        <td className="px-4 py-3 font-medium text-blue-600 cursor-pointer" onClick={() => openEditModal(item)}>
+                          Edit
                         </td>
                       </tr>
-                    )}
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -423,9 +398,7 @@ const ConfigSubmission: React.FC = () => {
 
                     {/* Section 2: Title Input */}
                     <div className="mb-4">
-                      <label className="block text-sm font-semibold mb-2">
-                        Title
-                      </label>
+                      <label className="block text-sm font-semibold mb-2">Title</label>
                       <input
                         type="text"
                         className="w-full p-2 border border-gray-300 rounded"
@@ -443,9 +416,7 @@ const ConfigSubmission: React.FC = () => {
                       <select
                         className="w-full p-2 border border-gray-300 rounded"
                         value={resourceTypeId}
-                        onChange={(e) =>
-                          setResourceTypeId(Number(e.target.value))
-                        }
+                        onChange={(e) => setResourceTypeId(Number(e.target.value))}
                       >
                         <option value="1">File</option>
                         <option value="2">Link</option>
@@ -485,17 +456,13 @@ const ConfigSubmission: React.FC = () => {
                       <input
                         type="file"
                         className="w-full p-2 border border-gray-300 rounded"
-                        onChange={(e) =>
-                          setEditIconName(e.target.files?.[0]?.name || "")
-                        }
+                        onChange={handleEditIconChange}
                       />
                     </div>
 
                     {/* Section 2: Title Input */}
                     <div className="mb-4">
-                      <label className="block text-sm font-semibold mb-2">
-                        Title
-                      </label>
+                      <label className="block text-sm font-semibold mb-2">Title</label>
                       <input
                         type="text"
                         className="w-full p-2 border border-gray-300 rounded"

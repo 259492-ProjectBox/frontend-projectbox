@@ -5,16 +5,19 @@ import Spinner from "@/components/Spinner";
 import { Project } from "@/models/Project";
 import getProjectById from "@/utils/projects/getProjectById";
 import Image from "next/image";
+import { deobfuscateId} from "@/utils/encodePath";
 
 const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
   const { id } = params; // Get project ID from the route params
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
-
+  
   useEffect(() => {
     const loadProject = async () => {
       try {
-        const projectData = await getProjectById(parseInt(id)); // Fetch project by ID
+        
+        const originalId = deobfuscateId(id); // Deobfuscate the ID
+        const projectData = await getProjectById(originalId); // Fetch project by ID
         setProject(projectData);
       } catch (error) {
         console.error("Error fetching project details:", error);
@@ -117,6 +120,8 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
             <div className="p-4 border rounded-md">
               <p className="space-y-2">
                 <strong className="text-gray-700">Project Description:</strong>{" "}
+              </p>
+              <p className="ml-6 mt-2 text-gray-600">
                 {project.abstractText || "No Description Available"}
               </p>
             </div>
@@ -125,14 +130,14 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
 
         {/* Professors Section */}
         <div className="border-b pb-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Professors</h2>
+          <h2 className="text-xl font-bold text-gray-800 mb-4">Committees</h2>
           <div className="grid grid-cols-2 gap-6">
             <div>
               {renderProfessorsByRole("Advisor", "Advisor")}
               {renderProfessorsByRole("Co Advisor", "Co Advisor")}
             </div>
             <div>
-              {renderProfessorsByRole("Committee", "Committee")}
+              {renderProfessorsByRole("Committee", "Internal Committee")}
               {renderProfessorsByRole("External Committee", "External Committee")}
             </div>
           </div>

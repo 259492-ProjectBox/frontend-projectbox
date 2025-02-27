@@ -48,7 +48,7 @@ const SearchPage: React.FC = () => {
           ],
         });
         setFilteredRecords(results);
-        console.log("Quick search results:", results);
+        // console.log("Quick search results:", results);
       } catch (error) {
         console.error("Error fetching quick search results:", error);
         setFilteredRecords([]);
@@ -98,10 +98,25 @@ const SearchPage: React.FC = () => {
     currentPage * recordsPerPage
   );
 
+  const getSearchModeStyle = () => {
+    switch (searchMode) {
+      case "quick":
+        return "bg-blue-200";
+      case "detail":
+        return "bg-green-200";
+      case "pdf":
+        return "bg-yellow-200";
+      default:
+        return "";
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-stone-100">
-      <div className="w-full max-w-3xl mt-8">
-        <h1 className="text-lg font-semibold mb-2 text-gray-800 text-center">
+      <div className=" max-w-3xl mt-8">
+        <h1
+          className={`text-lg font-semibold mb-2 text-gray-800 text-center ${getSearchModeStyle()}`}
+        >
           {searchMode === "quick"
             ? "Quick Search"
             : searchMode === "detail"

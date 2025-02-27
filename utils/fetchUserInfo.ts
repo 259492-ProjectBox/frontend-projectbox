@@ -17,7 +17,7 @@ export async function fetchUserInfo(): Promise<FetchUserInfoResult> {
         roles: response.data.roles,
         isPlatformAdmin: response.data.isPlatformAdmin, 
       };
-      console.log("Hello is Me", userInfo);
+      // console.log("Hello is Me", userInfo);
       return {
         user: userInfo,
         error: null,
