@@ -11,6 +11,7 @@ import { uploadStudentList } from "@/utils/configprogram/uploadstudentlist";
 import { uploadCreateProject } from "@/utils/configprogram/uploadcreateproject";
 import AccordionSection from "@/components/AccordionSection";
 import ExcelTemplateSection from "@/components/ExcelTemplateSection";
+import axios from "axios";
 
 // Function to convert string to title case
 const toTitleCase = (str: string) => {
@@ -164,8 +165,13 @@ export default function ConfigProgram() {
         alert("File uploaded successfully!");
         setFile(null); // Clear the file input
       } catch (error) {
-        console.error("Error uploading file:", error);
-        alert("Failed to upload file.");
+        if (axios.isAxiosError(error) && error.response) {
+          console.error("Error uploading file:", error.response.data);
+          alert("Failed to upload file: " + error.response.data.error);
+        } else {
+          console.error("Error uploading file:", error);
+          alert("Failed to upload file.");
+        }
       }
     } else {
       console.log("No file selected for upload.");
