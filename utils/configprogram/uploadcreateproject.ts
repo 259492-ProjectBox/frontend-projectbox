@@ -15,6 +15,6 @@ export const uploadCreateProject = async (file: File, programId: number) => {
       },
     }
   );
-
+  
   return response.data;
 };

@@ -17,19 +17,10 @@ import axios from "axios"; // Import axios for making API requests
 import { useRouter } from "next/navigation"; // Import useRouter from next/navigation
 import { getProjectRoles } from "@/utils/createproject/getProjectRoles"; // Import the getProjectRoles function
 import { ProjectRole } from "@/models/ProjectRoles"; // Import the ProjectRole type
+import { ProjectResourceConfig } from "@/models/ProjectResourceConfig";
 
 // Types
-interface ProjectResourceConfig {
-  id: number;
-  icon_name: string;
-  is_active: boolean;
-  program_id: number;
-  resource_type_id: number;
-  title: string;
-  resource_type: {
-    type_name: string;
-  };
-}
+
 
 interface FormConfig {
   [key: string]: boolean | ProjectResourceConfig[];
@@ -298,16 +289,26 @@ const CreateProject: React.FC = () => {
           className="p-4 mb-4 rounded-lg border border-gray-300 bg-white"
         >
           <div className="flex items-center mb-4">
-            {fileConfig.icon_name && (
-              <Image
-                className="w-8 h-8 rounded-full"
-                src="/logo-engcmu/CMU_LOGO_Crop.jpg"
-                alt=""
-                width={32}
-                height={32}
-              />
+            {fileConfig.icon_name ? (
+              <div className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center">
+                <div className="w-7 h-7 flex items-center justify-center">
+                  <Image
+                    src={fileConfig.icon_url || "/IconProjectBox/BlueBox.png"}
+                    alt="icon"
+                    width={32}
+                    height={32}
+                    style={{ objectFit: "contain" }}
+                    className="w-full h-full object-contain"
+                    unoptimized
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                N/A
+              </div>
             )}
-            <h6 className="text-lg font-bold">{fileConfig.title}</h6>
+            <h6 className="text-lg font-bold ml-2">{fileConfig.title}</h6>
           </div>
 
           {fileConfig.resource_type.type_name === "url" ? (

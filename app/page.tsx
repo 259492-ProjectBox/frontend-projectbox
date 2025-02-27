@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { serverGetCookie } from "../utils/helpFunction";
-import ImageCarousel from "@/components/dashboard/ImageCarouselSearch";
+import ImageCarousel from "@/components/dashboard/ImageCarousel";
 
 export default function Home() {
   const cmuURL = process.env.NEXT_PUBLIC_CMU_ENTRAID_URL as string;
@@ -46,35 +46,44 @@ export default function Home() {
         <section className="max-w-6xl px-6 py-16">
           <h2 className="text-4xl font-bold text-center mb-10">Why Use Project Box?</h2>
 
-          {/* Store & Manage */}
-          <div className="flex flex-col md:flex-row items-center mb-12">
-            <div className="md:w-1/2">
-              <h3 className="text-3xl font-semibold mb-3">📦 Store & Manage</h3>
-              <p className="text-gray-300">
-                Securely store and organize your academic & research projects in one place.
-              </p>
-            </div>
-            <div className="md:w-1/2 flex justify-center">
-             
-            </div>
-          </div>
+          {/* Parent Container: Split into Two Columns */}
+<div className="flex flex-col md:flex-row items-start mb-12 gap-12">
+  
+  {/* Left Column: Store & Manage */}
+  <div className="md:w-1/2">
+    <h3 className="text-3xl font-semibold mb-3">📦 Store & Manage</h3>
+    <p className="text-gray-300">
+      Securely store and organize your academic & research projects in one place.
+    </p>
+    <div className="flex justify-center mt-2">
+      <ImageCarousel 
+        images={[
+          { src: "/dashboard/create_project.png", alt: "Create Project", description: "Insert or store new projects." },
+          { src: "/dashboard/manage_staff.png", alt: "Manage Staff", description: "For administrators to add staff (e.g., Advisors, Committee Members, External Committee Members)." },
+          { src: "/dashboard/manage_submission.png", alt: "Manage Submission", description: "Manage the data input form for creating new projects. If a field is not required, it can be disabled to remove the input requirement." },
+        ]} />
+    </div>
+  </div>
 
-          {/* Search Features with ImageCarousel */}
-          <div className="flex flex-col   mb-12">
-            {/* <div className="md:w-1/2 self-start text-left "> */}
-            
-              <h3 className="text-3xl font-semibold mb-3">🔍 Powerful Search</h3>
-              <p className="text-gray-300">
-                Quickly find projects with <strong>advanced search</strong> and filtering options.
-              </p>
-            {/* </div> */}
-            {/* <div className="md:w-1/2 flex justify-center"> */}
-            <div className="flex justify-center mt-8">
+  {/* Right Column: Powerful Search */}
+  <div className="md:w-1/2">
+    <h3 className="text-3xl font-semibold mb-3">🔍 Powerful Search</h3>
+    <p className="text-gray-300">
+      Quickly find projects with <strong>advanced search</strong> and filtering options.
+    </p>
+    <div className="flex justify-center mt-8">
+    <ImageCarousel
+      images={[
+        { src: "/dashboard/quick_search.png", alt: "Quick Search", description: "Quick Search allows you to search using a single input, combining project name, course, student name, and more" },
+        { src: "/dashboard/detail_search.png", alt: "Detail Search", description: "Detail Search provides structured fields for more precise filtering, helping you find projects efficiently" },
+        { src: "/dashboard/pdf_content_search.png", alt: "PDF Content Search", description: "PDF Content Search scans project PDFs to find specific words within the document’s content." },
+      ]}
+    />
 
-              <ImageCarousel  />
-            </div>
-            {/* </div> */}
-          </div>
+    </div>
+  </div>
+
+  </div>
         </section>
 
         {/* Footer */}

@@ -29,6 +29,7 @@ export default function ConfigAdvisorPage() {
   const [lastNameTh, setLastNameTh] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [isActive, setIsActive] = useState<boolean>(true); // State for is_active toggle
 
   // Major selector states
   const [selectedMajor, setSelectedMajor] = useState<number>(0);
@@ -37,6 +38,10 @@ export default function ConfigAdvisorPage() {
   // File upload states
   const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  // Confirmation modal states
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState<boolean>(false);
+  const [advisorToToggle, setAdvisorToToggle] = useState<Advisor | null>(null);
 
   useEffect(() => {
     const fetchOptions = async () => {
@@ -92,6 +97,7 @@ export default function ConfigAdvisorPage() {
       setLastNameEn(advisor.last_name_en);
       setLastNameTh(advisor.last_name_th);
       setEmail(advisor.email);
+      setIsActive(!advisor.is_resigned); // Set isActive based on is_resigned
     } else {
       setPrefixEn("");
       setPrefixTh("");
@@ -100,6 +106,7 @@ export default function ConfigAdvisorPage() {
       setLastNameEn("");
       setLastNameTh("");
       setEmail("");
+      setIsActive(true); // Default to active
     }
 
     setIsModalOpen(true);
@@ -145,6 +152,7 @@ export default function ConfigAdvisorPage() {
           last_name_en: lastNameEn,
           last_name_th: lastNameTh,
           email,
+          is_resigned: !isActive, // Update is_resigned based on isActive
         };
         const updatedEmployee = await putUpdateEmployee(updatedAdvisor);
         setAdvisors((prev) =>
@@ -164,6 +172,7 @@ export default function ConfigAdvisorPage() {
           last_name_th: lastNameTh,
           email,
           program_id: selectedMajor,
+          is_resigned: !isActive, // Set is_resigned based on isActive
         };
         const newAdvisor = await postCreateEmployee(newAdvisorPayload);
         setAdvisors((prev) => [...prev, newAdvisor]);
@@ -173,6 +182,34 @@ export default function ConfigAdvisorPage() {
     } catch (err) {
       console.error("Error saving advisor:", err);
       alert("Failed to save advisor.");
+    }
+  };
+
+  // Handler for confirming toggle action
+  const handleConfirmToggle = async () => {
+    if (advisorToToggle) {
+      console.log("Resigned 1", advisorToToggle);
+
+      const updatedAdvisor = {
+        ...advisorToToggle,
+        is_resigned: true,
+      };
+      console.log("Resigned 2", updatedAdvisor);
+
+      try {
+        const updatedEmployee = await putUpdateEmployee(updatedAdvisor);
+        console.log("Updated employee response:", updatedEmployee);
+        setAdvisors((prev) =>
+          prev.map((advisor) =>
+            advisor.id === advisorToToggle.id ? updatedEmployee : advisor
+          )
+        );
+        setIsConfirmModalOpen(false);
+        setAdvisorToToggle(null);
+      } catch (error) {
+        console.error("Error updating advisor:", error);
+        alert("Failed to update advisor.");
+      }
     }
   };
 
@@ -386,6 +423,23 @@ export default function ConfigAdvisorPage() {
                     />
                     {emailError && <p className="text-red-600 text-sm mt-1">{emailError}</p>}
                   </div>
+
+                  {/* Is Active Toggle */}
+                  <div className="mb-3">
+                    <label className="text-sm text-gray-700 block mb-1">
+                      Active
+                    </label>
+                    <label className="inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="sr-only peer"
+                        checked={isActive}
+                        onChange={() => setIsActive(!isActive)}
+                      />
+                      <div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-white peer-checked:bg-green-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                    </label>
+                  </div>
+
                   <div className="flex justify-end gap-2">
                     <button
                       onClick={() => setIsModalOpen(false)}
@@ -468,6 +522,35 @@ export default function ConfigAdvisorPage() {
               </div>
             )}
 
+            {/* Confirmation Modal for Toggle */}
+            {isConfirmModalOpen && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-sm">
+                  <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                    Confirm Action
+                  </h2>
+                  <p className="text-gray-700 mb-4">
+                    Are you sure you want to set this advisor to inactive?
+                  </p>
+                  <div className="flex justify-end gap-2">
+                    <button
+                      onClick={() => setIsConfirmModalOpen(false)}
+                      className="px-3 py-1 bg-gray-300 text-gray-700 rounded
+                                 hover:bg-gray-400"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleConfirmToggle}
+                      className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                    >
+                      Confirm
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Table of Advisors */}
             {loading ? (
               <Spinner />
@@ -486,7 +569,10 @@ export default function ConfigAdvisorPage() {
                         Email
                       </th>
                       <th scope="col" className="px-3 py-3 text-center w-24">
-                        Action
+                        Edit
+                      </th>
+                      <th scope="col" className="px-3 py-3 text-center w-24">
+                        ISACTIVE
                       </th>
                     </tr>
                   </thead>
@@ -512,6 +598,34 @@ export default function ConfigAdvisorPage() {
                             >
                               Edit
                             </button>
+                          </td>
+                          <td className="px-3 py-4 text-center">
+                            <label className="inline-flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                className="sr-only peer"
+                                checked={!item.is_resigned}
+                                onChange={() => {
+                                  if (!item.is_resigned) {
+                                    setAdvisorToToggle(item);
+                                    setIsConfirmModalOpen(true);
+                                  } else {
+                                    const updatedAdvisor = {
+                                      ...item,
+                                      is_resigned: !item.is_resigned,
+                                    };
+                                    putUpdateEmployee(updatedAdvisor).then(() => {
+                                      setAdvisors((prev) =>
+                                        prev.map((advisor) =>
+                                          advisor.id === item.id ? updatedAdvisor : advisor
+                                        )
+                                      );
+                                    });
+                                  }
+                                }}
+                              />
+                              <div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-white peer-checked:bg-green-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                            </label>
                           </td>
                         </tr>
                       ))
