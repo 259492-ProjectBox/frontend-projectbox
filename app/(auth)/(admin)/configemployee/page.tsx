@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Advisor } from "@/models/Advisor";
 import Spinner from "@/components/Spinner";
 import postCreateEmployee, { uploadStaffFromExcel } from "@/utils/configemployee/postCreateEmployee";
@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { AllProgram } from "@/models/AllPrograms";
 import { getProgramOptions } from "@/utils/programHelpers";
 import ExcelTemplateSection from "@/components/ExcelTemplateSection";
+import { isAxiosError } from "axios";
 
 export default function ConfigAdvisorPage() {
   const [advisors, setAdvisors] = useState<Advisor[]>([]);
@@ -67,7 +68,7 @@ export default function ConfigAdvisorPage() {
   }, [user, selectedMajor]); // Re-fetch when `user` or `selectedMajor` changes
 
   // Fetch advisors by selected major ID
-  const fetchAdvisors = async () => {
+  const fetchAdvisors = useCallback( async () => {
     setLoading(true);
     try {
       const data: Advisor[] = await getEmployeeByProgramId(selectedMajor);
@@ -78,7 +79,7 @@ export default function ConfigAdvisorPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedMajor]);
   
   useEffect(() => {
     fetchAdvisors();
@@ -127,6 +128,10 @@ export default function ConfigAdvisorPage() {
         setSelectedFile(null);
         fetchAdvisors();
       } catch (error) {
+        if(isAxiosError(error)) {
+          alert(error.response?.data.message || "Failed to upload staff from Excel. Please try again.");
+        } else
+        
         alert("Failed to upload staff from Excel. Please try again.");
       }
     }

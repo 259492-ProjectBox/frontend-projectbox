@@ -58,7 +58,7 @@ function Dashboard() {
 
     loadProjects();
     checkPermission();
-  }, [user]);
+  }, [user , shouldShowPriorityView]);
 
   if (loading) return <Spinner />;
 

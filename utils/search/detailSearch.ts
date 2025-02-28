@@ -7,6 +7,8 @@ interface DetailSearchPayload {
     projectTitle: string;
     studentNo: string;
     advisorName: string;
+    academicYear: string;
+    semester: string;
   };
 }
 
@@ -16,16 +18,22 @@ const detailSearchProjects = async ({ searchFields }: DetailSearchPayload): Prom
     const searchInput = [];
 
     fields.push("course.courseNo");
-    searchInput.push(searchFields.courseNo || "");
+    searchInput.push(searchFields.courseNo );
 
     fields.push("titleTH/titleEN");
-    searchInput.push(searchFields.projectTitle || "");
+    searchInput.push(searchFields.projectTitle);
 
     fields.push("members.studentId");
-    searchInput.push(searchFields.studentNo || "");
+    searchInput.push(searchFields.studentNo );
 
     fields.push("staffs.firstNameTH/staffs.lastNameTH/staffs.firstNameEN/staffs.lastNameEN");
-    searchInput.push(searchFields.advisorName || "");
+    searchInput.push(searchFields.advisorName );
+
+    fields.push("academicYear");
+    searchInput.push(searchFields.academicYear );
+
+    fields.push("semester");
+    searchInput.push(searchFields.semester );
 
     const response = await axios.get(
       `https://search-service.kunmhing.me/api/v1/projects/selected-fields`,

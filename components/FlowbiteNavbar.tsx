@@ -3,7 +3,6 @@
 import React from "react";
 import { useAuth } from "@/hooks/useAuth";
 import HamburgerIcon from "@/public/Svg/HamburgerIcon";
-import Image from "next/image";
 
 export default function FlowbiteNavbar({
   toggleSidebar,

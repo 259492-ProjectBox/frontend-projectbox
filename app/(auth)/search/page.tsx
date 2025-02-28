@@ -1,17 +1,22 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import quickSearchProjects from "@/utils/search/quicksearch";
 import detailSearchProjects from "@/utils/search/detailSearch"; // Import detailSearchProjects
 import { Project } from "@/models/Project";
 import ProjectComponent from "@/components/dashboard/ProjectComponent";
 import Spinner from "@/components/Spinner"; // Import Spinner component
 import Pagination from "@/components/Pagination"; // Import Pagination component
+import { AllProgram } from "@/models/AllPrograms";
+import getAllProgram from "@/utils/getAllProgram";
 
 interface SearchFields {
   courseNo: string;
   projectTitle: string;
   studentNo: string;
   advisorName: string;
+  academicYear: string;
+  semester: string;
+  programId: number;
 }
 
 const SearchPage: React.FC = () => {
@@ -22,13 +27,34 @@ const SearchPage: React.FC = () => {
     projectTitle: "",
     studentNo: "",
     advisorName: "",
+    academicYear: "",
+    semester: "",
+    programId: 0,
   });
   const [filteredRecords, setFilteredRecords] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(false); // State for loading
   const [currentPage, setCurrentPage] = useState<number>(1);
   const recordsPerPage = 5;
+  const [programOptions, setProgramOptions] = useState<AllProgram[]>([]); // State for program options
+
+  useEffect(() => {
+    const fetchPrograms = async () => {
+      try {
+        const programs = await getAllProgram(); // Fetch program options
+        setProgramOptions(programs);
+      } catch (error) {
+        console.error("Error fetching program options:", error);
+      }
+    };
+
+    fetchPrograms();
+  }, []);
 
   const handleSearch = async () => {
+    if (!searchTerm.trim()) {
+      alert("Please enter a search term.");
+      return;
+    }
     setLoading(true); // Set loading to true when search starts
     if (searchMode === "quick") {
       try {
@@ -59,13 +85,25 @@ const SearchPage: React.FC = () => {
   };
 
   const handleDetailSearch = async () => {
+    if (
+      !searchFields.courseNo.trim() &&
+      !searchFields.projectTitle.trim() &&
+      !searchFields.studentNo.trim() &&
+      !searchFields.advisorName.trim() &&
+      !searchFields.academicYear.trim() &&
+      !searchFields.semester.trim() &&
+      searchFields.programId === 0
+    ) {
+      alert("Please fill in at least one search field.");
+      return;
+    }
     setLoading(true); // Set loading to true when search starts
     try {
       const results = await detailSearchProjects({ searchFields });
       setFilteredRecords(results);
-      console.log("Detailed search results:", results);
+      console.log("Advanced search results:", results);
     } catch (error) {
-      console.error("Error fetching detailed search results:", error);
+      console.error("Error fetching advanced search results:", error);
       setFilteredRecords([]);
     } finally {
       setLoading(false); // Set loading to false when search ends
@@ -84,6 +122,9 @@ const SearchPage: React.FC = () => {
       projectTitle: "",
       studentNo: "",
       advisorName: "",
+      academicYear: "",
+      semester: "",
+      programId: 0,
     });
     setFilteredRecords([]);
   };
@@ -120,7 +161,7 @@ const SearchPage: React.FC = () => {
           {searchMode === "quick"
             ? "Quick Search"
             : searchMode === "detail"
-            ? "Detailed Search"
+            ? "Advanced Search"
             : "PDF Search"}
         </h1>
         <button
@@ -133,7 +174,7 @@ const SearchPage: React.FC = () => {
       </div>
 
       <div className="w-full max-w-5xl mt-4">
-        {/* DETAILED SEARCH */}
+        {/* ADVANCED SEARCH */}
         {searchMode === "detail" ? (
           <div className="bg-white rounded-lg p-3 shadow mb-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -162,23 +203,75 @@ const SearchPage: React.FC = () => {
                   value: searchFields.advisorName,
                   key: "advisorName",
                 },
-              ].map(({ label, placeholder, value, key }) => (
+                {
+                  label: "Academic Year",
+                  placeholder: "e.g. 2568",
+                  value: searchFields.academicYear,
+                  key: "academicYear",
+                },
+                {
+                  label: "Semester",
+                  placeholder: "Select Semester",
+                  value: searchFields.semester,
+                  key: "semester",
+                  type: "dropdown",
+                  options: [
+                    { value: "", label: "Select Semester" },
+                    { value: "1", label: "1" },
+                    { value: "2", label: "2" },
+                    { value: "3", label: "3 (Summer)" },
+                  ],
+                },
+                {
+                  label: "Program",
+                  placeholder: "Select Program",
+                  value: searchFields.programId,
+                  key: "programId",
+                  type: "dropdown",
+                  options: [
+                    { value: "", label: "Select Program" },
+                    ...programOptions.map((program) => ({
+                      value: program.id,
+                      label: program.program_name_en,
+                    })),
+                  ],
+                },
+              ].map(({ label, placeholder, value, key, type, options }) => (
                 <div key={key} className="mb-2">
                   <label className="block mb-1 text-xs font-medium">
                     {label}
                   </label>
-                  <input
-                    type="text"
-                    placeholder={placeholder}
-                    value={value}
-                    onChange={(e) =>
-                      setSearchFields({
-                        ...searchFields,
-                        [key]: e.target.value,
-                      })
-                    }
-                    className="w-full p-1.5 border border-gray-300 rounded focus:outline-none focus:border-button_focus text-sm"
-                  />
+                  {type === "dropdown" ? (
+                    <select
+                      value={value}
+                      onChange={(e) =>
+                        setSearchFields({
+                          ...searchFields,
+                          [key]: e.target.value,
+                        })
+                      }
+                      className="w-full p-1.5 border border-gray-300 rounded focus:outline-none focus:border-button_focus text-sm"
+                    >
+                      {options?.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      placeholder={placeholder}
+                      value={value}
+                      onChange={(e) =>
+                        setSearchFields({
+                          ...searchFields,
+                          [key]: e.target.value,
+                        })
+                      }
+                      className="w-full p-1.5 border border-gray-300 rounded focus:outline-none focus:border-button_focus text-sm"
+                    />
+                  )}
                 </div>
               ))}
             </div>
