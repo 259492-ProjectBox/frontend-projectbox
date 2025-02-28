@@ -3,7 +3,7 @@ import updateResourceStatus from "@/utils/configform/updateProjectResourceConfig
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Image from "next/image";
-import { ProjectResourceConfig } from "@/models/ProjectRespurceConfig";
+import { ProjectResourceConfig } from "@/models/ProjectResourceConfig";
 
 // API controller for creating a project resource
 const createProjectResource = async (data: {
@@ -62,7 +62,7 @@ const UploadResourceSection: React.FC = () => {
     };
   
     try {
-      await updateResourceStatus(updatedData);
+      await updateResourceStatus(null, updatedData); // Pass null for iconFile
       setTableData((prevData) =>
         prevData.map((dataItem) =>
           dataItem.id === item.id

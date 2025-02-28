@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect, ChangeEvent } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 // Define TypeScript interfaces
 interface ImageData {
@@ -16,21 +16,22 @@ interface ImageCarouselProps {
 
 export default function ImageCarousel({ images }: ImageCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [descriptions, setDescriptions] = useState<string[]>(
-    images.map((img) => img.description)
-  );
+  // const [descriptions, setDescriptions] = useState<string[]>(
+  //   images.map((img) => img.description)
+  // );
 
   // Go to next image
-  const nextSlide = () => {
+  const nextSlide = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % images.length);
-  };
-  // Auto-rotate every 6 seconds
+  }, [images.length]);
+
+  // Auto-rotate every 7 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       nextSlide();
     }, 7000);
     return () => clearInterval(interval);
-  }, [currentIndex ,nextSlide]);
+  }, [nextSlide]);
 
 
   // Go to previous image
