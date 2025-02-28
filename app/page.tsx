@@ -75,7 +75,7 @@ export default function Home() {
     <ImageCarousel
       images={[
         { src: "/dashboard/quick_search.png", alt: "Quick Search", description: "Quick Search allows you to search using a single input, combining project name, course, student name, and more" },
-        { src: "/dashboard/detail_search.png", alt: "Detail Search", description: "Detail Search provides structured fields for more precise filtering, helping you find projects efficiently" },
+        { src: "/dashboard/detail_search.png", alt: "Advance Search", description: "Advance Search provides structured fields for more precise filtering, helping you find projects efficiently" },
         { src: "/dashboard/pdf_content_search.png", alt: "PDF Content Search", description: "PDF Content Search scans project PDFs to find specific words within the document’s content." },
       ]}
     />
