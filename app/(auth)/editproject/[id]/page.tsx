@@ -295,13 +295,16 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
       const formDataToSend = new FormData();
 
       const projectData = {
+        id: parseInt(id, 10),
+        project_no: project?.projectNo, // Include project_no
         title_th: formData.title_th,
         title_en: formData.title_en,
         abstract_text: formData.abstract_text,
         academic_year: parseInt(formData.academicYear as string, 10),
         semester: parseInt(formData.semester as string, 10),
         section_id: formData.section,
-        course_no: formData.courseNo,
+        course_id: project?.course?.id,
+        program_id: project?.program?.id,
         staffs: [
           ...(formData.advisor as { value: number; label: string }[]).map((advisor) => ({
             staff_id: advisor.value,
@@ -323,7 +326,6 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
         members: (formData.student as { value: number; label: string }[]).map((student) => ({
           id: student.value,
         })),
-        // Add other fields as needed
       };
 
       formDataToSend.append("project", JSON.stringify(projectData));
@@ -363,7 +365,7 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
       }
 
       await axios.put(
-        `https://project-service.kunmhing.me/api/v1/projects/${id}`,
+        `https://project-service.kunmhing.me/api/v1/projects`,
         formDataToSend,
         {
           headers: {
