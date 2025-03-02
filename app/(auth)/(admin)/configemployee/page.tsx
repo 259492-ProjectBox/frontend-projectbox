@@ -10,6 +10,7 @@ import { AllProgram } from "@/models/AllPrograms";
 import { getProgramOptions } from "@/utils/programHelpers";
 import ExcelTemplateSection from "@/components/ExcelTemplateSection";
 import { isAxiosError } from "axios";
+import Pagination from "@/components/Pagination"; // Import Pagination component
 
 export default function ConfigAdvisorPage() {
   const [advisors, setAdvisors] = useState<Advisor[]>([]);
@@ -43,6 +44,9 @@ export default function ConfigAdvisorPage() {
   // Confirmation modal states
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState<boolean>(false);
   const [advisorToToggle, setAdvisorToToggle] = useState<Advisor | null>(null);
+
+  const [currentPage, setCurrentPage] = useState<number>(1); // Current page state
+  const itemsPerPage = 10; // Items per page
 
   useEffect(() => {
     const fetchOptions = async () => {
@@ -218,6 +222,19 @@ export default function ConfigAdvisorPage() {
     }
   };
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page); // Set current page
+    window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top
+  };
+
+  // Calculate the current page's advisors
+  const currentAdvisors = advisors
+    ? advisors.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+      )
+    : [];
+
   // Display loading or error states
   if (loading) return <Spinner />;
   if (error) {
@@ -231,9 +248,9 @@ export default function ConfigAdvisorPage() {
   // Main layout
   return (
     <div className="min-h-screen p-6 bg-gray-100">
-      <div className="max-w-6xl mx-auto bg-white rounded-lg shadow p-6">
+      <div className="">
         {/* Container for Program selector */}
-        <div className="mb-5 p-4 rounded-md shadow-sm border border-gray-200 bg-white">
+        <div className="mb-5 p-4 rounded-md  bg-white">
           <label
             htmlFor="majorSelect"
             className="block mb-2 text-sm font-semibold text-gray-700"
@@ -254,20 +271,20 @@ export default function ConfigAdvisorPage() {
             ))  
             }
           </select>
-        <div className="my-8 border border-gray-300 rounded-lg p-4 ">
-          <ExcelTemplateSection title="Roster_Staff_Template" templateUrl="/UploadExample/staff_form.xlsx" />
         </div>
-        </div>
-        {/* Hide content if no program is selected */}
-        {selectedMajor !== 0 && (
-          <>
-            {/* Header + Add Staff Button */}
-            <div className="flex items-center justify-between mb-3">
-              <h1 className="text-lg font-semibold text-gray-800">
-                Config Advisor
-              </h1>
-              <div className="flex gap-2">
-
+      </div>
+      {/* Move ExcelTemplateSection here */}
+      {selectedMajor !== 0 && (
+        <>
+          <div className="my-8  bg-white rounded-lg p-4 shadow-md">
+            <ExcelTemplateSection title="Roster_Staff_Template" templateUrl="/UploadExample/staff_form.xlsx" />
+          </div>
+          {/* Header + Add Staff Button */}
+          <div className="flex items-center justify-between mb-3">
+            <h1 className="text-lg font-semibold text-gray-800">
+              Manage Staff
+            </h1>
+            <div className="flex gap-2">
               <button
                 onClick={() => handleOpenModal()}
                 className="px-4 py-2 bg-primary_button text-white font-medium rounded 
@@ -282,375 +299,378 @@ export default function ConfigAdvisorPage() {
               >
                 Add Staff From Excel
               </button>
-              </div>
             </div>
+          </div>
+          {/* Modal for Add/Edit Advisor */}
+          {isModalOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-sm">
+                <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                  {isEditMode ? "Edit Advisor" : "Add New Advisor"}
+                </h2>
 
-            {/* Modal for Add/Edit Advisor */}
-            {isModalOpen && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-sm">
-                  <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                    {isEditMode ? "Edit Advisor" : "Add New Advisor"}
-                  </h2>
-
-                  {/* English Section */}
-                  <div className="mb-4 p-3 border border-gray-200 rounded">
-                    <h3 className="text-md font-semibold text-gray-700 mb-2">
-                      English
-                    </h3>
-                    <div className="mb-2">
-                      <label
-                        htmlFor="prefixEn"
-                        className="text-sm text-gray-700 block mb-1"
-                      >
-                        Position (EN)
-                      </label>
-                      <input
-                        id="prefixEn"
-                        type="text"
-                        value={prefixEn}
-                        onChange={(e) => setPrefixEn(e.target.value)}
-                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm
-                                   focus:outline-none focus:ring-2 focus:ring-red-900
-                                   focus:border-transparent"
-                      />
-                    </div>
-                    <div className="mb-2">
-                      <label
-                        htmlFor="firstNameEn"
-                        className="text-sm text-gray-700 block mb-1"
-                      >
-                        First Name (EN)
-                      </label>
-                      <input
-                        id="firstNameEn"
-                        type="text"
-                        value={firstNameEn}
-                        onChange={(e) => setFirstNameEn(e.target.value)}
-                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm
-                                   focus:outline-none focus:ring-2 focus:ring-button_primary
-                                   focus:border-transparent"
-                      />
-                    </div>
-                    <div className="mb-2">
-                      <label
-                        htmlFor="lastNameEn"
-                        className="text-sm text-gray-700 block mb-1"
-                      >
-                        Last Name (EN)
-                      </label>
-                      <input
-                        id="lastNameEn"
-                        type="text"
-                        value={lastNameEn}
-                        onChange={(e) => setLastNameEn(e.target.value)}
-                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm
-                                   focus:outline-none focus:ring-2 focus:ring-button_focus
-                                   focus:border-transparent"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Thai Section */}
-                  <div className="mb-4 p-3 border border-gray-200 rounded">
-                    <h3 className="text-md font-semibold text-gray-700 mb-2">
-                      Thai
-                    </h3>
-                    <div className="mb-2">
-                      <label
-                        htmlFor="prefixTh"
-                        className="text-sm text-gray-700 block mb-1"
-                      >
-                        ตำแหน่ง (TH)
-                      </label>
-                      <input
-                        id="prefixTh"
-                        type="text"
-                        value={prefixTh}
-                        onChange={(e) => setPrefixTh(e.target.value)}
-                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm
-                                   focus:outline-none focus:ring-2 focus:ring-red-900
-                                   focus:border-transparent"
-                      />
-                    </div>
-                    <div className="mb-2">
-                      <label
-                        htmlFor="firstNameTh"
-                        className="text-sm text-gray-700 block mb-1"
-                      >
-                        ชื่อจริง (TH)
-                      </label>
-                      <input
-                        id="firstNameTh"
-                        type="text"
-                        value={firstNameTh}
-                        onChange={(e) => setFirstNameTh(e.target.value)}
-                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm
-                                   focus:outline-none focus:ring-2 focus:ring-button_primary
-                                   focus:border-transparent"
-                      />
-                    </div>
-                    <div className="mb-2">
-                      <label
-                        htmlFor="lastNameTh"
-                        className="text-sm text-gray-700 block mb-1"
-                      >
-                        นามสกุล (TH)
-                      </label>
-                      <input
-                        id="lastNameTh"
-                        type="text"
-                        value={lastNameTh}
-                        onChange={(e) => setLastNameTh(e.target.value)}
-                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm
-                                   focus:outline-none focus:ring-2 focus:ring-button_focus
-                                   focus:border-transparent"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Email Section */}
-                  <div className="mb-3">
+                {/* English Section */}
+                <div className="mb-4 p-3 border border-gray-200 rounded">
+                  <h3 className="text-md font-semibold text-gray-700 mb-2">
+                    English
+                  </h3>
+                  <div className="mb-2">
                     <label
-                      htmlFor="email"
+                      htmlFor="prefixEn"
                       className="text-sm text-gray-700 block mb-1"
                     >
-                      Email
+                      Position (EN)
                     </label>
                     <input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      id="prefixEn"
+                      type="text"
+                      value={prefixEn}
+                      onChange={(e) => setPrefixEn(e.target.value)}
+                      className="w-full px-2 py-1 border border-gray-300 rounded text-sm
+                                 focus:outline-none focus:ring-2 focus:ring-red-900
+                                 focus:border-transparent"
+                    />
+                  </div>
+                  <div className="mb-2">
+                    <label
+                      htmlFor="firstNameEn"
+                      className="text-sm text-gray-700 block mb-1"
+                    >
+                      First Name (EN)
+                    </label>
+                    <input
+                      id="firstNameEn"
+                      type="text"
+                      value={firstNameEn}
+                      onChange={(e) => setFirstNameEn(e.target.value)}
+                      className="w-full px-2 py-1 border border-gray-300 rounded text-sm
+                                 focus:outline-none focus:ring-2 focus:ring-button_primary
+                                 focus:border-transparent"
+                    />
+                  </div>
+                  <div className="mb-2">
+                    <label
+                      htmlFor="lastNameEn"
+                      className="text-sm text-gray-700 block mb-1"
+                    >
+                      Last Name (EN)
+                    </label>
+                    <input
+                      id="lastNameEn"
+                      type="text"
+                      value={lastNameEn}
+                      onChange={(e) => setLastNameEn(e.target.value)}
                       className="w-full px-2 py-1 border border-gray-300 rounded text-sm
                                  focus:outline-none focus:ring-2 focus:ring-button_focus
                                  focus:border-transparent"
                     />
-                    {emailError && <p className="text-red-600 text-sm mt-1">{emailError}</p>}
-                  </div>
-
-                  {/* Is Active Toggle */}
-                  <div className="mb-3">
-                    <label className="text-sm text-gray-700 block mb-1">
-                      Active
-                    </label>
-                    <label className="inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="sr-only peer"
-                        checked={isActive}
-                        onChange={() => setIsActive(!isActive)}
-                      />
-                      <div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-white peer-checked:bg-green-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                    </label>
-                  </div>
-
-                  <div className="flex justify-end gap-2">
-                    <button
-                      onClick={() => setIsModalOpen(false)}
-                      className="px-3 py-1 bg-gray-300 text-gray-700 rounded
-                                 hover:bg-gray-400"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleSaveAdvisor}
-                      className="px-3 py-1 bg-primary_button text-white rounded hover:bg-button_hover"
-                    >
-                      Save
-                    </button>
                   </div>
                 </div>
-              </div>
-            )}
 
-            {/* Modal for Uploading Staff File */}
-            {isUploadModalOpen && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-sm">
-                  <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                    Upload Staff File
-                  </h2>
-                  <label
-                    htmlFor="dropzone-file"
-                    className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
-                  >
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <svg
-                        className="w-8 h-8 mb-4 text-gray-500"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 20 16"
-                      >
-                        <path
-                          stroke="currentColor"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                        />
-                      </svg>
-                      <p className="mb-2 text-sm text-gray-500">
-                        <span className="font-semibold">Click to upload</span> or drag and drop
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        .xlsx file only (MAX. 800 KB)
-                      </p>
-                    </div>
+                {/* Thai Section */}
+                <div className="mb-4 p-3 border border-gray-200 rounded">
+                  <h3 className="text-md font-semibold text-gray-700 mb-2">
+                    Thai
+                  </h3>
+                  <div className="mb-2">
+                    <label
+                      htmlFor="prefixTh"
+                      className="text-sm text-gray-700 block mb-1"
+                    >
+                      ตำแหน่ง (TH)
+                    </label>
                     <input
-                      id="dropzone-file"
-                      type="file"
-                      className="hidden"
-                      onChange={handleFileChange}
+                      id="prefixTh"
+                      type="text"
+                      value={prefixTh}
+                      onChange={(e) => setPrefixTh(e.target.value)}
+                      className="w-full px-2 py-1 border border-gray-300 rounded text-sm
+                                 focus:outline-none focus:ring-2 focus:ring-red-900
+                                 focus:border-transparent"
                     />
+                  </div>
+                  <div className="mb-2">
+                    <label
+                      htmlFor="firstNameTh"
+                      className="text-sm text-gray-700 block mb-1"
+                    >
+                      ชื่อจริง (TH)
+                    </label>
+                    <input
+                      id="firstNameTh"
+                      type="text"
+                      value={firstNameTh}
+                      onChange={(e) => setFirstNameTh(e.target.value)}
+                      className="w-full px-2 py-1 border border-gray-300 rounded text-sm
+                                 focus:outline-none focus:ring-2 focus:ring-button_primary
+                                 focus:border-transparent"
+                    />
+                  </div>
+                  <div className="mb-2">
+                    <label
+                      htmlFor="lastNameTh"
+                      className="text-sm text-gray-700 block mb-1"
+                    >
+                      นามสกุล (TH)
+                    </label>
+                    <input
+                      id="lastNameTh"
+                      type="text"
+                      value={lastNameTh}
+                      onChange={(e) => setLastNameTh(e.target.value)}
+                      className="w-full px-2 py-1 border border-gray-300 rounded text-sm
+                                 focus:outline-none focus:ring-2 focus:ring-button_focus
+                                 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                {/* Email Section */}
+                <div className="mb-3">
+                  <label
+                    htmlFor="email"
+                    className="text-sm text-gray-700 block mb-1"
+                  >
+                    Email
                   </label>
-                  {selectedFile && (
-                    <p className="mt-2 text-sm text-gray-500">Selected file: {selectedFile.name}</p>
-                  )}
-                  <div className="flex justify-end gap-2 mt-4">
-                    <button
-                      onClick={() => setIsUploadModalOpen(false)}
-                      className="px-3 py-1 bg-gray-300 text-gray-700 rounded
-                                 hover:bg-gray-400"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleUpLoadStaffFile}
-                      className="px-3 py-1 bg-primary_button text-white rounded hover:bg-button_hover"
-                    >
-                      Upload
-                    </button>
-                  </div>
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm
+                               focus:outline-none focus:ring-2 focus:ring-button_focus
+                               focus:border-transparent"
+                  />
+                  {emailError && <p className="text-red-600 text-sm mt-1">{emailError}</p>}
+                </div>
+
+                {/* Is Active Toggle */}
+                <div className="mb-3">
+                  <label className="text-sm text-gray-700 block mb-1">
+                    Active
+                  </label>
+                  <label className="inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={isActive}
+                      onChange={() => setIsActive(!isActive)}
+                    />
+                    <div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-white peer-checked:bg-green-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                  </label>
+                </div>
+
+                <div className="flex justify-end gap-2">
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="px-3 py-1 bg-gray-300 text-gray-700 rounded
+                               hover:bg-gray-400"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveAdvisor}
+                    className="px-3 py-1 bg-primary_button text-white rounded hover:bg-button_hover"
+                  >
+                    Save
+                  </button>
                 </div>
               </div>
-            )}
+            </div>
+          )}
 
-            {/* Confirmation Modal for Toggle */}
-            {isConfirmModalOpen && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-sm">
-                  <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                    Confirm Action
-                  </h2>
-                  <p className="text-gray-700 mb-4">
-                    Are you sure you want to set this advisor to inactive?
-                  </p>
-                  <div className="flex justify-end gap-2">
-                    <button
-                      onClick={() => setIsConfirmModalOpen(false)}
-                      className="px-3 py-1 bg-gray-300 text-gray-700 rounded
-                                 hover:bg-gray-400"
+          {/* Modal for Uploading Staff File */}
+          {isUploadModalOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-sm">
+                <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                  Upload Staff File
+                </h2>
+                <label
+                  htmlFor="dropzone-file"
+                  className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                >
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg
+                      className="w-8 h-8 mb-4 text-gray-500"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 20 16"
                     >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleConfirmToggle}
-                      className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                    >
-                      Confirm
-                    </button>
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                      />
+                    </svg>
+                    <p className="mb-2 text-sm text-gray-500">
+                      <span className="font-semibold">Click to upload</span> or drag and drop
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      .xlsx file only (MAX. 800 KB)
+                    </p>
                   </div>
+                  <input
+                    id="dropzone-file"
+                    type="file"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                </label>
+                {selectedFile && (
+                  <p className="mt-2 text-sm text-gray-500">Selected file: {selectedFile.name}</p>
+                )}
+                <div className="flex justify-end gap-2 mt-4">
+                  <button
+                    onClick={() => setIsUploadModalOpen(false)}
+                    className="px-3 py-1 bg-gray-300 text-gray-700 rounded
+                               hover:bg-gray-400"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleUpLoadStaffFile}
+                    className="px-3 py-1 bg-primary_button text-white rounded hover:bg-button_hover"
+                  >
+                    Upload
+                  </button>
                 </div>
               </div>
-            )}
+            </div>
+          )}
 
-            {/* Table of Advisors */}
-            {loading ? (
-              <Spinner />
-            ) : (
-              <div className="relative overflow-x-auto shadow-md sm:rounded-lg mt-6">
-                <table className="w-full text-sm text-left text-gray-500">
-                  <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                    <tr>
-                      <th scope="col" className="px-6 py-3">
-                        ID
-                      </th>
-                      <th scope="col" className="px-6 py-3">
-                        Name
-                      </th>
-                      <th scope="col" className="px-6 py-3">
-                        Email
-                      </th>
-                      <th scope="col" className="px-3 py-3 text-center w-24">
-                        Edit
-                      </th>
-                      <th scope="col" className="px-3 py-3 text-center w-24">
-                        ISACTIVE
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {advisors && advisors.length > 0 ? (
-                      advisors.map((item , index) => (
-                        <tr
-                          key={item.id}
-                          className="bg-white border-b hover:bg-gray-50"
-                        >
-                          <td className="px-6 py-4 font-medium text-gray-900">
-                            {index + 1} 
-                          </td>
-                          <td className="px-6 py-4 font-medium text-gray-900">
-                            {item.prefix_en} {item.first_name_en}{" "}
-                            {item.last_name_en}
-                          </td>
-                          <td className="px-6 py-4">{item.email}</td>
-                          <td className="px-3 py-4 text-center">
-                            <button
-                              onClick={() => handleOpenModal(item)}
-                              className="text-blue-600 hover:underline"
-                            >
-                              Edit
-                            </button>
-                          </td>
-                          <td className="px-3 py-4 text-center">
-                            <label className="inline-flex items-center cursor-pointer">
-                              <input
-                                type="checkbox"
-                                className="sr-only peer"
-                                checked={!item.is_resigned}
-                                onChange={() => {
-                                  if (!item.is_resigned) {
-                                    setAdvisorToToggle(item);
-                                    setIsConfirmModalOpen(true);
-                                  } else {
-                                    const updatedAdvisor = {
-                                      ...item,
-                                      is_resigned: !item.is_resigned,
-                                    };
-                                    putUpdateEmployee(updatedAdvisor).then(() => {
-                                      setAdvisors((prev) =>
-                                        prev.map((advisor) =>
-                                          advisor.id === item.id ? updatedAdvisor : advisor
-                                        )
-                                      );
-                                    });
-                                  }
-                                }}
-                              />
-                              <div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-white peer-checked:bg-green-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                            </label>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td
-                          colSpan={4}
-                          className="px-6 py-4 text-center text-gray-500"
-                        >
-                          No Data
+          {/* Confirmation Modal for Toggle */}
+          {isConfirmModalOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-sm">
+                <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                  Confirm Action
+                </h2>
+                <p className="text-gray-700 mb-4">
+                  Are you sure you want to set this advisor to inactive?
+                </p>
+                <div className="flex justify-end gap-2">
+                  <button
+                    onClick={() => setIsConfirmModalOpen(false)}
+                    className="px-3 py-1 bg-gray-300 text-gray-700 rounded
+                               hover:bg-gray-400"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleConfirmToggle}
+                    className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                  >
+                    Confirm
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Table of Advisors */}
+          {loading ? (
+            <Spinner />
+          ) : (
+            <div className="relative overflow-x-auto shadow-md sm:rounded-lg mt-6">
+              <table className="w-full text-sm text-left text-gray-500">
+                <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                  <tr>
+                    <th scope="col" className="px-6 py-3">
+                      ID
+                    </th>
+                    <th scope="col" className="px-6 py-3">
+                      Name
+                    </th>
+                    <th scope="col" className="px-6 py-3">
+                      Email
+                    </th>
+                    <th scope="col" className="px-3 py-3 text-center w-24">
+                      Edit
+                    </th>
+                    <th scope="col" className="px-3 py-3 text-center w-24">
+                      ISACTIVE
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentAdvisors && currentAdvisors.length > 0 ? (
+                    currentAdvisors.map((item, index) => (
+                      <tr
+                        key={item.id}
+                        className="bg-white border-b hover:bg-gray-50"
+                      >
+                        <td className="px-6 py-4 font-medium text-gray-900">
+                          {index + 1 + (currentPage - 1) * itemsPerPage}
+                        </td>
+                        <td className="px-6 py-4 font-medium text-gray-900">
+                          {item.prefix_en} {item.first_name_en}{" "}
+                          {item.last_name_en}
+                        </td>
+                        <td className="px-6 py-4">{item.email}</td>
+                        <td className="px-3 py-4 text-center">
+                          <button
+                            onClick={() => handleOpenModal(item)}
+                            className="text-blue-600 hover:underline"
+                          >
+                            Edit
+                          </button>
+                        </td>
+                        <td className="px-3 py-4 text-center">
+                          <label className="inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              className="sr-only peer"
+                              checked={!item.is_resigned}
+                              onChange={() => {
+                                if (!item.is_resigned) {
+                                  setAdvisorToToggle(item);
+                                  setIsConfirmModalOpen(true);
+                                } else {
+                                  const updatedAdvisor = {
+                                    ...item,
+                                    is_resigned: !item.is_resigned,
+                                  };
+                                  putUpdateEmployee(updatedAdvisor).then(() => {
+                                    setAdvisors((prev) =>
+                                      prev.map((advisor) =>
+                                        advisor.id === item.id ? updatedAdvisor : advisor
+                                      )
+                                    );
+                                  });
+                                }
+                              }}
+                            />
+                            <div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-white peer-checked:bg-green-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                          </label>
                         </td>
                       </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </>
-        )}
-      </div>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan={4}
+                        className="px-6 py-4 text-center text-gray-500"
+                      >
+                        No Data
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={advisors ? Math.ceil(advisors.length / itemsPerPage) : 0}
+                onPageChange={handlePageChange}
+              />
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

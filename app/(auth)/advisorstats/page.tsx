@@ -20,7 +20,7 @@ export default function AdvisorStatsPage() {
   const [majorList, setMajorList] = useState<AllProgram[]>([]); // Store major list
   const [selectedMajor, setSelectedMajor] = useState<number>(0); // Default to 0 for "Select Major"
   const [currentPage, setCurrentPage] = useState<number>(1); // Current page state
-  const itemsPerPage = 5; // Items per page
+  const itemsPerPage = 10; // Items per page
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);

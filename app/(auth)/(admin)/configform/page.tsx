@@ -222,9 +222,9 @@ const ConfigSubmission: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-stone-100 py-6">
-      <div className="container mx-auto max-w-5xl">
+      <div className="container mx-auto max-w-6xl">
         {/* Major Selector Container */}
-        <div className="mb-5 p-4 rounded-md shadow-sm border border-gray-200 bg-white">
+        <div className="mb-5 p-4 rounded-md bg-white">
           <label
             htmlFor="majorSelect"
             className="block mb-2 text-sm font-semibold text-gray-700"

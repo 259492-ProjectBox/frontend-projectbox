@@ -11,6 +11,7 @@ import ProjectComponent from "@/components/dashboard/ProjectComponent"; // Impor
 import Pagination from "@/components/Pagination"; // Import Pagination component
 import { getProgramName } from "@/utils/programHelpers";
 import { deobfuscateId } from "@/utils/encodePath";
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 
 export default function AdvisorProfilePage() {
   const params = useParams();
@@ -99,24 +100,24 @@ export default function AdvisorProfilePage() {
     <div className="min-h-screen p-6 bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 ">
       
       <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden">
-      <div className=" flex items-start">
-        <button
-          onClick={handleGoBack}
-          className="bg-primary_button text-white py-2 px-4 rounded hover:bg-button_hover"
-        >
-          Go Back
-        </button>
-      </div>
         {/* Advisor Details Section */}
         <section className="bg-gray-800 text-white p-6">
           {/* <h1 className="text-2xl font-bold">Advisor Profile</h1> */}
           {advisor ? (
-            <div className="mt-4 space-y-2">
-              <p className="text-lg font-semibold">
-                {advisor.prefix_en} {advisor.first_name_en} {advisor.last_name_en}
-                <br />
-                {advisor.prefix_th} {advisor.first_name_th} {advisor.last_name_th}
-              </p>
+            <div className="space-y-2">
+              <div className="flex items-center text-white ">
+                <button
+                  onClick={handleGoBack}
+                  className="text-white rounded flex items-center"
+                >
+                  <ArrowBackIosNewIcon className="mr-2" />
+                </button>
+                <p className="text-lg font-semibold ml-4">
+                  {advisor.prefix_en} {advisor.first_name_en} {advisor.last_name_en}
+                  <br />
+                  {advisor.prefix_th} {advisor.first_name_th} {advisor.last_name_th}
+                </p>
+              </div>
               <p className="text-sm">
                 <span className="font-medium">Email:</span> {advisor.email}
               </p>
