@@ -13,7 +13,7 @@ export default function Home() {
     <>
       <div className="min-h-screen w-full flex flex-col items-center bg-gray-900 text-white">
         {/* Hero Section */}
-        <header className="w-full text-center py-16 px-6 bg-gradient-to-r from-purple-600 to-pink-500">
+        <header className="w-full text-center py-16 px-6 bg-gradient-to-r from-blue-400 to-sky-900">
           <div className="max-w-4xl mx-auto">
             <Image
               src="/logo-engcmu/cmu_eng.png"
@@ -34,7 +34,7 @@ export default function Home() {
                 </button>
               </a>
               <a href="/search" className="w-full sm:w-auto">
-                <button className="bg-teal-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-teal-600 transition w-full sm:w-auto">
+                <button className="bg-blue-900 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-blue-700 transition w-full sm:w-auto">
                   Search Projects
                 </button>
               </a>
