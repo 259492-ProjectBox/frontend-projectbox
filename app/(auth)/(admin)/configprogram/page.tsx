@@ -9,13 +9,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { updateConfigProgram } from "@/utils/configprogram/putConfigProgram";
 import { uploadStudentList } from "@/utils/configprogram/uploadstudentlist";
 import { uploadCreateProject } from "@/utils/configprogram/uploadcreateproject";
-import AccordionSection from "@/components/AccordionSection";
 import ExcelTemplateSection from "@/components/ExcelTemplateSection";
 import axios from "axios";
 
 // Function to convert string to title case
 const toTitleCase = (str: string) => {
-  return str.replace(/\b\w/g, char => char.toUpperCase());
+  return str.replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
 export default function ConfigProgram() {
@@ -33,86 +32,93 @@ export default function ConfigProgram() {
   // File Upload state
   const [file, setFile] = useState<File | null>(null);
 
-  const {user} = useAuth();
+  const { user } = useAuth();
   const [selectedMajor, setSelectedMajor] = useState<number>(0);
   const [options, setOptions] = useState<AllProgram[]>([]);
-  
-  useEffect(() => {
-      const fetchOptions = async () => {
-        if (!user) return;
-        setLoading(true);
-        try {
-          const programOptions = await getProgramOptions(user.isAdmin);
-          setOptions(programOptions);
-  
-          // Ensure selectedMajor is in options; otherwise, reset to default (0)
-          if (!programOptions.some((option) => option.id === selectedMajor)) {
-            setSelectedMajor(0);
-          }
-        } catch (err) {
-          console.error("Error fetching program options:", err);
-          setError("Failed to load program options.");
-        } finally {
-          setLoading(false);
-        }
-      };
-  
-      fetchOptions();
-    }, [user, selectedMajor]); // Re-fetch when `user` or `selectedMajor` changes
-  
-    
-    // Fetch configuration data for selected program
-    const [configData, setConfigData] = useState<ConfigProgramSetting[]>([]);
-    useEffect(() => {
-      if (selectedMajor === 0) return; // Skip if no program is selected
-  
-      const loadData = async () => {
-        setLoading(true);
-        try {
-          const data = await getConfigProgram(selectedMajor);
-          console.log("Data Config:", data);
-          
-          if (!Array.isArray(data)) {
-            throw new Error("Unexpected response format");
-          }
-          setConfigData(data);
 
-          // Set semester and academic year from fetched data
-          const semesterConfig = data.find(item => item.config_name === "semester");
-          const academicYearConfig = data.find(item => item.config_name === "academic year");
-          if (semesterConfig) setSemester(semesterConfig.value);
-          if (academicYearConfig) setAcademicYear(academicYearConfig.value);
-        } catch (err) {
-          console.error("Error fetching config:", err);
-          setError("Failed to load configurations.");
-        } finally {
-          setLoading(false);
+  useEffect(() => {
+    const fetchOptions = async () => {
+      if (!user) return;
+      setLoading(true);
+      try {
+        const programOptions = await getProgramOptions(user.isAdmin);
+        setOptions(programOptions);
+
+        // Ensure selectedMajor is in options; otherwise, reset to default (0)
+        if (!programOptions.some((option) => option.id === selectedMajor)) {
+          setSelectedMajor(0);
         }
-      };
-  
-      loadData();
-    }, [selectedMajor]);
-    
+      } catch (err) {
+        console.error("Error fetching program options:", err);
+        setError("Failed to load program options.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOptions();
+  }, [user, selectedMajor]); // Re-fetch when `user` or `selectedMajor` changes
+
+  // Fetch configuration data for selected program
+  const [configData, setConfigData] = useState<ConfigProgramSetting[]>([]);
+  useEffect(() => {
+    if (selectedMajor === 0) return; // Skip if no program is selected
+
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const data = await getConfigProgram(selectedMajor);
+        console.log("Data Config:", data);
+
+        if (!Array.isArray(data)) {
+          throw new Error("Unexpected response format");
+        }
+        setConfigData(data);
+
+        // Set semester and academic year from fetched data
+        const semesterConfig = data.find(
+          (item) => item.config_name === "semester"
+        );
+        const academicYearConfig = data.find(
+          (item) => item.config_name === "academic year"
+        );
+        if (semesterConfig) setSemester(semesterConfig.value);
+        if (academicYearConfig) setAcademicYear(academicYearConfig.value);
+      } catch (err) {
+        console.error("Error fetching config:", err);
+        setError("Failed to load configurations.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [selectedMajor]);
+
   // Handler for saving changes in edit mode
   const handleSave = async () => {
     try {
-      const academicYearConfig = configData.find(item => item.config_name === "academic year");
-      const semesterConfig = configData.find(item => item.config_name === "semester");
-  
+      const academicYearConfig = configData.find(
+        (item) => item.config_name === "academic year"
+      );
+      const semesterConfig = configData.find(
+        (item) => item.config_name === "semester"
+      );
+
       if (academicYearConfig) {
         await updateConfigProgram({
           ...academicYearConfig,
-          value: academicYear
+          value: academicYear,
         });
       }
-  
+
       if (semesterConfig) {
         await updateConfigProgram({
           ...semesterConfig,
-          value: semester
+          value: semester,
         });
       }
-  
+
       // console.log("Saved values - Academic Year:", academicYear, "Semester:", semester);
       alert("Update successful!");
       setIsEditMode(false); // Turn off edit mode
@@ -127,13 +133,16 @@ export default function ConfigProgram() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const selectedFile = e.target.files[0];
-      const allowedTypes = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel"];
-  
+      const allowedTypes = [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/vnd.ms-excel",
+      ];
+
       if (!allowedTypes.includes(selectedFile.type)) {
         alert("Please upload an Excel file.");
         return;
       }
-  
+
       setFile(selectedFile);
     }
   };
@@ -193,11 +202,9 @@ export default function ConfigProgram() {
     );
   }
 
-  
   return (
     <div className="min-h-screen p-6 bg-gray-100">
       <div className="max-w-6xl mx-auto bg-white rounded-lg shadow p-6">
-
         {/* Program Selector */}
         <div className="mb-5 p-4 rounded-md shadow-sm border border-gray-200 bg-white">
           <label
@@ -213,8 +220,7 @@ export default function ConfigProgram() {
             className="w-full px-3 py-2 text-sm border border-gray-300 rounded
                        focus:outline-none focus:ring-2 focus:ring-red-900"
           >
-           {options.map((option) => (
-              
+            {options.map((option) => (
               <option key={option.id} value={option.id}>
                 {option.program_name_en}
               </option>
@@ -224,13 +230,18 @@ export default function ConfigProgram() {
 
         {/* Hide content if no program is selected */}
         {selectedMajor !== 0 && (
-          <>
+          <div>
             {/* Config Data Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
               {configData.length > 0 ? (
                 configData.map((item: ConfigProgramSetting, index) => (
-                  <div key={index} className="bg-white p-4 rounded-lg shadow-md">
-                    <h2 className="text-gray-800 font-semibold">{toTitleCase(item.config_name)}</h2>
+                  <div
+                    key={index}
+                    className="bg-white p-4 rounded-lg shadow-md"
+                  >
+                    <h2 className="text-gray-800 font-semibold">
+                      {toTitleCase(item.config_name)}
+                    </h2>
 
                     {/* Toggling read-only vs. edit mode for specific items */}
                     {item.config_name === "semester" ? (
@@ -293,136 +304,128 @@ export default function ConfigProgram() {
             {/* Space added between the sections */}
             <div className="my-8" />
 
-            {/* File Upload Section */}
-            <AccordionSection
-              id="1"
-              title="Upload Excel for Allow Students in this Semester can create Project
-"
-              isOpen={isAccordionOpen1}
-              onToggle={() => setIsAccordionOpen1(!isAccordionOpen1)}
-            >
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                Allow Students in this Semester can create Project
-              </h3>
-                <div className="my-2 border border-gray-300 rounded-lg p-4">
-                <ExcelTemplateSection
-                title="Roster_Student_Template"
-                templateUrl="/UploadExample/studentlist_261492-267.xlsx"
-                />
-                </div>
-              <label
-                htmlFor="dropzone-file"
-                className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
-              >
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <svg
-                    className="w-8 h-8 mb-4 text-gray-500"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 20 16"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                    />
-                  </svg>
-                  <p className="mb-2 text-sm text-gray-500">
-                    <span className="font-semibold">Click to upload</span> or drag and drop
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* File Upload Section 1 */}
+              <div className="border border-gray-300 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                  Upload Student
+                </h3>
+                  <ExcelTemplateSection
+                    title="Roster_Student_Template"
+                    templateUrl="/UploadExample/studentlist_261492-267.xlsx"
+                  />
+                <label
+                  htmlFor="dropzone-file"
+                  className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                >
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg
+                      className="w-8 h-8 mb-4 text-gray-500"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 20 16"
+                    >
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                      />
+                    </svg>
+                    <p className="mb-2 text-sm text-gray-500">
+                      <span className="font-semibold">Click to upload</span> or
+                      drag and drop
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      .xlsx file only (MAX. 800 KB)
+                    </p>
+                  </div>
+                  <input
+                    id="dropzone-file"
+                    type="file"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                </label>
+                {file && (
+                  <p className="mt-2 text-gray-600">
+                    Selected File: {file.name}
                   </p>
-                  <p className="text-xs text-gray-500">
-                    .xlsx file only (MAX. 800 KB)
-                  </p>
-                </div>
-                <input
-                  id="dropzone-file"
-                  type="file"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-              </label>
-              {file && (
-                <p className="mt-2 text-gray-600">Selected File: {file.name}</p>
-              )}
+                )}
 
-              {/* Save Upload Button */}
-              <button
-                onClick={handleSaveUpload}
-                className="mt-4 text-white bg-blue-900 py-2 px-4 rounded-lg 
-                           hover:bg-blue-800 transition-colors"
-              >
-                Save Upload
-              </button>
-              
-            </AccordionSection>
-
-            <AccordionSection
-              id="2"
-              title="Upload Excel for Create Existing Project"
-              isOpen={isAccordionOpen2}
-              onToggle={() => setIsAccordionOpen2(!isAccordionOpen2)}
-            >
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                Create Existing Project
-              </h3>
-              <div className="my-2 border border-gray-300 rounded-lg p-4">
-              <ExcelTemplateSection
-                title="Roster_Project_Template"
-                templateUrl="/UploadExample/projectcreate.xlsx"
-              />
+                {/* Save Upload Button */}
+                <button
+                  onClick={handleSaveUpload}
+                  className="mt-4 text-white bg-blue-900 py-2 px-4 rounded-lg 
+                 hover:bg-blue-800 transition-colors"
+                >
+                  Save Upload
+                </button>
               </div>
-              <label
-                htmlFor="dropzone-file-existing"
-                className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
-              >
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <svg
-                    className="w-8 h-8 mb-4 text-gray-500"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 20 16"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                    />
-                  </svg>
-                  <p className="mb-2 text-sm text-gray-500">
-                    <span className="font-semibold">Click to upload</span> or drag and drop
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    .xlsx file only (MAX. 800 KB)
-                  </p>
-                </div>
-                <input
-                  id="dropzone-file-existing"
-                  type="file"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-              </label>
-              {file && (
-                <p className="mt-2 text-gray-600">Selected File: {file.name}</p>
-              )}
 
-              {/* Save Upload Button */}
-              <button
-                onClick={handleSaveProjectUpload}
-                className="mt-4 text-white bg-blue-900 py-2 px-4 rounded-lg 
-                           hover:bg-blue-800 transition-colors"
-              >
-                Save Upload
-              </button>
-              
-            </AccordionSection>
-          </>
+              {/* File Upload Section 2 */}
+              <div className="border border-gray-300 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                  Upload Project
+                </h3>
+                  <ExcelTemplateSection
+                    title="Roster_Project_Template"
+                    templateUrl="/UploadExample/projectcreate.xlsx"
+                  />
+                <label
+                  htmlFor="dropzone-file-existing"
+                  className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                >
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg
+                      className="w-8 h-8 mb-4 text-gray-500"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 20 16"
+                    >
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                      />
+                    </svg>
+                    <p className="mb-2 text-sm text-gray-500">
+                      <span className="font-semibold">Click to upload</span> or
+                      drag and drop
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      .xlsx file only (MAX. 800 KB)
+                    </p>
+                  </div>
+                  <input
+                    id="dropzone-file-existing"
+                    type="file"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                </label>
+                {file && (
+                  <p className="mt-2 text-gray-600">
+                    Selected File: {file.name}
+                  </p>
+                )}
+
+                {/* Save Upload Button */}
+                <button
+                  onClick={handleSaveProjectUpload}
+                  className="mt-4 text-white bg-blue-900 py-2 px-4 rounded-lg 
+                 hover:bg-blue-800 transition-colors"
+                >
+                  Save Upload
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
 
