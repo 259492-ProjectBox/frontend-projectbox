@@ -10,6 +10,7 @@ import { AllProgram } from "@/models/AllPrograms";
 import { getProgramOptions } from "@/utils/programHelpers";
 import ExcelTemplateSection from "@/components/ExcelTemplateSection";
 import { isAxiosError } from "axios";
+import Pagination from "@/components/Pagination"; // Import Pagination component
 
 export default function ConfigAdvisorPage() {
   const [advisors, setAdvisors] = useState<Advisor[]>([]);
@@ -43,6 +44,9 @@ export default function ConfigAdvisorPage() {
   // Confirmation modal states
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState<boolean>(false);
   const [advisorToToggle, setAdvisorToToggle] = useState<Advisor | null>(null);
+
+  const [currentPage, setCurrentPage] = useState<number>(1); // Current page state
+  const itemsPerPage = 10; // Items per page
 
   useEffect(() => {
     const fetchOptions = async () => {
@@ -218,6 +222,19 @@ export default function ConfigAdvisorPage() {
     }
   };
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page); // Set current page
+    window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top
+  };
+
+  // Calculate the current page's advisors
+  const currentAdvisors = advisors
+    ? advisors.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+      )
+    : [];
+
   // Display loading or error states
   if (loading) return <Spinner />;
   if (error) {
@@ -264,7 +281,7 @@ export default function ConfigAdvisorPage() {
             {/* Header + Add Staff Button */}
             <div className="flex items-center justify-between mb-3">
               <h1 className="text-lg font-semibold text-gray-800">
-                Config Advisor
+                Manage Staff
               </h1>
               <div className="flex gap-2">
 
@@ -582,14 +599,14 @@ export default function ConfigAdvisorPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {advisors && advisors.length > 0 ? (
-                      advisors.map((item , index) => (
+                    {currentAdvisors && currentAdvisors.length > 0 ? (
+                      currentAdvisors.map((item, index) => (
                         <tr
                           key={item.id}
                           className="bg-white border-b hover:bg-gray-50"
                         >
                           <td className="px-6 py-4 font-medium text-gray-900">
-                            {index + 1} 
+                            {index + 1 + (currentPage - 1) * itemsPerPage}
                           </td>
                           <td className="px-6 py-4 font-medium text-gray-900">
                             {item.prefix_en} {item.first_name_en}{" "}
@@ -646,6 +663,11 @@ export default function ConfigAdvisorPage() {
                     )}
                   </tbody>
                 </table>
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={advisors ? Math.ceil(advisors.length / itemsPerPage) : 0}
+                  onPageChange={handlePageChange}
+                />
               </div>
             )}
           </>
