@@ -64,7 +64,7 @@ export default function AdvisorProfilePage() {
       };
       fetchData();
     }
-  }, [id]);
+  }, [id , originalId]);
 
   useEffect(() => {
     const filtered = projects.filter((project) => {
@@ -90,7 +90,7 @@ export default function AdvisorProfilePage() {
       );
     });
     setFilteredProjects(filtered);
-  }, [searchInput, selectedRole, projects]);
+  }, [searchInput, selectedRole, projects ,originalId]);
 
   if (loading) return <Spinner />;
 

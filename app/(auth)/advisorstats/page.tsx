@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation"; // Import useRouter for navigation
 import getEmployeeByMajorId from "@/utils/advisorstats/getEmployeebyProgramId";
 import { Advisor } from "@/models/Advisor"; // Import the Advisor interface
 import Spinner from "@/components/Spinner"; // Import the Spinner component
@@ -14,7 +13,6 @@ import Pagination from "@/components/Pagination"; // Import Pagination component
 import { obfuscateId } from "@/utils/encodePath";
 
 export default function AdvisorStatsPage() {
-  const router = useRouter();
   const [advisors, setAdvisors] = useState<Advisor[]>([]); // Default to empty array
   const [filteredAdvisors, setFilteredAdvisors] = useState<Advisor[]>([]); // Default to empty array
   const [searchTerm, setSearchTerm] = useState<string>(""); // Search term state

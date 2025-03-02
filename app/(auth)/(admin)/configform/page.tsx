@@ -48,7 +48,7 @@ const ConfigSubmission: React.FC = () => {
     };
 
     fetchOptions();
-  }, [user?.isAdmin]);
+  }, [user?.isAdmin , user , selectedMajor]);
 
   const fetchData = async () => {
     try {

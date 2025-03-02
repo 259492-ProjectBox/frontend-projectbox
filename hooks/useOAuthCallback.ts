@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+"use client";
+import { useEffect, useState   } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios, { AxiosError } from "axios";
 import { SignInResponse } from "@/app/api/signIn/route";
-
 interface OAuthCallbackState {
 	isLoading: boolean;
 	error: string | null;

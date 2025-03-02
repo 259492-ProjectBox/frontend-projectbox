@@ -6,7 +6,7 @@ import { createAdmin } from "@/utils/superadmin/createAdmin"; // Import the crea
 import { deleteAdmin } from "@/utils/superadmin/deleteAdmin"; // Import the deleteAdmin function
 import putEditProgram from "@/utils/superadmin/putEditProgram"; // Import the putEditProgram function
 import { useAuth } from "@/hooks/useAuth"; // Importing useAuth hook
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Select, { MultiValue } from "react-select"; // Importing MultiValue from react-select
 import { getProgramAbbreviationById, getProgramNameById } from "@/utils/programHelpers"; // Import the helper function to get program name by ID
 import { Program } from "@/models/Program"; // Import the Program model
@@ -73,7 +73,8 @@ export default function AdminManagePage(): JSX.Element {
   const [editAbbreviation, setEditAbbreviation] = useState<string>(""); // State for edit program abbreviation
 
   // Fetching admin data from the API using the controller
-  const loadAdmins = async () => {
+  
+  const loadAdmins = useCallback( async () => {
     try {
       const fetchedAdmins: FetchedAdmin[] = await getAdmins();
       const adminsWithPrograms = fetchedAdmins.map((admin) => ({
@@ -88,11 +89,10 @@ export default function AdminManagePage(): JSX.Element {
     } catch (error) {
       console.error("Error loading admins:", error);
     }
-  };
-
+  }, [programs]); // Depend on programs to ensure they are loaded before mapping
   useEffect(() => {
     loadAdmins();
-  }, [programs]); // Depend on programs to ensure they are loaded before mapping
+  }, [programs ]); // Depend on programs to ensure they are loaded before mapping
 
   // Function to fetch programs
   const fetchPrograms = async () => {

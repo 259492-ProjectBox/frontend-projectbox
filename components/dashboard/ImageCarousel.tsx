@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect, ChangeEvent } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 // Define TypeScript interfaces
 interface ImageData {
@@ -16,34 +16,35 @@ interface ImageCarouselProps {
 
 export default function ImageCarousel({ images }: ImageCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [descriptions, setDescriptions] = useState<string[]>(
-    images.map((img) => img.description)
-  );
+  // const [descriptions, setDescriptions] = useState<string[]>(
+  //   images.map((img) => img.description)
+  // );
 
-  // Auto-rotate every 6 seconds
+  // Go to next image
+  const nextSlide = useCallback(() => {
+    setCurrentIndex((prev) => (prev + 1) % images.length);
+  }, [images.length]);
+
+  // Auto-rotate every 7 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       nextSlide();
     }, 7000);
     return () => clearInterval(interval);
-  }, [currentIndex]);
+  }, [nextSlide]);
 
-  // Go to next image
-  const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % images.length);
-  };
 
   // Go to previous image
   const prevSlide = () => {
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
-  // Handle description change
-  const handleDescriptionChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    const updatedDescriptions = [...descriptions];
-    updatedDescriptions[currentIndex] = e.target.value;
-    setDescriptions(updatedDescriptions);
-  };
+  // // Handle description change
+  // const handleDescriptionChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+  //   const updatedDescriptions = [...descriptions];
+  //   updatedDescriptions[currentIndex] = e.target.value;
+  //   setDescriptions(updatedDescriptions);
+  // };
 
   return (
     <div className="w-full max-w-lg mx-auto text-center">

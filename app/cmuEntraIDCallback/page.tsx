@@ -2,7 +2,6 @@
 
 import Spinner from "@/components/Spinner";
 import { useOAuthCallback } from "@/hooks/useOAuthCallback";
-
 export default function CMUOAuthCallback() {
 	const { isLoading, error } = useOAuthCallback();
 
