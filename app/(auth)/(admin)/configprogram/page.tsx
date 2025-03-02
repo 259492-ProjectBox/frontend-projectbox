@@ -204,9 +204,9 @@ export default function ConfigProgram() {
 
   return (
     <div className="min-h-screen p-6 bg-gray-100">
-      <div className="max-w-6xl mx-auto bg-white rounded-lg shadow p-6">
+      <div className="max-w-6xl mx-auto rounded-lg p-4">
         {/* Program Selector */}
-        <div className="mb-5 p-4 rounded-md shadow-sm border border-gray-200 bg-white">
+        <div className="mb-5 p-4 rounded-md  bg-white">
           <label
             htmlFor="programSelect"
             className="block mb-2 text-sm font-semibold text-gray-700"
@@ -306,7 +306,7 @@ export default function ConfigProgram() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* File Upload Section 1 */}
-              <div className="border border-gray-300 rounded-lg p-4">
+              <div className="shadow-md bg-white rounded-lg p-4">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
                   Upload Student
                 </h3>
@@ -366,7 +366,7 @@ export default function ConfigProgram() {
               </div>
 
               {/* File Upload Section 2 */}
-              <div className="border border-gray-300 rounded-lg p-4">
+              <div className="shadow-md bg-white rounded-lg p-4">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
                   Upload Project
                 </h3>
