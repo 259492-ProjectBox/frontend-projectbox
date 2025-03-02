@@ -152,6 +152,16 @@ const SearchPage: React.FC = () => {
     }
   };
 
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      if (searchMode === "quick") {
+        handleSearch();
+      } else if (searchMode === "detail") {
+        handleDetailSearch();
+      }
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-stone-100">
       <div className=" max-w-3xl mt-8">
@@ -269,6 +279,7 @@ const SearchPage: React.FC = () => {
                           [key]: e.target.value,
                         })
                       }
+                      onKeyPress={handleKeyPress} // Add this line
                       className="w-full p-1.5 border border-gray-300 rounded focus:outline-none focus:border-button_focus text-sm"
                     />
                   )}
@@ -293,6 +304,7 @@ const SearchPage: React.FC = () => {
                 placeholder="Enter search term..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyPress={handleKeyPress} // Add this line
                 className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-button_focus text-sm"
               />
               <button
@@ -311,6 +323,7 @@ const SearchPage: React.FC = () => {
                 placeholder="Enter search term..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyPress={handleKeyPress} // Add this line
                 className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-button_focus text-sm"
               />
               <button
