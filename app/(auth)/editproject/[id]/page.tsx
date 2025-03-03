@@ -2,11 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import Spinner from "@/components/Spinner";
-import { Project } from "@/models/Project";
+import { Project, ProjectResource } from "@/models/Project";
 import getProjectById from "@/utils/projects/getProjectById";
 import { ProjectResourceConfig } from "@/models/ProjectResourceConfig"; // Import ProjectResourceConfig type
 import Select from "react-select";
-import Image from "next/image";
+// import Image from "next/image";
 import axios from "axios"; // Import axios for making API requests
 import { useRouter } from "next/navigation"; // Import useRouter from next/navigation
 import getAllEmployees from "@/utils/advisorstats/getAllEmployee";
@@ -15,6 +15,7 @@ import { getStudentsByProgram } from "@/utils/createproject/getStudentsByProgram
 import { Student } from "@/models/Student"; // Import the new Student type
 import { getProjectRoles } from "@/utils/createproject/getProjectRoles"; // Import the getProjectRoles function
 import { ProjectRole } from "@/models/ProjectRoles"; // Import the ProjectRole type
+import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig"; // Import getProjectResourceConfig
 
 interface EditProjectPageProps {
   params: {
@@ -52,7 +53,15 @@ const labels: { [key: string]: string } = {
   // Add other labels as needed
 };
 
-const requiredFields: string[] = ["title_en", "title_th", "abstract_text", "academicYear", "courseNo", "section", "semester"]; // Define required fields
+const requiredFields: string[] = [
+  "title_en",
+  "title_th",
+  "abstract_text",
+  "academicYear",
+  "courseNo",
+  "section",
+  "semester",
+]; // Define required fields
 
 const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
   const { id } = params; // Get project ID from the route params
@@ -63,6 +72,9 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
   const [staffList, setStaffList] = useState<Advisor[]>([]);
   const [studentList, setStudentList] = useState<Student[]>([]); // Store student list
   const [projectRoles, setProjectRoles] = useState<ProjectRole[]>([]); // Store project roles
+  const [projectResourceConfig, setProjectResourceConfig] = useState<
+    ProjectResourceConfig[]
+  >([]); // Store project resource config
   const router = useRouter(); // Initialize useRouter
 
   useEffect(() => {
@@ -101,13 +113,26 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
               label: `${staff.prefixEN} ${staff.firstNameEN} ${staff.lastNameEN} / ${staff.prefixTH} ${staff.firstNameTH} ${staff.lastNameTH}`,
             })),
           external_committee: projectData.staffs
-            .filter((staff) => staff.projectRole.roleNameEN === "External Committee Members")
+            .filter(
+              (staff) =>
+                staff.projectRole.roleNameEN === "External Committee Members"
+            )
             .map((staff) => ({
               value: staff.id,
               label: `${staff.prefixEN} ${staff.firstNameEN} ${staff.lastNameEN} / ${staff.prefixTH} ${staff.firstNameTH} ${staff.lastNameTH}`,
             })),
           // Add other fields as needed
         });
+
+        if (
+          !projectData.projectResources ||
+          projectData.projectResources.length === 0
+        ) {
+          const resourceConfig = await getProjectResourceConfig(
+            projectData.program.id
+          ); // Fetch project resource config
+          setProjectResourceConfig(resourceConfig);
+        }
 
         const employees = await getAllEmployees();
         setStaffList(employees);
@@ -200,7 +225,11 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
       <div key={field}>
         {field === "abstract_text"
           ? renderTextArea(field, labels[field], requiredFields.includes(field))
-          : renderInputField(field, labels[field], requiredFields.includes(field))}
+          : renderInputField(
+              field,
+              labels[field],
+              requiredFields.includes(field)
+            )}
       </div>
     ));
 
@@ -233,59 +262,142 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
   );
 
   const renderFileUploadSections = () => {
-    const fileConfigs = project?.projectResources as ProjectResourceConfig[] | undefined;
+    const fileConfigs = project?.projectResources as ProjectResource[] | undefined;
 
-    if (!fileConfigs) return null;
+    if (!fileConfigs || fileConfigs.length === 0) {
+      return projectResourceConfig.map((fileConfig) => {
+        if (!fileConfig.is_active) return null; // Display only active fields
 
-    return fileConfigs.map((fileConfig) => (
-      <div
-        key={fileConfig.id}
-        className="p-4 mb-4 rounded-lg border border-gray-300 bg-white"
-      >
-        <div className="flex items-center mb-4">
-          {fileConfig.icon_name && (
-            <Image
-              className="w-8 h-8 rounded-full"
-              src="/logo-engcmu/CMU_LOGO_Crop.jpg"
-              alt=""
-              width={32}
-              height={32}
-            />
+        return (
+          <div
+            key={fileConfig.id}
+            className="p-4 mb-4 rounded-lg border border-gray-300 bg-white"
+          >
+            <div className="flex items-center mb-4">
+              {/* {fileConfig.icon_name && (
+                <Image
+                  className="w-8 h-8 rounded-full"
+                  src="/logo-engcmu/CMU_LOGO_Crop.jpg"
+                  alt=""
+                  width={32}
+                  height={32}
+                />
+              )} */}
+              <h6 className="text-lg font-bold">{fileConfig.title}</h6>
+            </div>
+
+            {fileConfig.resource_type && fileConfig.resource_type.id === 2 ? (
+              <div>
+                <label className="block text-sm font-semibold mb-2">
+                  Paste Link
+                </label>
+                <input
+                  type="text"
+                  name={`file_link_${fileConfig.id}`}
+                  value={(formData[`file_link_${fileConfig.id}`] as string) || ""}
+                  onChange={handleInputChange}
+                  className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
+                  placeholder="Paste the URL here"
+                />
+              </div>
+            ) : (
+              <div>
+                <label className="block text-sm font-semibold mb-2">
+                  Upload File
+                </label>
+                <input
+                  type="file"
+                  name={`file_upload_${fileConfig.id}`}
+                  onChange={(e) =>
+                    handleFileChange(e, `file_upload_${fileConfig.id}`)
+                  }
+                  className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
+                />
+              </div>
+            )}
+          </div>
+        );
+      });
+    }
+
+    return fileConfigs.map((resource) => {
+      return (
+        <div
+          key={resource.id}
+          className="p-4 mb-4 rounded-lg border border-gray-300 bg-white"
+        >
+          <div className="flex items-center mb-4">
+            {/* {resource.icon_name && (
+              <Image
+                className="w-8 h-8 rounded-full"
+                src="/logo-engcmu/CMU_LOGO_Crop.jpg"
+                alt=""
+                width={32}
+                height={32}
+              />
+            )} */}
+            <h6 className="text-lg font-bold">{resource.title}</h6>
+          </div>
+
+          {resource.resourceType.id === 2 ? (
+            <div>
+              <label className="block text-sm font-semibold mb-2">
+                Paste Link
+              </label>
+              <input
+                type="text"
+                name={`file_link_${resource.id}`}
+                value={(formData[`file_link_${resource.id}`] as string) || ""}
+                onChange={handleInputChange}
+                className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
+                placeholder="Paste the URL here"
+              />
+            </div>
+          ) : (
+            <div>
+              <label className="block text-sm font-semibold mb-2">
+                Upload File
+              </label>
+              <input
+                type="file"
+                name={`file_upload_${resource.id}`}
+                onChange={(e) =>
+                  handleFileChange(e, `file_upload_${resource.id}`)
+                }
+                className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
+              />
+            </div>
           )}
-          <h6 className="text-lg font-bold">{fileConfig.title}</h6>
-        </div>
 
-        {fileConfig.resource_type && fileConfig.resource_type.id === 1 ? (
-          <div>
-            <label className="block text-sm font-semibold mb-2">
-              Paste Link
-            </label>
-            <input
-              type="text"
-              name={`file_link_${fileConfig.id}`}
-              value={(formData[`file_link_${fileConfig.id}`] as string) || ""}
-              onChange={handleInputChange}
-              className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
-              placeholder="Paste the URL here"
-            />
+          <div className="mt-4">
+            {resource.url ? (
+              <a
+                href={resource.url}
+                className="font-semibold text-blue-500 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {resource.title !== null ? resource.title : "No Title"}
+              </a>
+            ) : (
+              <p className="font-semibold text-gray-800">
+                {resource.title !== null ? resource.title : "No Title"}
+              </p>
+            )}
+            {resource.resourceName && (
+              <p className="text-gray-500 text-sm">
+                Resource Name: {resource.resourceName}
+              </p>
+            )}
+            {resource.createdAt && (
+              <p className="text-gray-500 text-sm">
+                Created At: {resource.createdAt}
+              </p>
+            )}
           </div>
-        ) : (
-          <div>
-            <label className="block text-sm font-semibold mb-2">
-              Upload File
-            </label>
-            <input
-              type="file"
-              name={`file_upload_${fileConfig.id}`}
-              onChange={(e) =>
-                handleFileChange(e, `file_upload_${fileConfig.id}`)
-              }
-              className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
-            />
-          </div>
-        )}
-      </div>
-    ));
+        </div>
+      );
+    });
   };
 
   const handleSubmit = async () => {
@@ -306,33 +418,90 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
         course_id: project?.course?.id,
         program_id: project?.program?.id,
         staffs: [
-          ...(formData.advisor as { value: number; label: string }[]).map((advisor) => ({
-            staff_id: advisor.value,
-            project_role_id: projectRoles.find(role => role.role_name_en === "Advisor")?.id || 1,
-          })),
-          ...(formData.co_advisor as { value: number; label: string }[]).map((coAdvisor) => ({
-            staff_id: coAdvisor.value,
-            project_role_id: projectRoles.find(role => role.role_name_en === "Co-Advisor")?.id || 2,
-          })),
-          ...(formData.committee as { value: number; label: string }[]).map((committee) => ({
-            staff_id: committee.value,
-            project_role_id: projectRoles.find(role => role.role_name_en === "Committee")?.id || 3,
-          })),
-          ...(formData.external_committee as { value: number; label: string }[]).map((externalCommittee) => ({
+          ...(formData.advisor as { value: number; label: string }[]).map(
+            (advisor) => ({
+              staff_id: advisor.value,
+              project_role_id:
+                projectRoles.find((role) => role.role_name_en === "Advisor")
+                  ?.id || 1,
+            })
+          ),
+          ...(formData.co_advisor as { value: number; label: string }[]).map(
+            (coAdvisor) => ({
+              staff_id: coAdvisor.value,
+              project_role_id:
+                projectRoles.find((role) => role.role_name_en === "Co-Advisor")
+                  ?.id || 2,
+            })
+          ),
+          ...(formData.committee as { value: number; label: string }[]).map(
+            (committee) => ({
+              staff_id: committee.value,
+              project_role_id:
+                projectRoles.find((role) => role.role_name_en === "Committee")
+                  ?.id || 3,
+            })
+          ),
+          ...(
+            formData.external_committee as { value: number; label: string }[]
+          ).map((externalCommittee) => ({
             staff_id: externalCommittee.value,
-            project_role_id: projectRoles.find(role => role.role_name_en === "External Committee Members")?.id || 4,
+            project_role_id:
+              projectRoles.find(
+                (role) => role.role_name_en === "External Committee Members"
+              )?.id || 4,
           })),
         ],
-        members: (formData.student as { value: number; label: string }[]).map((student) => ({
-          id: student.value,
-        })),
+        members: (formData.student as { value: number; label: string }[]).map(
+          (student) => ({
+            id: student.value,
+          })
+        ),
       };
 
       formDataToSend.append("project", JSON.stringify(projectData));
 
-      const fileConfigs = project?.projectResources as ProjectResourceConfig[] | undefined;
+      const fileConfigs = project?.projectResources as
+        | ProjectResourceConfig[]
+        | undefined;
       if (fileConfigs) {
         fileConfigs.forEach((fileConfig) => {
+          if (!fileConfig.is_active) return;
+
+          const linkField = `file_link_${fileConfig.id}`;
+          const fileField = `file_upload_${fileConfig.id}`;
+
+          if (formData[linkField]) {
+            formDataToSend.append(
+              "projectResources[]",
+              JSON.stringify({
+                title: fileConfig.title,
+                url: formData[linkField],
+              })
+            );
+          }
+
+          const selectedFiles = formData[fileField] as FileList | undefined;
+          if (selectedFiles && selectedFiles.length > 0) {
+            formDataToSend.append(
+              "projectResources[]",
+              JSON.stringify({
+                title: fileConfig.title,
+              })
+            );
+
+            Array.from(selectedFiles).forEach((file) => {
+              formDataToSend.append("files", file, file.name);
+            });
+          }
+        });
+      }
+
+      const newFileConfigs = projectResourceConfig as
+        | ProjectResourceConfig[]
+        | undefined;
+      if (newFileConfigs) {
+        newFileConfigs.forEach((fileConfig) => {
           if (!fileConfig.is_active) return;
 
           const linkField = `file_link_${fileConfig.id}`;
@@ -369,7 +538,8 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
         formDataToSend,
         {
           headers: {
-            Authorization: "Bearer Pl6sXUmjwzNtwcA4+rkBP8jTmRttcNwgJqp1Zn1a+qCRaYXdYdwgJ9mM5glzHQD2FOsLilpELbmVSF2nGZCOwTO6u5CTsVpyIGDguXoMobSApgEsO3avovqWYDAEuznY/Vu4XMvHDkFqyuY1dQfN+QdB04t89/1O/w1cDnyilFU=",
+            Authorization:
+              "Bearer Pl6sXUmjwzNtwcA4+rkBP8jTmRttcNwgJqp1Zn1a+qCRaYXdYdwgJ9mM5glzHQD2FOsLilpELbmVSF2nGZCOwTO6u5CTsVpyIGDguXoMobSApgEsO3avovqWYDAEuznY/Vu4XMvHDkFqyuY1dQfN+QdB04t89/1O/w1cDnyilFU=",
             "Content-Type": "multipart/form-data",
           },
         }
@@ -392,7 +562,7 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
     <div className="flex flex-col min-h-screen bg-stone-100 py-6">
       <div className="container mx-auto max-w-3xl">
         <h6 className="mb-4 text-lg font-bold">Edit Project</h6>
-        
+
         <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
           <h6 className="text-lg font-bold mb-4">Project Details</h6>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -401,7 +571,7 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
           {renderFields(["title_en", "title_th"])}
           {renderFields(["abstract_text"])}
         </div>
-        
+
         <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
           <h6 className="text-lg font-bold mb-4">Team Details</h6>
           {renderMultiSelectField(
@@ -450,15 +620,17 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
             }))
           )}
         </div>
-        
+
         <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
           <h6 className="text-lg font-bold mb-4">Uploads</h6>
           {renderFileUploadSections()}
         </div>
-        
+
         <button
           onClick={handleSubmit}
-          className={`bg-blue-500 text-white px-4 py-2 rounded ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`}
+          className={`bg-blue-500 text-white px-4 py-2 rounded ${
+            isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"
+          }`}
           disabled={isSubmitting}
         >
           Submit

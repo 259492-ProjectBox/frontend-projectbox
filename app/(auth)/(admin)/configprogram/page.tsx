@@ -188,9 +188,7 @@ export default function ConfigProgram() {
     }
   };
 
-  // Accordion state
-  const [isAccordionOpen1, setIsAccordionOpen1] = useState(true);
-  const [isAccordionOpen2, setIsAccordionOpen2] = useState(false);
+
 
   // Show loading or error
   if (loading) return <Spinner />;
