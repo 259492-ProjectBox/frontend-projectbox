@@ -14,6 +14,7 @@ import updateResourceStatus from "@/utils/configform/updateProjectResourceConfig
 import Image from "next/image";
 import { ProjectResourceConfig } from "@/models/ProjectResourceConfig";
 import createProjectResource from "@/utils/configform/createProjectResource";
+import ResourceIconGallery from "@/components/ResourceIconGallery";
 
 const ConfigSubmission: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({});
@@ -31,6 +32,8 @@ const ConfigSubmission: React.FC = () => {
   const [editResourceTypeId, setEditResourceTypeId] = useState<number>(1);
   const [iconFile, setIconFile] = useState<File | null>(null);
   const [editIconFile, setEditIconFile] = useState<File | null>(null);
+  const [selectedIconPath, setSelectedIconPath] = useState<string>("");
+  const [editSelectedIconPath, setEditSelectedIconPath] = useState<string>("");
 
   const { user } = useAuth();
   const [selectedMajor, setSelectedMajor] = useState<number>(0);
@@ -158,6 +161,44 @@ const ConfigSubmission: React.FC = () => {
       setEditIconFile(file);
       setEditIconName(file.name);
     }
+  };
+
+  const handleIconSelect = async (iconPath: string, iconName: string) => {
+    try {
+      const response = await fetch(iconPath);
+      const blob = await response.blob();
+      const file = new File([blob], iconName, { type: 'image/svg+xml' });
+      setIconFile(file);
+      setIconName(iconName);
+      setSelectedIconPath(iconPath);
+    } catch (error) {
+      console.error('Error loading icon:', error);
+    }
+  };
+
+  const handleIconDeselect = () => {
+    setIconFile(null);
+    setIconName("");
+    setSelectedIconPath("");
+  };
+
+  const handleEditIconSelect = async (iconPath: string, iconName: string) => {
+    try {
+      const response = await fetch(iconPath);
+      const blob = await response.blob();
+      const file = new File([blob], iconName, { type: 'image/svg+xml' });
+      setEditIconFile(file);
+      setEditIconName(iconName);
+      setEditSelectedIconPath(iconPath);
+    } catch (error) {
+      console.error('Error loading icon:', error);
+    }
+  };
+
+  const handleEditIconDeselect = () => {
+    setEditIconFile(null);
+    setEditIconName("");
+    setEditSelectedIconPath("");
   };
 
   const handleResourceSubmit = async () => {
@@ -380,41 +421,60 @@ const ConfigSubmission: React.FC = () => {
 
               {/* Modal for creating new project resource */}
               {isModalOpen && (
-                <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
-                  <div className="bg-white p-6 rounded-lg w-96">
-                    <h3 className="text-xl font-bold mb-4">Upload Details</h3>
+                <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+                  <div className="bg-white p-4 rounded-lg w-[600px] max-h-[90vh] overflow-y-auto">
+                    <h3 className="text-lg font-semibold mb-3">Upload Details</h3>
 
-                    {/* Section 1: Icon Upload */}
-                    <div className="mb-4">
-                      <label className="block text-sm font-semibold mb-2">
-                        Upload Icon
+                    {/* Section 1: Icon Selection */}
+                    <div className="mb-3">
+                      <label className="block text-sm font-medium mb-1">
+                        Select Icon
                       </label>
-                      <input
-                        type="file"
-                        className="w-full p-2 border border-gray-300 rounded"
-                        onChange={handleIconChange}
-                      />
+                      <div className="border border-gray-200 rounded p-2 bg-gray-50">
+                        <ResourceIconGallery 
+                          onSelectIcon={handleIconSelect}
+                          onDeselect={handleIconDeselect}
+                          selectedPath={selectedIconPath}
+                        />
+                      </div>
+                      <div className="mt-2">
+                        <label className="block text-sm font-medium mb-1">
+                          Or Upload Custom Icon
+                        </label>
+                        <input
+                          type="file"
+                          className={`w-full p-1.5 text-sm border border-gray-300 rounded ${
+                            selectedIconPath ? 'opacity-50 cursor-not-allowed' : ''
+                          }`}
+                          onChange={handleIconChange}
+                          disabled={!!selectedIconPath}
+                        />
+                        {iconName && (
+                          <p className="mt-1 text-xs text-gray-600">
+                            Selected icon: {iconName}
+                          </p>
+                        )}
+                      </div>
                     </div>
 
-                    {/* Section 2: Title Input */}
-                    <div className="mb-4">
-                      <label className="block text-sm font-semibold mb-2">Title</label>
+                    {/* Rest of the modal content */}
+                    <div className="mb-3">
+                      <label className="block text-sm font-medium mb-1">Title</label>
                       <input
                         type="text"
-                        className="w-full p-2 border border-gray-300 rounded"
+                        className="w-full p-1.5 text-sm border border-gray-300 rounded"
                         placeholder="Enter title"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                       />
                     </div>
 
-                    {/* Section 3: Upload Type */}
-                    <div className="mb-4">
-                      <label className="block text-sm font-semibold mb-2">
+                    <div className="mb-3">
+                      <label className="block text-sm font-medium mb-1">
                         Upload Type
                       </label>
                       <select
-                        className="w-full p-2 border border-gray-300 rounded"
+                        className="w-full p-1.5 text-sm border border-gray-300 rounded"
                         value={resourceTypeId}
                         onChange={(e) => setResourceTypeId(Number(e.target.value))}
                       >
@@ -423,17 +483,16 @@ const ConfigSubmission: React.FC = () => {
                       </select>
                     </div>
 
-                    {/* Modal buttons */}
-                    <div className="flex justify-end">
+                    <div className="flex justify-end gap-2">
                       <button
                         onClick={closeModal}
-                        className="bg-gray-300 text-black px-4 py-2 rounded mr-2 hover:bg-gray-400"
+                        className="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 rounded"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={handleResourceSubmit}
-                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+                        className="px-3 py-1.5 text-sm bg-blue-500 text-white hover:bg-blue-600 rounded"
                       >
                         Submit
                       </button>
@@ -444,28 +503,48 @@ const ConfigSubmission: React.FC = () => {
 
               {/* Modal for editing project resource */}
               {isEditModalOpen && resourceToEdit && (
-                <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
-                  <div className="bg-white p-6 rounded-lg w-96">
-                    <h3 className="text-xl font-bold mb-4">Edit Resource</h3>
+                <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+                  <div className="bg-white p-4 rounded-lg w-[600px] max-h-[90vh] overflow-y-auto">
+                    <h3 className="text-lg font-semibold mb-3">Edit Resource</h3>
 
-                    {/* Section 1: Icon Upload */}
-                    <div className="mb-4">
-                      <label className="block text-sm font-semibold mb-2">
-                        Upload Icon
+                    {/* Section 1: Icon Selection */}
+                    <div className="mb-3">
+                      <label className="block text-sm font-medium mb-1">
+                        Select Icon
                       </label>
-                      <input
-                        type="file"
-                        className="w-full p-2 border border-gray-300 rounded"
-                        onChange={handleEditIconChange}
-                      />
+                      <div className="border border-gray-200 rounded p-2 bg-gray-50">
+                        <ResourceIconGallery 
+                          onSelectIcon={handleEditIconSelect}
+                          onDeselect={handleEditIconDeselect}
+                          selectedPath={editSelectedIconPath}
+                        />
+                      </div>
+                      <div className="mt-2">
+                        <label className="block text-sm font-medium mb-1">
+                          Or Upload Custom Icon
+                        </label>
+                        <input
+                          type="file"
+                          className={`w-full p-1.5 text-sm border border-gray-300 rounded ${
+                            editSelectedIconPath ? 'opacity-50 cursor-not-allowed' : ''
+                          }`}
+                          onChange={handleEditIconChange}
+                          disabled={!!editSelectedIconPath}
+                        />
+                        {editIconName && (
+                          <p className="mt-1 text-xs text-gray-600">
+                            Selected icon: {editIconName}
+                          </p>
+                        )}
+                      </div>
                     </div>
 
                     {/* Section 2: Title Input */}
-                    <div className="mb-4">
-                      <label className="block text-sm font-semibold mb-2">Title</label>
+                    <div className="mb-3">
+                      <label className="block text-sm font-medium mb-1">Title</label>
                       <input
                         type="text"
-                        className="w-full p-2 border border-gray-300 rounded"
+                        className="w-full p-1.5 text-sm border border-gray-300 rounded"
                         placeholder="Enter title"
                         value={editTitle}
                         onChange={(e) => setEditTitle(e.target.value)}
@@ -473,16 +552,16 @@ const ConfigSubmission: React.FC = () => {
                     </div>
 
                     {/* Modal buttons */}
-                    <div className="flex justify-end">
+                    <div className="flex justify-end gap-2">
                       <button
                         onClick={closeEditModal}
-                        className="bg-gray-300 text-black px-4 py-2 rounded mr-2 hover:bg-gray-400"
+                        className="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 rounded"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={handleEditResourceSubmit}
-                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+                        className="px-3 py-1.5 text-sm bg-blue-500 text-white hover:bg-blue-600 rounded"
                       >
                         Save
                       </button>
