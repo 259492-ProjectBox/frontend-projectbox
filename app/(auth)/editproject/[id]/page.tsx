@@ -15,6 +15,7 @@ import { getStudentsByProgram } from "@/utils/createproject/getStudentsByProgram
 import { Student } from "@/models/Student"; // Import the new Student type
 import { getProjectRoles } from "@/utils/createproject/getProjectRoles"; // Import the getProjectRoles function
 import { ProjectRole } from "@/models/ProjectRoles"; // Import the ProjectRole type
+import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig"; // Import getProjectResourceConfig
 
 interface EditProjectPageProps {
   params: {
@@ -63,6 +64,7 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
   const [staffList, setStaffList] = useState<Advisor[]>([]);
   const [studentList, setStudentList] = useState<Student[]>([]); // Store student list
   const [projectRoles, setProjectRoles] = useState<ProjectRole[]>([]); // Store project roles
+  const [projectResourceConfig, setProjectResourceConfig] = useState<ProjectResourceConfig[]>([]); // Store project resource config
   const router = useRouter(); // Initialize useRouter
 
   useEffect(() => {
@@ -108,6 +110,11 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
             })),
           // Add other fields as needed
         });
+
+        if (!projectData.projectResources || projectData.projectResources.length === 0) {
+          const resourceConfig = await getProjectResourceConfig(projectData.program.id); // Fetch project resource config
+          setProjectResourceConfig(resourceConfig);
+        }
 
         const employees = await getAllEmployees();
         setStaffList(employees);
@@ -235,57 +242,146 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
   const renderFileUploadSections = () => {
     const fileConfigs = project?.projectResources as ProjectResourceConfig[] | undefined;
 
-    if (!fileConfigs) return null;
+    if (!fileConfigs || fileConfigs.length === 0) {
+      return projectResourceConfig.map((fileConfig) => {
+        if (!fileConfig.is_active) return null; // Display only active fields
 
-    return fileConfigs.map((fileConfig) => (
-      <div
-        key={fileConfig.id}
-        className="p-4 mb-4 rounded-lg border border-gray-300 bg-white"
-      >
-        <div className="flex items-center mb-4">
-          {fileConfig.icon_name && (
-            <Image
-              className="w-8 h-8 rounded-full"
-              src="/logo-engcmu/CMU_LOGO_Crop.jpg"
-              alt=""
-              width={32}
-              height={32}
-            />
+        return (
+          <div
+            key={fileConfig.id}
+            className="p-4 mb-4 rounded-lg border border-gray-300 bg-white"
+          >
+            <div className="flex items-center mb-4">
+              {fileConfig.icon_name && (
+                <Image
+                  className="w-8 h-8 rounded-full"
+                  src="/logo-engcmu/CMU_LOGO_Crop.jpg"
+                  alt=""
+                  width={32}
+                  height={32}
+                />
+              )}
+              <h6 className="text-lg font-bold">{fileConfig.title}</h6>
+            </div>
+
+            {fileConfig.resource_type && fileConfig.resource_type.id === 2 ? (
+              <div>
+                <label className="block text-sm font-semibold mb-2">
+                  Paste Link
+                </label>
+                <input
+                  type="text"
+                  name={`file_link_${fileConfig.id}`}
+                  value={(formData[`file_link_${fileConfig.id}`] as string) || ""}
+                  onChange={handleInputChange}
+                  className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
+                  placeholder="Paste the URL here"
+                />
+              </div>
+            ) : (
+              <div>
+                <label className="block text-sm font-semibold mb-2">
+                  Upload File
+                </label>
+                <input
+                  type="file"
+                  name={`file_upload_${fileConfig.id}`}
+                  onChange={(e) =>
+                    handleFileChange(e, `file_upload_${fileConfig.id}`)
+                  }
+                  className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
+                />
+              </div>
+            )}
+          </div>
+        );
+      });
+    }
+
+    return fileConfigs.map((fileConfig) => {
+      return (
+        <div
+          key={fileConfig.id}
+          className="p-4 mb-4 rounded-lg border border-gray-300 bg-white"
+        >
+          <div className="flex items-center mb-4">
+            {fileConfig.icon_name && (
+              <Image
+                className="w-8 h-8 rounded-full"
+                src="/logo-engcmu/CMU_LOGO_Crop.jpg"
+                alt=""
+                width={32}
+                height={32}
+              />
+            )}
+            <h6 className="text-lg font-bold">{fileConfig.title}</h6>
+          </div>
+
+          {fileConfig.resource_type = 2 ? (
+            <div>
+              <label className="block text-sm font-semibold mb-2">
+                Paste Link
+              </label>
+              <input
+                type="text"
+                name={`file_link_${fileConfig.id}`}
+                value={(formData[`file_link_${fileConfig.id}`] as string) || ""}
+                onChange={handleInputChange}
+                className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
+                placeholder="Paste the URL here"
+              />
+            </div>
+          ) : (
+            <div>
+              <label className="block text-sm font-semibold mb-2">
+                Upload File
+              </label>
+              <input
+                type="file"
+                name={`file_upload_${fileConfig.id}`}
+                onChange={(e) =>
+                  handleFileChange(e, `file_upload_${fileConfig.id}`)
+                }
+                className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
+              />
+            </div>
           )}
-          <h6 className="text-lg font-bold">{fileConfig.title}</h6>
-        </div>
 
-        {fileConfig.resource_type && fileConfig.resource_type.id === 1 ? (
-          <div>
-            <label className="block text-sm font-semibold mb-2">
-              Paste Link
-            </label>
-            <input
-              type="text"
-              name={`file_link_${fileConfig.id}`}
-              value={(formData[`file_link_${fileConfig.id}`] as string) || ""}
-              onChange={handleInputChange}
-              className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
-              placeholder="Paste the URL here"
-            />
-          </div>
-        ) : (
-          <div>
-            <label className="block text-sm font-semibold mb-2">
-              Upload File
-            </label>
-            <input
-              type="file"
-              name={`file_upload_${fileConfig.id}`}
-              onChange={(e) =>
-                handleFileChange(e, `file_upload_${fileConfig.id}`)
-              }
-              className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
-            />
-          </div>
-        )}
-      </div>
-    ));
+          {project?.projectResources?.map((resource) => (
+            <div key={resource.id} className="mt-4">
+              <p className="font-semibold text-gray-800">
+                {resource.title !== null ? resource.title : "No Title"}
+              </p>
+              {resource.url && (
+                <a
+                  href={resource.url}
+                  className="text-blue-500 hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {resource.url}
+                </a>
+              )}
+              {resource.path && (
+                <p className="text-gray-500 text-sm break-all">
+                  Path: {resource.path}
+                </p>
+              )}
+              {resource.resourceName && (
+                <p className="text-gray-500 text-sm">
+                  Resource Name: {resource.resourceName}
+                </p>
+              )}
+              {resource.createdAt && (
+                <p className="text-gray-500 text-sm">
+                  Created At: {resource.createdAt}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      );
+    });
   };
 
   const handleSubmit = async () => {
@@ -333,6 +429,40 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
       const fileConfigs = project?.projectResources as ProjectResourceConfig[] | undefined;
       if (fileConfigs) {
         fileConfigs.forEach((fileConfig) => {
+          if (!fileConfig.is_active) return;
+
+          const linkField = `file_link_${fileConfig.id}`;
+          const fileField = `file_upload_${fileConfig.id}`;
+
+          if (formData[linkField]) {
+            formDataToSend.append(
+              "projectResources[]",
+              JSON.stringify({
+                title: fileConfig.title,
+                url: formData[linkField],
+              })
+            );
+          }
+
+          const selectedFiles = formData[fileField] as FileList | undefined;
+          if (selectedFiles && selectedFiles.length > 0) {
+            formDataToSend.append(
+              "projectResources[]",
+              JSON.stringify({
+                title: fileConfig.title,
+              })
+            );
+
+            Array.from(selectedFiles).forEach((file) => {
+              formDataToSend.append("files", file, file.name);
+            });
+          }
+        });
+      }
+
+      const newFileConfigs = projectResourceConfig as ProjectResourceConfig[] | undefined;
+      if (newFileConfigs) {
+        newFileConfigs.forEach((fileConfig) => {
           if (!fileConfig.is_active) return;
 
           const linkField = `file_link_${fileConfig.id}`;
