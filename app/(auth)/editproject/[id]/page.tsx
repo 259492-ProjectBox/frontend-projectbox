@@ -317,7 +317,7 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
             <h6 className="text-lg font-bold">{fileConfig.title}</h6>
           </div>
 
-          {fileConfig.resource_type = 2 ? (
+          {fileConfig.resourceType.id === 2 ? (
             <div>
               <label className="block text-sm font-semibold mb-2">
                 Paste Link
