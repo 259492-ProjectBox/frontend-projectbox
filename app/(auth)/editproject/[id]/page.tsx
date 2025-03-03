@@ -6,7 +6,7 @@ import { Project, ProjectResource } from "@/models/Project";
 import getProjectById from "@/utils/projects/getProjectById";
 import { ProjectResourceConfig } from "@/models/ProjectResourceConfig"; // Import ProjectResourceConfig type
 import Select from "react-select";
-import Image from "next/image";
+// import Image from "next/image";
 import axios from "axios"; // Import axios for making API requests
 import { useRouter } from "next/navigation"; // Import useRouter from next/navigation
 import getAllEmployees from "@/utils/advisorstats/getAllEmployee";
