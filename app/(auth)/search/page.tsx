@@ -313,6 +313,17 @@ const SearchPage: React.FC = () => {
                 Search
               </button>
             </div>
+            <div className="text-sm text-gray-600 mb-4 px-2">
+              <p>Search within PDF content of all projects. Results will show projects containing your search terms in their PDF documents.</p>
+              <div className="flex flex-wrap gap-2 mt-2">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                  Searches PDF Content
+                </span>
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  Matches Project Details
+                </span>
+              </div>
+            </div>
           </div>
         ) : (
           // QUICK SEARCH
