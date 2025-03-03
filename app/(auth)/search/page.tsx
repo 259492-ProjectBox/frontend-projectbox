@@ -317,13 +317,13 @@ const SearchPage: React.FC = () => {
         ) : (
           // QUICK SEARCH
           <div>
-            <div className="flex items-center mb-3">
+            <div className="flex items-center mb-2">
               <input
                 type="text"
                 placeholder="Enter search term..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={handleKeyPress} // Add this line
+                onKeyPress={handleKeyPress}
                 className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-button_focus text-sm"
               />
               <button
@@ -332,6 +332,20 @@ const SearchPage: React.FC = () => {
               >
                 Search
               </button>
+            </div>
+            <div className="flex flex-wrap gap-2 px-2">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                Project Title TH/EN
+              </span>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                Description
+              </span>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                Student ID/Name
+              </span>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                Advisor Name TH/EN
+              </span>
             </div>
           </div>
         )}

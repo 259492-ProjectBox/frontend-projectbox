@@ -40,183 +40,179 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
     if (professors.length === 0) return null;
 
     return (
-      <div className="pb-6">
-        <h2 className="text-m font-bold text-gray-800 mb-4">{roleNameTH}</h2>
-        <ul className="space-y-4">
+      <div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">{roleNameTH}</h3>
+        <div className="space-y-4">
           {professors.map((professor) => (
-            <li key={professor.id} className="flex items-center space-x-4">
-              <Image
-                className="w-8 h-8 rounded-full"
-                src="/logo-engcmu/CMU_LOGO_Crop.jpg"
-                alt={professor.firstNameTH || "Professor"}
-                width={32} // Specify width (in px)
-                height={32} // Specify height (in px)
-              />
-              <div>
-                <p className="font-semibold text-gray-800">
+            <div key={professor.id} className="flex items-start space-x-4 bg-gray-50 rounded-lg p-4">
+              <div className="w-10 h-10 rounded-full border-2 border-gray-800 flex items-center justify-center bg-white flex-shrink-0">
+                <span className="text-gray-800 font-semibold text-sm">
+                  {`${professor.firstNameEN?.charAt(0)}${professor.lastNameEN?.charAt(0)}`}
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-gray-900">
                   {professor.prefixTH} {professor.firstNameTH} {professor.lastNameTH}
                 </p>
-                <p className="text-gray-500 text-sm">
+                <p className="text-sm text-gray-600">
+                  {professor.prefixEN} {professor.firstNameEN} {professor.lastNameEN}
+                </p>
+                <p className="text-sm text-gray-500 mt-1">
                   {professor.projectRole.roleNameTH}
                 </p>
               </div>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
     );
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-stone-100 py-6">
-      <div className="container mx-auto max-w-4xl bg-white p-6 shadow-md rounded-lg space-y-12">
-        {/* Project Details Section */}
-        <div className="border-b pb-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">
-            Project Details
-          </h2>
-          <div className="space-y-4 p-6">
-            <div className="grid grid-cols-2 gap-4">
-              <p>
-                <strong className="text-gray-700">Project No:</strong>{" "}
-                {project.projectNo || "No Data"}
-              </p>
-              <p>
-                <strong className="text-gray-700">Academic Year:</strong>{" "}
-                {project.academicYear || "No Data"}
-              </p>
-              <p>
-                <strong className="text-gray-700">Semester:</strong>{" "}
-                {project.semester || "No Data"}
-              </p>
-              {project.sectionId && (
-                <p>
-                  <strong className="text-gray-700">Section:</strong>{" "}
-                  {project.sectionId}
-                </p>
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
+      <div className="container mx-auto max-w-5xl">
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          {/* Project Details Section */}
+          <div className="border-b border-gray-200">
+            <div className="px-8 py-6">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">Project Information</h2>
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-gray-500">Project No</span>
+                      <span className="text-base text-gray-900">{project.projectNo || "No Data"}</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-gray-500">Academic Year</span>
+                      <span className="text-base text-gray-900">{project.academicYear || "No Data"}</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-gray-500">Major</span>
+                      <span className="text-base text-gray-900">{project.program?.programNameEN || "No Data"}</span>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-gray-500">Semester</span>
+                      <span className="text-base text-gray-900">{project.semester || "No Data"}</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-gray-500">Section</span>
+                      <span className="text-base text-gray-900">{project.sectionId || "No Data"}</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-gray-500">Course</span>
+                      <span className="text-base text-gray-900">
+                        {project.course?.courseNo || "No Data"} - {project.course?.courseName || "No Data"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <span className="text-sm font-medium text-gray-500 block mb-2">Project Title (EN)</span>
+                    <p className="text-base text-gray-900">{project.titleEN !== null ? project.titleEN : "No Title"}</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <span className="text-sm font-medium text-gray-500 block mb-2">Project Title (TH)</span>
+                    <p className="text-base text-gray-900">{project.titleTH !== null ? project.titleTH : "No Title"}</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <span className="text-sm font-medium text-gray-500 block mb-2">Project Description</span>
+                    <p className="text-base text-gray-900 whitespace-pre-line">{project.abstractText || "No Description Available"}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Committees Section */}
+          <div className="border-b border-gray-200">
+            <div className="px-8 py-6">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">Project Committee</h2>
+              <div className="grid grid-cols-2 gap-8">
+                <div className="space-y-6">
+                  {renderProfessorsByRole("Advisor", "อาจารย์ที่ปรึกษา")}
+                  {renderProfessorsByRole("Co Advisor", "อาจารย์ที่ปรึกษาร่วม")}
+                </div>
+                <div className="space-y-6">
+                  {renderProfessorsByRole("Committee", "กรรมการภายใน")}
+                  {renderProfessorsByRole("External Committee", "กรรมการภายนอก")}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Members Section */}
+          <div className="border-b border-gray-200">
+            <div className="px-8 py-6">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">Team Members</h2>
+              {project.members?.length > 0 ? (
+                <div className="grid grid-cols-2 gap-4">
+                  {project.members.map((member) => (
+                    <div key={member.id} className="bg-gray-50 rounded-lg p-4">
+                      <p className="text-base font-medium text-gray-900">
+                        {member.studentId}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {member.firstName} {member.lastName}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-500">No members assigned.</p>
               )}
-              <p>
-                <strong className="text-gray-700">Major:</strong>{" "}
-                {project.program?.programNameEN || "No Data"}
-              </p>
-              <p>
-                <strong className="text-gray-700">Course:</strong>{" "}
-                {project.course?.courseNo || "No Data"} -{" "}
-                {project.course?.courseName || "No Data"}
-              </p>
-            </div>
-            <div className="p-4 border rounded-md">
-              <p>
-                <strong className="text-gray-700">Project Title (EN):</strong>{" "}
-                {project.titleEN !== null ? project.titleEN : "No Title"}
-              </p>
-            </div>
-            <div className="p-4 border rounded-md">
-              <p>
-                <strong className="text-gray-700">Project Title (TH):</strong>{" "}
-                {project.titleTH !== null ? project.titleTH : "No Title"}
-              </p>
-            </div>
-            <div className="p-4 border rounded-md">
-              <p className="space-y-2">
-                <strong className="text-gray-700">Project Description:</strong>{" "}
-              </p>
-              <p className="ml-6 mt-2 text-gray-600">
-                {project.abstractText || "No Description Available"}
-              </p>
             </div>
           </div>
-        </div>
 
-        {/* Professors Section */}
-        <div className="border-b pb-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Committees</h2>
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              {renderProfessorsByRole("Advisor", "Advisor")}
-              {renderProfessorsByRole("Co Advisor", "Co Advisor")}
-            </div>
-            <div>
-              {renderProfessorsByRole("Committee", "Internal Committee")}
-              {renderProfessorsByRole("External Committee", "External Committee")}
-            </div>
+          {/* Resources Section */}
+          <div className="px-8 py-6">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">Project Resources</h2>
+            {project.projectResources?.length > 0 ? (
+              <div className="space-y-4">
+                {project.projectResources.map((resource) => (
+                  <div key={resource.id} className="bg-gray-50 rounded-lg p-4">
+                    <div className="space-y-2">
+                      {resource?.url ? (
+                        <a
+                          href={resource.url}
+                          className="text-blue-600 hover:text-blue-800 font-medium block"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {resource.title !== null ? resource.title : "No Title"}
+                        </a>
+                      ) : (
+                        <p className="font-medium text-gray-900">
+                          {resource.title !== null ? resource.title : "No Title"}
+                        </p>
+                      )}
+                      {resource?.path && (
+                        <p className="text-sm text-gray-600">
+                          Path: {resource.path}
+                        </p>
+                      )}
+                      {resource?.resourceName && (
+                        <p className="text-sm text-gray-600">
+                          Resource Name: {resource.resourceName}
+                        </p>
+                      )}
+                      {resource?.createdAt && (
+                        <p className="text-sm text-gray-600">
+                          Created At: {resource.createdAt}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500">No resources available.</p>
+            )}
           </div>
-        </div>
-
-        {/* Members Section */}
-        <div className="pb-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Members</h2>
-          {project.members?.length > 0 ? (
-            <ul className="space-y-4">
-              {project.members.map((member) => (
-                <li key={member.id} className="flex items-center space-x-4">
-                  <Image
-                    className="w-8 h-8 rounded-full"
-                    src="/icon/boy.png"
-                    alt={""}
-                    width={32} // Specify width (in px)
-                    height={32} // Specify height (in px)
-                  />
-
-                  <div>
-                    <p className="font-semibold text-gray-800">
-                      {member.studentId} - {member.firstName} {member.lastName}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-500">No members assigned.</p>
-          )}
-        </div>
-
-       {/* Project Resources Section */}
-       <div className="pb-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Resources</h2>
-          <p className="text-gray-500">Below are the resources related to this project:</p>
-          {project.projectResources?.length > 0 ? (
-            <ul className="space-y-4">
-              {project.projectResources.map((resource) => (
-                <li key={resource.id} className="flex items-start space-x-4">
-                  <div style={{ wordBreak: 'break-all' }}>
-                    {resource?.url && (
-                      <a
-                        href={resource.url}
-                        className="font-semibold text-blue-500 hover:underline"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {resource.title !== null ? resource.title : "No Title"}
-                      </a>
-                    )}
-                    {!resource?.url && (
-                      <p className="font-semibold text-gray-800">
-                        {resource.title !== null ? resource.title : "No Title"}
-                      </p>
-                    )}
-                    {resource?.path && (
-                      <p className="text-gray-500 text-sm break-all">
-                        Path: {resource.path}
-                      </p>
-                    )}
-                    {resource?.resourceName && (
-                      <p className="text-gray-500 text-sm">
-                        Resource Name: {resource.resourceName}
-                      </p>
-                    )}
-                    {resource?.createdAt && (
-                      <p className="text-gray-500 text-sm">
-                        Created At: {resource.createdAt}
-                      </p>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-500">No resources available.</p>
-          )}
         </div>
       </div>
     </div>
