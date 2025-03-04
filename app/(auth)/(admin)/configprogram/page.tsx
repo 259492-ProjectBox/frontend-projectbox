@@ -298,9 +298,12 @@ export default function ConfigProgram() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Upload Student Section */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden p-4">
-                <h3 className="text-sm font-medium text-gray-700 mb-3">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">
                   Upload Student
                 </h3>
+                <p className="text-sm text-gray-500 mb-3">
+                  Upload a list of students to grant them permission to create projects for the current academic year and semester. This allows students to submit their own project details.
+                </p>
                 <ExcelTemplateSection
                   title="Roster_Student_Template"
                   templateUrl="/UploadExample/studentlist_261492-267.xlsx"
@@ -355,9 +358,12 @@ export default function ConfigProgram() {
 
               {/* Upload Project Section */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden p-4">
-                <h3 className="text-sm font-medium text-gray-700 mb-3">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">
                   Upload Project
                 </h3>
+                <p className="text-sm text-gray-500 mb-3">
+                  Upload projects directly as staff. Use this option to create projects on behalf of students or to import existing/old projects into the system.
+                </p>
                 <ExcelTemplateSection
                   title="Roster_Project_Template"
                   templateUrl="/UploadExample/projectcreate.xlsx"
