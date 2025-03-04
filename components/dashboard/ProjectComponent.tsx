@@ -1,24 +1,35 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Project } from "@/models/Project"; // Import the Project type
 import EditIcon from "@/public/Svg/EditIcon";
-import FileIcon from "@/public/Svg/FileIcon";
-import YouTubeIcon from "@/public/Svg/YouTubeIcon";
-import GitHubIcon from "@/public/Svg/GitHubIcon";
-import AutoCADIcon from "@/public/Svg/AutoCADIcon";
-import LinkIcon from "@/public/Svg/LinkIcon";
-import PictureIcon from "@/public/Svg/PictureIcon";
-import PowerPointIcon from "@/public/Svg/PowerPointIcon";
-import SketchupIcon from "@/public/Svg/SketchupIcon";
+import Image from "next/image";
 import Link from "next/link";
 import { LimitedList, LimitedText } from "@/components/dashboard/LimitedComponents";
 import { useAuth } from "@/hooks/useAuth";
 import { obfuscateId } from "@/utils/encodePath";
+import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig";
+import { ProjectResourceConfig } from "@/models/ProjectResourceConfig";
 
 const ProjectComponent = ({ project }: { project: Project }) => {
   const { user } = useAuth();
+  const [resourceConfigs, setResourceConfigs] = useState<ProjectResourceConfig[]>([]);
   const isMember = project.members.some(member => member.studentId === user?.studentId);
   const isProjectProgramAdmin = user?.isAdmin?.includes(project.programId);
+
+  useEffect(() => {
+    const loadResourceConfigs = async () => {
+      if (project.program?.id) {
+        try {
+          const configs = await getProjectResourceConfig(project.program.id);
+          setResourceConfigs(configs.filter((config: ProjectResourceConfig) => config.is_active));
+        } catch (error) {
+          console.error("Error loading resource configs:", error);
+        }
+      }
+    };
+
+    loadResourceConfigs();
+  }, [project.program?.id]);
 
   return (
     <div className="relative mb-4 border border-gray-100 rounded-md bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
@@ -47,32 +58,73 @@ const ProjectComponent = ({ project }: { project: Project }) => {
           </h4>
         </div>
 
-        {/* Icons - Below Project Title */}
+        {/* Resource Icons */}
         <div className="flex flex-wrap gap-2 mb-3">
-          <button className="p-1.5 bg-gray-50 rounded-md hover:bg-gray-100">
-            <FileIcon />
-          </button>
-          <button className="p-1.5 bg-gray-50 rounded-md hover:bg-gray-100">
-            <YouTubeIcon />
-          </button>
-          <button className="p-1.5 bg-gray-50 rounded-md hover:bg-gray-100">
-            <GitHubIcon />
-          </button>
-          <button className="p-1.5 bg-gray-50 rounded-md hover:bg-gray-100">
-            <PowerPointIcon />
-          </button>
-          <button className="p-1.5 bg-gray-50 rounded-md hover:bg-gray-100">
-            <PictureIcon />
-          </button>
-          <button className="p-1.5 bg-gray-50 rounded-md hover:bg-gray-100">
-            <AutoCADIcon />
-          </button>
-          <button className="p-1.5 bg-gray-50 rounded-md hover:bg-gray-100">
-            <SketchupIcon />
-          </button>
-          <button className="p-1.5 bg-gray-50 rounded-md hover:bg-gray-100">
-            <LinkIcon />
-          </button>
+          {project.projectResources?.map((resource) => {
+            // Find matching resource config
+            const matchingConfig = resourceConfigs.find(
+              (config) => config.title.toLowerCase() === resource.title?.toLowerCase()
+            );
+
+            return (
+              <div key={resource.id} className="relative">
+                {resource.url ? (
+                  <a
+                    href={resource.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block p-1.5 bg-gray-50 rounded-md hover:bg-gray-100"
+                  >
+                    <div className="w-6 h-6 flex items-center justify-center">
+                      {matchingConfig ? (
+                        <Image
+                          src={matchingConfig.icon_url}
+                          alt={matchingConfig.title}
+                          width={24}
+                          height={24}
+                          className="object-contain"
+                          unoptimized
+                        />
+                      ) : (
+                        <Image
+                          src="/IconProjectBox/BlueBox.png"
+                          alt="Default Icon"
+                          width={24}
+                          height={24}
+                          className="object-contain"
+                          unoptimized
+                        />
+                      )}
+                    </div>
+                  </a>
+                ) : (
+                  <div className="p-1.5 bg-gray-50 rounded-md">
+                    <div className="w-6 h-6 flex items-center justify-center">
+                      {matchingConfig ? (
+                        <Image
+                          src={matchingConfig.icon_url}
+                          alt={matchingConfig.title}
+                          width={24}
+                          height={24}
+                          className="object-contain"
+                          unoptimized
+                        />
+                      ) : (
+                        <Image
+                          src="/IconProjectBox/BlueBox.png"
+                          alt="Default Icon"
+                          width={24}
+                          height={24}
+                          className="object-contain"
+                          unoptimized
+                        />
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {/* Students and Committees */}
