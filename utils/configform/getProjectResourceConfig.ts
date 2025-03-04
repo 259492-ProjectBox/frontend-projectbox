@@ -11,6 +11,7 @@ export const getProjectResourceConfig = async (programId: number) : Promise<any>
         },
       }
     );
+    console.log("getProjectResourceConfig", response.data);
   
     return response.data; // Axios returns data in the `data` property of the response
   } catch (error) {
