@@ -18,12 +18,13 @@ import { obfuscateId } from "@/utils/encodePath";
 const ProjectComponent = ({ project }: { project: Project }) => {
   const { user } = useAuth();
   const isMember = project.members.some(member => member.studentId === user?.studentId);
+  const isProjectProgramAdmin = user?.isAdmin?.includes(project.programId);
 
   return (
     <div className="relative mb-4 border border-gray-100 rounded-md bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
       <div className="p-4">
         {/* Edit Button - Top Right */}
-        {isMember && (
+        {(isMember || isProjectProgramAdmin) && (
           <Link href={`/editproject/${project.id}`}>
             <div
               className="absolute top-3 right-3 p-1.5 rounded-full bg-gray-50 hover:bg-gray-100"
