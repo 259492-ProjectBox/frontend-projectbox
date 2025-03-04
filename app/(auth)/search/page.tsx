@@ -10,25 +10,25 @@ import { AllProgram } from "@/models/AllPrograms";
 import getAllProgram from "@/utils/getAllProgram";
 
 interface SearchFields {
-  courseNo: string;
-  projectTitle: string;
-  studentNo: string;
-  advisorName: string;
-  academicYear: string;
-  semester: string;
-  programId: number;
+  courseNo: string | null;
+  projectTitle: string | null;
+  studentNo: string | null;
+  advisorName: string | null;
+  academicYear: string | null;
+  semester: string | null;
+  programId: number ;
 }
 
 const SearchPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [searchMode, setSearchMode] = useState<string>("quick");
   const [searchFields, setSearchFields] = useState<SearchFields>({
-    courseNo: "",
-    projectTitle: "",
-    studentNo: "",
-    advisorName: "",
-    academicYear: "",
-    semester: "",
+    courseNo: null,
+    projectTitle: null,
+    studentNo: null,
+    advisorName: null,
+    academicYear: null,
+    semester: null,
     programId: 0,
   });
   const [filteredRecords, setFilteredRecords] = useState<Project[]>([]);
@@ -86,12 +86,12 @@ const SearchPage: React.FC = () => {
 
   const handleDetailSearch = async () => {
     if (
-      !searchFields.courseNo.trim() &&
-      !searchFields.projectTitle.trim() &&
-      !searchFields.studentNo.trim() &&
-      !searchFields.advisorName.trim() &&
-      !searchFields.academicYear.trim() &&
-      !searchFields.semester.trim() &&
+      !(searchFields.courseNo?.trim()) &&
+      !(searchFields.projectTitle?.trim()) &&
+      !(searchFields.studentNo?.trim()) &&
+      !(searchFields.advisorName?.trim()) &&
+      !searchFields.academicYear?.trim() &&
+      !searchFields.semester?.trim() &&
       searchFields.programId === 0
     ) {
       alert("Please fill in at least one search field.");
@@ -253,7 +253,7 @@ const SearchPage: React.FC = () => {
                   </label>
                   {type === "dropdown" ? (
                     <select
-                      value={value}
+                      value={value ?? ""}
                       onChange={(e) =>
                         setSearchFields({
                           ...searchFields,
@@ -272,7 +272,7 @@ const SearchPage: React.FC = () => {
                     <input
                       type="text"
                       placeholder={placeholder}
-                      value={value}
+                      value={value ?? ""}
                       onChange={(e) =>
                         setSearchFields({
                           ...searchFields,

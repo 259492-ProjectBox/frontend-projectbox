@@ -1,15 +1,18 @@
 import axios from "axios";
 import { Project } from '../../models/Project';
 
+interface SearchFields {
+  courseNo: string | null;
+  projectTitle: string | null;
+  studentNo: string | null;
+  advisorName: string | null;
+  academicYear: string | null;
+  semester: string | null;
+  programId?: number;
+}
+
 interface DetailSearchPayload {
-  searchFields: {
-    courseNo: string;
-    projectTitle: string;
-    studentNo: string;
-    advisorName: string;
-    academicYear: string;
-    semester: string;
-  };
+  searchFields: SearchFields;
 }
 
 const detailSearchProjects = async ({ searchFields }: DetailSearchPayload): Promise<Project[]> => {
@@ -17,23 +20,42 @@ const detailSearchProjects = async ({ searchFields }: DetailSearchPayload): Prom
     const fields = [];
     const searchInput = [];
 
-    fields.push("course.courseNo");
-    searchInput.push(searchFields.courseNo );
+    if (searchFields.courseNo) {
+      fields.push("course.courseNo");
+      searchInput.push(searchFields.courseNo);
+    }
 
-    fields.push("titleTH/titleEN");
-    searchInput.push(searchFields.projectTitle);
+    if (searchFields.projectTitle) {
+      fields.push("titleTH/titleEN");
+      searchInput.push(searchFields.projectTitle);
+    }
 
-    fields.push("members.studentId");
-    searchInput.push(searchFields.studentNo );
+    if (searchFields.studentNo !== null || searchFields.studentNo !== "") {
+      fields.push("members.studentId");
+      searchInput.push(searchFields.studentNo);
+    }
 
-    fields.push("staffs.firstNameTH/staffs.lastNameTH/staffs.firstNameEN/staffs.lastNameEN");
-    searchInput.push(searchFields.advisorName );
+    if (searchFields.advisorName !== null || searchFields.advisorName !== "") {
+      fields.push("staffs.firstNameTH/staffs.lastNameTH/staffs.firstNameEN/staffs.lastNameEN");
+      searchInput.push(searchFields.advisorName);
+    }
 
-    fields.push("academicYear");
-    searchInput.push(searchFields.academicYear );
+    if (searchFields.academicYear !== null || searchFields.academicYear !== "") {
+      fields.push("academicYear");
+      searchInput.push(searchFields.academicYear);
+    }
 
-    fields.push("semester");
-    searchInput.push(searchFields.semester );
+    if (searchFields.semester !== null || searchFields.semester !== "") {
+      fields.push("semester");
+      searchInput.push(searchFields.semester);
+    }
+
+    if (searchFields.programId !== undefined || searchFields.programId !== null ) {
+      fields.push("programId");
+      if (searchFields.programId !== undefined && searchFields.programId !== null) {
+        searchInput.push(searchFields.programId.toString());
+      }
+    }
 
     const response = await axios.get(
       `https://search-service.kunmhing.me/api/v1/projects/selected-fields`,
