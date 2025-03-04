@@ -12,9 +12,7 @@ import { useRouter } from "next/navigation"; // Import useRouter from next/navig
 import getAllEmployees from "@/utils/advisorstats/getAllEmployee";
 import { Advisor } from "@/models/Advisor"
 import { getStudentsByProgram } from "@/utils/createproject/getStudentsByProgram";
-import { Student } from "@/models/Student"; // Import the new Student type
-import { getProjectRoles } from "@/utils/createproject/getProjectRoles"; // Import the getProjectRoles function
-import { ProjectRole } from "@/models/ProjectRoles"; // Import the ProjectRole type
+import { Student } from "@/models/Student"; // Import the Student type
 import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig"; // Import getProjectResourceConfig
 import EditIcon from '@mui/icons-material/Edit';
 
@@ -72,7 +70,6 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [staffList, setStaffList] = useState<Advisor[]>([]);
   const [studentList, setStudentList] = useState<Student[]>([]); // Store student list
-  const [projectRoles, setProjectRoles] = useState<ProjectRole[]>([]); // Store project roles
   const [projectResourceConfig, setProjectResourceConfig] = useState<
     ProjectResourceConfig[]
   >([]); // Store project resource config
@@ -141,8 +138,8 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
         const students = await getStudentsByProgram(projectData.program.id);
         setStudentList(students);
 
-        const roles = await getProjectRoles();
-        setProjectRoles(roles);
+        const configs = await getProjectResourceConfig(projectData.program.id);
+        setProjectResourceConfig(configs);
       } catch (error) {
         console.error("Error fetching project details:", error);
       } finally {
