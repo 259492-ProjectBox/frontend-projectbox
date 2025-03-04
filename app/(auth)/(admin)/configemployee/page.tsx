@@ -565,7 +565,7 @@ export default function ConfigAdvisorPage() {
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                     <tr>
                       <th scope="col" className="px-6 py-3">
-                        ID
+                        No
                       </th>
                       <th scope="col" className="px-6 py-3">
                         Name
@@ -583,7 +583,7 @@ export default function ConfigAdvisorPage() {
                   </thead>
                   <tbody>
                     {advisors && advisors.length > 0 ? (
-                      advisors.map((item , index) => (
+                      advisors.sort((a,b ) => a.id -b.id).map((item , index) => (
                         <tr
                           key={item.id}
                           className="bg-white border-b hover:bg-gray-50"
