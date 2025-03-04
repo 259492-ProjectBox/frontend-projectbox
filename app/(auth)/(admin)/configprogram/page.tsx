@@ -188,8 +188,6 @@ export default function ConfigProgram() {
     }
   };
 
-
-
   // Show loading or error
   if (loading) return <Spinner />;
   if (error) {
@@ -201,60 +199,56 @@ export default function ConfigProgram() {
   }
 
   return (
-    <div className="min-h-screen p-6 bg-gray-100">
-      <div className="max-w-6xl mx-auto rounded-lg p-4">
+    <div className="min-h-screen bg-gray-50/50 py-8">
+      <div className="max-w-5xl mx-auto px-4">
         {/* Program Selector */}
-        <div className="mb-5 p-4 rounded-md  bg-white">
-          <label
-            htmlFor="programSelect"
-            className="block mb-2 text-sm font-semibold text-gray-700"
-          >
-            Program:
-          </label>
-          <select
-            id="programSelect"
-            value={selectedMajor}
-            onChange={(e) => setSelectedMajor(Number(e.target.value))}
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded
-                       focus:outline-none focus:ring-2 focus:ring-red-900"
-          >
-            {options.map((option) => (
-              <option key={option.id} value={option.id}>
-                {option.program_name_en}
-              </option>
-            ))}
-          </select>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+          <div className="p-5">
+            <label htmlFor="programSelect" className="block text-sm font-medium text-gray-700">
+              Select Program
+            </label>
+            <select
+              id="programSelect"
+              value={selectedMajor}
+              onChange={(e) => setSelectedMajor(Number(e.target.value))}
+              className="mt-1.5 w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg
+                       focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
+            >
+              {options.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.program_name_en}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* Hide content if no program is selected */}
         {selectedMajor !== 0 && (
-          <div>
+          <div className="space-y-4">
             {/* Config Data Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {configData.length > 0 ? (
                 configData.map((item: ConfigProgramSetting, index) => (
-                  <div
-                    key={index}
-                    className="bg-white p-4 rounded-lg shadow-md"
-                  >
-                    <h2 className="text-gray-800 font-semibold">
+                  <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden p-4">
+                    <h2 className="text-sm font-medium text-gray-700">
                       {toTitleCase(item.config_name)}
                     </h2>
 
-                    {/* Toggling read-only vs. edit mode for specific items */}
                     {item.config_name === "semester" ? (
                       isEditMode ? (
                         <select
                           value={semester}
                           onChange={(e) => setSemester(e.target.value)}
-                          className="mt-2 p-2 border border-gray-300 rounded"
+                          className="mt-1.5 w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg
+                                   focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
                         >
                           <option value="1">1</option>
                           <option value="2">2</option>
                           <option value="3">3 (Summer)</option>
                         </select>
                       ) : (
-                        <p className="text-gray-600 mt-2">{semester}</p>
+                        <p className="mt-1 text-sm text-gray-600">{semester}</p>
                       )
                     ) : item.config_name === "academic year" ? (
                       isEditMode ? (
@@ -262,63 +256,67 @@ export default function ConfigProgram() {
                           type="text"
                           value={academicYear}
                           onChange={(e) => setAcademicYear(e.target.value)}
-                          className="mt-2 p-2 border border-gray-300 rounded"
+                          className="mt-1.5 w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg
+                                   focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
                         />
                       ) : (
-                        <p className="text-gray-600 mt-2">{academicYear}</p>
+                        <p className="mt-1 text-sm text-gray-600">{academicYear}</p>
                       )
                     ) : (
-                      <p className="text-gray-600 mt-2">{item.value}</p>
+                      <p className="mt-1 text-sm text-gray-600">{item.value}</p>
                     )}
                   </div>
                 ))
               ) : (
-                <p className="text-gray-600">
+                <p className="text-sm text-gray-500">
                   No configuration data found for this program.
                 </p>
               )}
             </div>
 
             {/* Edit/Save Buttons */}
-            <div className="mt-4 flex gap-4">
+            <div className="flex gap-3">
               <button
                 onClick={() => setIsEditMode((prev) => !prev)}
-                className="text-white bg-blue-900 py-2 px-4 rounded-lg 
-                           hover:bg-blue-800 transition-colors"
+                className="px-4 py-2 text-sm font-medium text-white bg-primary_button rounded-lg
+                         hover:bg-button_hover transition-colors duration-200"
               >
                 {isEditMode ? "Cancel" : "Edit"}
               </button>
               {isEditMode && (
                 <button
                   onClick={handleSave}
-                  className="text-white bg-blue-900 py-2 px-4 rounded-lg 
-                             hover:bg-blue-800 transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-white bg-primary_button rounded-lg
+                           hover:bg-button_hover transition-colors duration-200"
                 >
                   Save
                 </button>
               )}
             </div>
 
-            {/* Space added between the sections */}
-            <div className="my-8" />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* File Upload Section 1 */}
-              <div className="shadow-md bg-white rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">
+            {/* Upload Sections */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Upload Student Section */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden p-4">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">
                   Upload Student
                 </h3>
-                  <ExcelTemplateSection
-                    title="Roster_Student_Template"
-                    templateUrl="/UploadExample/studentlist_261492-267.xlsx"
-                  />
+                <p className="text-sm text-gray-500 mb-3">
+                  Upload a list of students to grant them permission to create projects for the current academic year and semester. This allows students to submit their own project details.
+                </p>
+                <ExcelTemplateSection
+                  title="Roster_Student_Template"
+                  templateUrl="/UploadExample/studentlist_261492-267.xlsx"
+                />
                 <label
                   htmlFor="dropzone-file"
-                  className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                  className="mt-3 flex flex-col items-center justify-center w-full h-48 border-2 
+                           border-gray-200 border-dashed rounded-lg cursor-pointer bg-gray-50 
+                           hover:bg-gray-100 transition-colors duration-200"
                 >
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <div className="flex flex-col items-center justify-center p-4 text-center">
                     <svg
-                      className="w-8 h-8 mb-4 text-gray-500"
+                      className="w-8 h-8 mb-3 text-gray-400"
                       aria-hidden="true"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -333,10 +331,9 @@ export default function ConfigProgram() {
                       />
                     </svg>
                     <p className="mb-2 text-sm text-gray-500">
-                      <span className="font-semibold">Click to upload</span> or
-                      drag and drop
+                      <span className="font-medium">Click to upload</span> or drag and drop
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-400">
                       .xlsx file only (MAX. 800 KB)
                     </p>
                   </div>
@@ -348,37 +345,38 @@ export default function ConfigProgram() {
                   />
                 </label>
                 {file && (
-                  <p className="mt-2 text-gray-600">
-                    Selected File: {file.name}
-                  </p>
+                  <p className="mt-2 text-sm text-gray-500">Selected: {file.name}</p>
                 )}
-
-                {/* Save Upload Button */}
                 <button
                   onClick={handleSaveUpload}
-                  className="mt-4 text-white bg-blue-900 py-2 px-4 rounded-lg 
-                 hover:bg-blue-800 transition-colors"
+                  className="mt-3 w-full px-4 py-2 text-sm font-medium text-white bg-primary_button rounded-lg
+                           hover:bg-button_hover transition-colors duration-200"
                 >
-                  Save Upload
+                  Upload
                 </button>
               </div>
 
-              {/* File Upload Section 2 */}
-              <div className="shadow-md bg-white rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              {/* Upload Project Section */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden p-4">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">
                   Upload Project
                 </h3>
-                  <ExcelTemplateSection
-                    title="Roster_Project_Template"
-                    templateUrl="/UploadExample/projectcreate.xlsx"
-                  />
+                <p className="text-sm text-gray-500 mb-3">
+                  Upload projects directly as staff. Use this option to create projects on behalf of students or to import existing/old projects into the system.
+                </p>
+                <ExcelTemplateSection
+                  title="Roster_Project_Template"
+                  templateUrl="/UploadExample/projectcreate.xlsx"
+                />
                 <label
                   htmlFor="dropzone-file-existing"
-                  className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                  className="mt-3 flex flex-col items-center justify-center w-full h-48 border-2 
+                           border-gray-200 border-dashed rounded-lg cursor-pointer bg-gray-50 
+                           hover:bg-gray-100 transition-colors duration-200"
                 >
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <div className="flex flex-col items-center justify-center p-4 text-center">
                     <svg
-                      className="w-8 h-8 mb-4 text-gray-500"
+                      className="w-8 h-8 mb-3 text-gray-400"
                       aria-hidden="true"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -393,10 +391,9 @@ export default function ConfigProgram() {
                       />
                     </svg>
                     <p className="mb-2 text-sm text-gray-500">
-                      <span className="font-semibold">Click to upload</span> or
-                      drag and drop
+                      <span className="font-medium">Click to upload</span> or drag and drop
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-400">
                       .xlsx file only (MAX. 800 KB)
                     </p>
                   </div>
@@ -408,18 +405,14 @@ export default function ConfigProgram() {
                   />
                 </label>
                 {file && (
-                  <p className="mt-2 text-gray-600">
-                    Selected File: {file.name}
-                  </p>
+                  <p className="mt-2 text-sm text-gray-500">Selected: {file.name}</p>
                 )}
-
-                {/* Save Upload Button */}
                 <button
                   onClick={handleSaveProjectUpload}
-                  className="mt-4 text-white bg-blue-900 py-2 px-4 rounded-lg 
-                 hover:bg-blue-800 transition-colors"
+                  className="mt-3 w-full px-4 py-2 text-sm font-medium text-white bg-primary_button rounded-lg
+                           hover:bg-button_hover transition-colors duration-200"
                 >
-                  Save Upload
+                  Upload
                 </button>
               </div>
             </div>
@@ -427,15 +420,15 @@ export default function ConfigProgram() {
         )}
       </div>
 
-      {/* Example Modal */}
+      {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-            <h2 className="text-lg font-semibold mb-4">Add Asset</h2>
-            <div className="flex justify-between mb-4">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 backdrop-blur-sm z-50">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 p-6">
+            <h2 className="text-lg font-medium text-gray-800 mb-4">Add Asset</h2>
+            <div className="flex justify-end">
               <button
-                className="w-1/2 text-center py-2 rounded-lg bg-blue-900 text-white 
-                           hover:bg-blue-800 transition-colors"
+                className="px-4 py-2 text-sm font-medium text-white bg-primary_button rounded-lg
+                         hover:bg-button_hover transition-colors duration-200"
                 onClick={() => setIsModalOpen(false)}
               >
                 Close

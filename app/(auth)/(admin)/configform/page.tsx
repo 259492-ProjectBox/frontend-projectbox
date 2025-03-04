@@ -259,320 +259,367 @@ const ConfigSubmission: React.FC = () => {
     }
   };
 
-  if (loading) return <Spinner />;
+  if (loading) return (
+    <div className="min-h-screen bg-gray-50/50 flex items-center justify-center">
+      <Spinner />
+    </div>
+  );
 
   return (
-    <div className="flex flex-col min-h-screen bg-stone-100 py-6">
-      <div className="container mx-auto max-w-6xl">
-        {/* Major Selector Container */}
-        <div className="mb-5 p-4 rounded-md bg-white">
-          <label
-            htmlFor="majorSelect"
-            className="block mb-2 text-sm font-semibold text-gray-700"
-          >
-            Program:
-          </label>
-          <select
-            id="majorSelect"
-            value={selectedMajor}
-            onChange={(e) => setSelectedMajor(Number(e.target.value))}
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded 
-                       focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            {options.map((option) => (
-              <option key={option.id} value={option.id}>
-                {option.program_name_en}
-              </option>
-            ))}
-          </select>
+    <div className="min-h-screen bg-gray-50/50 py-8">
+      <div className="max-w-5xl mx-auto px-4">
+        {/* Program Selector */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+          <div className="p-5">
+            <label htmlFor="majorSelect" className="block text-sm font-medium text-gray-700">
+              Select Program
+            </label>
+            <select
+              id="majorSelect"
+              value={selectedMajor}
+              onChange={(e) => setSelectedMajor(Number(e.target.value))}
+              className="mt-1.5 w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg
+                       focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
+            >
+              {options.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.program_name_en}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        {/* Hide content if no program is selected */}
         {selectedMajor !== 0 && (
           <>
-            {/* Page Heading */}
-            <h2 className="mb-4 text-xl font-bold text-gray-800">
-              Create Project Form
-            </h2>
-
-            {/* Single Container for BOTH sections + Save Button */}
-            <div className="p-6 bg-white border border-gray-200 rounded-md shadow-sm mb-6">
-              {/* 2-column layout for Project Details & Members */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Left Column: Project Details */}
-                <Section
-                  title="Project Details"
-                  fields={[
-                    "title_th",
-                    "title_en",
-                    "abstract_text",
-                    "academic_year",
-                    "semester",
-                    "section_id",
-                    "course_id",
-                  ]}
-                  formData={formData}
-                  onToggle={handleToggleChange}
-                />
-
-                {/* Right Column: Members */}
-                <Section
-                  title="Members"
-                  fields={[
-                    "advisor",
-                    "co_advisor",
-                    "external_committee",
-                    "committee",
-                    "student",
-                  ]}
-                  formData={formData}
-                  onToggle={handleToggleChange}
-                />
+            {/* Form Configuration Card */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+              <div className="p-5 border-b border-gray-100">
+                <h2 className="text-lg font-semibold text-gray-900">Project Form Configuration</h2>
+                <p className="mt-1 text-sm text-gray-500">Configure which fields should be included in the project form</p>
               </div>
 
-              {/* Save Button aligned to the right */}
-              <div className="flex justify-end">
-                <button
-                  onClick={handleSubmit}
-                  className="bg-primary_button text-white py-1 px-3 rounded hover:bg-blue-700"
-                >
-                  Save
-                </button>
+              <div className="p-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Project Details Section */}
+                  <Section
+                    title="Project Details"
+                    fields={[
+                      "title_th",
+                      "title_en",
+                      "abstract_text",
+                      "academic_year",
+                      "semester",
+                      "section_id",
+                      "course_id",
+                    ]}
+                    formData={formData}
+                    onToggle={handleToggleChange}
+                  />
+
+                  {/* Members Section */}
+                  <Section
+                    title="Members"
+                    fields={[
+                      "advisor",
+                      "co_advisor",
+                      "external_committee",
+                      "committee",
+                      "student",
+                    ]}
+                    formData={formData}
+                    onToggle={handleToggleChange}
+                  />
+                </div>
+
+                <div className="mt-6 flex justify-end">
+                  <button
+                    onClick={handleSubmit}
+                    className="px-4 py-2 text-sm font-medium text-white bg-primary-DEFAULT rounded-lg bg-primary_button
+                           hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-light
+                           transition-colors"
+                  >
+                    Save Changes
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Mock Table Section (Upload Resource) */}
-            <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
-              <div className="flex justify-between items-center mb-4">
-                <h6 className="text-lg font-bold">Upload Resource Section</h6>
+            {/* Resource Configuration Card */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="p-5 border-b border-gray-100 flex justify-between items-center">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900">Resource Configuration</h2>
+                  <p className="mt-1 text-sm text-gray-500">Manage uploadable resources for projects</p>
+                </div>
                 <button
                   onClick={openModal}
-                  className="bg-primary_button text-white py-1 px-3 rounded hover:bg-button_hover"
+                  className="px-4 py-2 text-sm font-medium text-white bg-primary-DEFAULT rounded-lg bg-primary_button
+                         hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-light
+                         transition-colors inline-flex items-center gap-2"
                 >
-                  Add Upload Type
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                  Add Resource
                 </button>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm text-left text-gray-500">
-                  <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                    <tr>
-                      <th scope="col" className="px-4 py-3">
-                        Icon
-                      </th>
-                      <th scope="col" className="px-4 py-3">
-                        Title
-                      </th>
-                      <th scope="col" className="px-4 py-3">
-                        Type
-                      </th>
-                      <th scope="col" className="px-4 py-3">
-                        Is Active
-                      </th>
-                      <th scope="col" className="px-4 py-3">
-                        Action
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {tableData?.map((item: ProjectResourceConfig, index: number) => (
-                      <tr key={index} className="border-b hover:bg-gray-100">
-                        <td className="px-4 py-3">
-                          {item.icon_name ? (
-                             <div className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center ">
-                              <div className="w-7 h-7 flex items-center justify-center">
-                             <Image
-                               src={item.icon_url || "/IconProjectBox/BlueBox.png"}
-                               alt="icon"
-                               width={32}
-                               height={32}
-                               style={{ objectFit: "contain" }}
-                               className="w-full h-full object-contain"
-                               unoptimized
-                             />
-                             </div>
-                           </div>
-                          ) : (
-                            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
-                              N/A
-                            </div>
-                          )}
-                        </td>
-                        <td className="px-4 py-3">{item.title}</td>
-                        <td className="px-4 py-3">{item.resource_type_id === 1 ? "File" : "Link"}</td>
-                        <td className="px-4 py-3">
-                          <label className="inline-flex items-center cursor-pointer">
-                            <input
-                              type="checkbox"
-                              className="sr-only peer"
-                              checked={item.is_active || false}
-                              onChange={() => handleResourceToggleChange(item)}
-                            />
-                            <div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-white peer-checked:bg-green-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                          </label>
-                        </td>
-                        <td className="px-4 py-3 font-medium text-blue-600 cursor-pointer" onClick={() => openEditModal(item)}>
-                          Edit
-                        </td>
+
+              <div className="p-5">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-gray-100">
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Icon</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {tableData?.map((item: ProjectResourceConfig, index: number) => (
+                        <tr key={index} className="hover:bg-gray-50/50 transition-colors">
+                          <td className="px-4 py-3">
+                            <div className="w-9 h-9 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden flex items-center justify-center">
+                              {item.icon_name ? (
+                                <div className="w-6 h-6 flex items-center justify-center">
+                                  <Image
+                                    src={item.icon_url || "/IconProjectBox/BlueBox.png"}
+                                    alt={item.title}
+                                    width={24}
+                                    height={24}
+                                    className="object-contain"
+                                    unoptimized
+                                  />
+                                </div>
+                              ) : (
+                                <span className="text-sm text-gray-400">N/A</span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-900">{item.title}</td>
+                          <td className="px-4 py-3 text-sm text-gray-600">
+                            {item.resource_type_id === 1 ? "File" : "Link"}
+                          </td>
+                          <td className="px-4 py-3">
+                            <label className="relative inline-flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                className="sr-only peer"
+                                checked={item.is_active || false}
+                                onChange={() => handleResourceToggleChange(item)}
+                              />
+                              <div className="w-9 h-5 bg-gray-200 rounded-full peer 
+                                          peer-checked:bg-primary-light peer-focus:ring-2 
+                                          peer-focus:ring-primary-light/30 
+                                          after:content-[''] after:absolute after:top-[2px] 
+                                          after:left-[2px] after:bg-white after:rounded-full 
+                                          after:h-4 after:w-4 after:transition-all
+                                          peer-checked:after:translate-x-full">
+                              </div>
+                            </label>
+                          </td>
+                          <td className="px-4 py-3">
+                            <button
+                              onClick={() => openEditModal(item)}
+                              className="text-sm font-medium text-primary-DEFAULT hover:text-primary-dark transition-colors"
+                            >
+                              Edit
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-
-              {/* Modal for creating new project resource */}
-              {isModalOpen && (
-                <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-                  <div className="bg-white p-4 rounded-lg w-[600px] max-h-[90vh] overflow-y-auto">
-                    <h3 className="text-lg font-semibold mb-3">Upload Details</h3>
-
-                    {/* Section 1: Icon Selection */}
-                    <div className="mb-3">
-                      <label className="block text-sm font-medium mb-1">
-                        Select Icon
-                      </label>
-                      <div className="border border-gray-200 rounded p-2 bg-gray-50">
-                        <ResourceIconGallery 
-                          onSelectIcon={handleIconSelect}
-                          onDeselect={handleIconDeselect}
-                          selectedPath={selectedIconPath}
-                        />
-                      </div>
-                      <div className="mt-2">
-                        <label className="block text-sm font-medium mb-1">
-                          Or Upload Custom Icon
-                        </label>
-                        <input
-                          type="file"
-                          className={`w-full p-1.5 text-sm border border-gray-300 rounded ${
-                            selectedIconPath ? 'opacity-50 cursor-not-allowed' : ''
-                          }`}
-                          onChange={handleIconChange}
-                          disabled={!!selectedIconPath}
-                        />
-                        {iconName && (
-                          <p className="mt-1 text-xs text-gray-600">
-                            Selected icon: {iconName}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Rest of the modal content */}
-                    <div className="mb-3">
-                      <label className="block text-sm font-medium mb-1">Title</label>
-                      <input
-                        type="text"
-                        className="w-full p-1.5 text-sm border border-gray-300 rounded"
-                        placeholder="Enter title"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                      />
-                    </div>
-
-                    <div className="mb-3">
-                      <label className="block text-sm font-medium mb-1">
-                        Upload Type
-                      </label>
-                      <select
-                        className="w-full p-1.5 text-sm border border-gray-300 rounded"
-                        value={resourceTypeId}
-                        onChange={(e) => setResourceTypeId(Number(e.target.value))}
-                      >
-                        <option value="1">File</option>
-                        <option value="2">Link</option>
-                      </select>
-                    </div>
-
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={closeModal}
-                        className="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 rounded"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleResourceSubmit}
-                        className="px-3 py-1.5 text-sm bg-blue-500 text-white hover:bg-blue-600 rounded"
-                      >
-                        Submit
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Modal for editing project resource */}
-              {isEditModalOpen && resourceToEdit && (
-                <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-                  <div className="bg-white p-4 rounded-lg w-[600px] max-h-[90vh] overflow-y-auto">
-                    <h3 className="text-lg font-semibold mb-3">Edit Resource</h3>
-
-                    {/* Section 1: Icon Selection */}
-                    <div className="mb-3">
-                      <label className="block text-sm font-medium mb-1">
-                        Select Icon
-                      </label>
-                      <div className="border border-gray-200 rounded p-2 bg-gray-50">
-                        <ResourceIconGallery 
-                          onSelectIcon={handleEditIconSelect}
-                          onDeselect={handleEditIconDeselect}
-                          selectedPath={editSelectedIconPath}
-                        />
-                      </div>
-                      <div className="mt-2">
-                        <label className="block text-sm font-medium mb-1">
-                          Or Upload Custom Icon
-                        </label>
-                        <input
-                          type="file"
-                          className={`w-full p-1.5 text-sm border border-gray-300 rounded ${
-                            editSelectedIconPath ? 'opacity-50 cursor-not-allowed' : ''
-                          }`}
-                          onChange={handleEditIconChange}
-                          disabled={!!editSelectedIconPath}
-                        />
-                        {editIconName && (
-                          <p className="mt-1 text-xs text-gray-600">
-                            Selected icon: {editIconName}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Section 2: Title Input */}
-                    <div className="mb-3">
-                      <label className="block text-sm font-medium mb-1">Title</label>
-                      <input
-                        type="text"
-                        className="w-full p-1.5 text-sm border border-gray-300 rounded"
-                        placeholder="Enter title"
-                        value={editTitle}
-                        onChange={(e) => setEditTitle(e.target.value)}
-                      />
-                    </div>
-
-                    {/* Modal buttons */}
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={closeEditModal}
-                        className="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 rounded"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleEditResourceSubmit}
-                        className="px-3 py-1.5 text-sm bg-blue-500 text-white hover:bg-blue-600 rounded"
-                      >
-                        Save
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           </>
         )}
       </div>
+
+      {/* Add Resource Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-lg m-4 max-h-[90vh] overflow-y-auto">
+            <div className="p-6 space-y-6">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-900">Add Resource</h3>
+                <button onClick={closeModal} className="text-gray-400 hover:text-gray-500 ">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Icon Selection */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Select Icon
+                  </label>
+                  <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                    <ResourceIconGallery 
+                      onSelectIcon={handleIconSelect}
+                      onDeselect={handleIconDeselect}
+                      selectedPath={selectedIconPath}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Or Upload Custom Icon
+                  </label>
+                  <input
+                    type="file"
+                    className={`w-full px-3 py-2 text-sm border border-gray-200 rounded-lg
+                             focus:ring-2 focus:ring-primary-light focus:border-primary-light
+                             ${selectedIconPath ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    onChange={handleIconChange}
+                    disabled={!!selectedIconPath}
+                  />
+                  {iconName && (
+                    <p className="mt-1 text-xs text-gray-500">
+                      Selected: {iconName}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Title
+                  </label>
+                  <input
+                    type="text"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg
+                           focus:ring-2 focus:ring-primary-light focus:border-primary-light"
+                    placeholder="Enter resource title"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Resource Type
+                  </label>
+                  <select
+                    value={resourceTypeId}
+                    onChange={(e) => setResourceTypeId(Number(e.target.value))}
+                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg
+                           focus:ring-2 focus:ring-primary-light focus:border-primary-light"
+                  >
+                    <option value={1}>File Upload</option>
+                    <option value={2}>External Link</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={closeModal}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg 
+                         hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleResourceSubmit}
+                  className="px-4 py-2 text-sm font-medium text-white bg-primary-DEFAULT rounded-lg bg-primary_button
+                         hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-light"
+                >
+                  Add Resource
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Resource Modal - Similar styling as Add Modal */}
+      {isEditModalOpen && resourceToEdit && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-lg m-4 max-h-[90vh] overflow-y-auto">
+            <div className="p-6 space-y-6">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-900">Edit Resource</h3>
+                <button onClick={closeEditModal} className="text-gray-400 hover:text-gray-500">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Select Icon
+                  </label>
+                  <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                    <ResourceIconGallery 
+                      onSelectIcon={handleEditIconSelect}
+                      onDeselect={handleEditIconDeselect}
+                      selectedPath={editSelectedIconPath}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Or Upload Custom Icon
+                  </label>
+                  <input
+                    type="file"
+                    className={`w-full px-3 py-2 text-sm border border-gray-200 rounded-lg
+                             focus:ring-2 focus:ring-primary-light focus:border-primary-light
+                             ${editSelectedIconPath ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    onChange={handleEditIconChange}
+                    disabled={!!editSelectedIconPath}
+                  />
+                  {editIconName && (
+                    <p className="mt-1 text-xs text-gray-500">
+                      Selected: {editIconName}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Title
+                  </label>
+                  <input
+                    type="text"
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg
+                           focus:ring-2 focus:ring-primary-light focus:border-primary-light"
+                    placeholder="Enter resource title"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={closeEditModal}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg
+                         hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleEditResourceSubmit}
+                  className="px-4 py-2 text-sm font-medium text-white bg-primary-DEFAULT rounded-lg bg-primary_button
+                         hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-light"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

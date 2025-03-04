@@ -16,6 +16,38 @@ type ProgramOption = {
   label: string;
 };
 
+// Color palette generator function
+const generateColorPalette = (id: number) => {
+  // Predefined color combinations (bg and text colors)
+  const colorPalettes = [
+    { bg: "bg-red-100", text: "text-red-800" },
+    { bg: "bg-purple-100", text: "text-purple-800" },
+    { bg: "bg-green-100", text: "text-green-800" },
+    { bg: "bg-blue-100", text: "text-blue-800" },
+    { bg: "bg-indigo-100", text: "text-indigo-800" },
+    { bg: "bg-yellow-100", text: "text-yellow-800" },
+    { bg: "bg-pink-100", text: "text-pink-800" },
+    { bg: "bg-orange-100", text: "text-orange-800" },
+    { bg: "bg-teal-100", text: "text-teal-800" },
+    { bg: "bg-cyan-100", text: "text-cyan-800" },
+    { bg: "bg-lime-100", text: "text-lime-800" },
+    { bg: "bg-emerald-100", text: "text-emerald-800" },
+    { bg: "bg-sky-100", text: "text-sky-800" },
+    { bg: "bg-violet-100", text: "text-violet-800" },
+    { bg: "bg-fuchsia-100", text: "text-fuchsia-800" },
+    { bg: "bg-rose-100", text: "text-rose-800" },
+  ];
+
+  // Use modulo to cycle through colors if id exceeds array length
+  const colorIndex = (id - 1) % colorPalettes.length;
+  return colorPalettes[colorIndex];
+};
+
+// Replace the old programColors with the new dynamic system
+const getColorForProgram = (programId: number) => {
+  return generateColorPalette(programId);
+};
+
 type Admin = {
   email: string;
   nameEn: string;
@@ -31,21 +63,6 @@ type FetchedAdmin = {
   firstnameth: string;
   lastnameth: string;
   programs_ids: number[];
-};
-
-const programColors: Record<number, { bg: string; text: string }> = {
-  1: { bg: "bg-[#F8D7DA]", text: "text-[#8B0000]" },
-  2: { bg: "bg-[#F3E5F5]", text: "text-[#6A1B9A]" },
-  3: { bg: "bg-[#E8F5E9]", text: "text-[#1B5E20]" },
-  4: { bg: "bg-[#FFEBEE]", text: "text-[#B71C1C]" },
-  5: { bg: "bg-[#E0F2F1]", text: "text-[#004D40]" },
-  6: { bg: "bg-[#FFFDE7]", text: "text-[#F57F17]" },
-  7: { bg: "bg-[#F3E5F5]", text: "text-[#4A148C]" },
-  8: { bg: "bg-[#FFF3E0]", text: "text-[#E65100]" },
-  9: { bg: "bg-[#E3F2FD]", text: "text-[#0D47A1]" },
-  10: { bg: "bg-[#E8EAF6]", text: "text-[#1A237E]" },
-  11: { bg: "bg-[#F8D7DA]", text: "text-[#8B0000]" },
-  12: { bg: "bg-[#E0F7FA]", text: "text-[#006064]" },
 };
 
 export default function AdminManagePage(): JSX.Element {
@@ -266,130 +283,229 @@ export default function AdminManagePage(): JSX.Element {
   };
 
   return (
-    <div className="min-h-screen p-4 bg-gray-100">
+    <div className="min-h-screen p-6 bg-gray-50">
       {/* Admin Program Manager Section */}
-      <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-md p-4 mb-6">
-        <div className="flex justify-between items-center mb-3">
-          <h1 className="text-lg font-semibold text-gray-800">
-            Admin Program Manager
-          </h1>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="bg-white text-blue-700 font-bold px-6 py-2 rounded shadow-md hover:bg-gray-100 focus:outline-none flex items-center gap-2"
-          >
-            Add Admin
-          </button>
-        </div>
+      <div className="max-w-5xl mx-auto space-y-6">
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-xl font-medium text-gray-900">
+              Admin Program Manager
+            </h1>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+            >
+              Add Admin
+            </button>
+          </div>
 
-        {/* Program Filter Dropdown */}
-        <div className="mb-4 flex gap-2">
-          <input
-            type="text"
-            placeholder="Search by CMU Account or Name"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-4/12 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-800 text-sm"
-          />
-          <Select
-            value={selectedProgram}
-            onChange={handleFilterProgramChange}
-            options={[
-              { value: 0, label: "Select Program" }, // Default selection
-              { value: -1, label: "All Programs" },  // GetAll option
-              ...programs.map((program) => ({
-                value: program.id,
-                label: program.program_name_en,
-              })),
-            ]}
-            className="w-4/12"
-            placeholder="Filter by Program"
-        />
-        </div>
+          {/* Search and Filter Section */}
+          <div className="mb-6 flex gap-4">
+            <input
+              type="text"
+              placeholder="Search by CMU Account or Name"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <Select
+              value={selectedProgram}
+              onChange={handleFilterProgramChange}
+              options={[
+                { value: 0, label: "Select Program" },
+                { value: -1, label: "All Programs" },
+                ...programs.map((program) => ({
+                  value: program.id,
+                  label: program.program_name_en,
+                })),
+              ]}
+              className="w-64"
+              classNamePrefix="select"
+              placeholder="Filter by Program"
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  borderColor: '#e5e7eb',
+                  '&:hover': {
+                    borderColor: '#e5e7eb'
+                  }
+                }),
+                option: (base, state) => ({
+                  ...base,
+                  backgroundColor: state.isSelected ? '#3b82f6' : state.isFocused ? '#eff6ff' : 'white',
+                  color: state.isSelected ? 'white' : '#374151'
+                })
+              }}
+            />
+          </div>
 
-        <div className="relative overflow-x-auto shadow-md sm:rounded-lg max-h-96 overflow-y-auto">
-          <table className="w-full text-sm text-left text-gray-500">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-              <tr>
-                <th scope="col" className="px-6 py-3">CMU Account</th>
-                <th scope="col" className="px-6 py-3">Name</th>
-                <th scope="col" className="px-6 py-3">Program</th>
-                <th scope="col" className="px-6 py-3">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredAdmins.map((item) => (
-                <tr key={item.email} className="bg-white border-b hover:bg-gray-50">
-                  <td className="px-6 py-4 font-medium text-gray-900">{item.email}</td>
-                  <td className="px-6 py-4 font-medium text-gray-900">
-                    {item.nameEn}
-                    <br />
-                    <span className="text-gray-500">{item.nameTh}</span>
-                  </td>
-                    <td className="px-6 py-4 font-medium text-gray-900">
-                    {item.programIds.map((programId) => {
-                      const colorTheme = programColors[programId] || { bg: "bg-gray-300", text: "text-gray-700" };
-                      return (
-                      <div
-                        key={programId}
-                        className={`inline-block px-2 py-1 rounded-full text-xs font-semibold mr-2 mb-1 ${colorTheme.bg} ${colorTheme.text}`}
-                      >
-                        {getProgramAbbreviationById(programId, programs)}
-                      </div>
-                      );
-                    })}
-                    </td>
-                  <td className="px-6 py-4 font-medium text-red-600 cursor-pointer" onClick={() => { setAdminToDelete(item); setIsDeleteModalOpen(true); }}>
-                    Delete
-                  </td>
+          {/* Admin Table */}
+          <div className="overflow-x-auto rounded-lg border border-gray-200">
+            <table className="w-full text-sm text-left">
+              <thead className="bg-gray-50 text-gray-600 font-medium">
+                <tr>
+                  <th scope="col" className="px-4 py-3">CMU Account</th>
+                  <th scope="col" className="px-4 py-3">Name</th>
+                  <th scope="col" className="px-4 py-3">Program</th>
+                  <th scope="col" className="px-4 py-3">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {filteredAdmins.map((item, index) => (
+                  <tr 
+                    key={item.email} 
+                    className={`hover:bg-gray-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
+                  >
+                    <td className="px-4 py-3 text-gray-900">{item.email}</td>
+                    <td className="px-4 py-3">
+                      <div className="text-gray-900">{item.nameEn}</div>
+                      <div className="text-gray-500 text-xs">{item.nameTh}</div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-wrap gap-1">
+                        {item.programIds.map((programId) => {
+                          const colorTheme = getColorForProgram(programId);
+                          return (
+                            <span
+                              key={programId}
+                              className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colorTheme.bg} ${colorTheme.text}`}
+                            >
+                              {getProgramAbbreviationById(programId, programs)}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={() => { setAdminToDelete(item); setIsDeleteModalOpen(true); }}
+                        className="text-sm font-medium text-red-600 hover:text-red-700"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Program Names Section */}
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-xl font-medium text-gray-900">Program Names</h1>
+            <button
+              onClick={() => setIsProgramModalOpen(true)}
+              className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+            >
+              Add Program
+            </button>
+          </div>
+
+          <div className="overflow-x-auto rounded-lg border border-gray-200">
+            <table className="w-full text-sm text-left">
+              <thead className="bg-gray-50 text-gray-600 font-medium">
+                <tr>
+                  <th scope="col" className="px-4 py-3 w-16">No.</th>
+                  <th scope="col" className="px-4 py-3">Program Name En</th>
+                  <th scope="col" className="px-4 py-3">Program Name Th</th>
+                  <th scope="col" className="px-4 py-3">Abbreviation</th>
+                  <th scope="col" className="px-4 py-3 w-20">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {programs.map((program, index) => {
+                  const colorTheme = getColorForProgram(program.id);
+                  return (
+                    <tr key={program.id} className={`hover:bg-gray-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                      <td className="px-4 py-3 text-gray-900">{index + 1}</td>
+                      <td className="px-4 py-3 text-gray-900">{program.program_name_en}</td>
+                      <td className="px-4 py-3 text-gray-900">{program.program_name_th}</td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colorTheme.bg} ${colorTheme.text}`}>
+                          {program.abbreviation}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => {
+                            setProgramToEdit(program);
+                            setEditProgramEn(program.program_name_en);
+                            setEditProgramTh(program.program_name_th);
+                            setEditAbbreviation(program.abbreviation);
+                            setIsEditModalOpen(true);
+                          }}
+                          className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                        >
+                          Edit
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
       {/* Add Admin Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="relative bg-white rounded-lg shadow-lg w-full max-w-md">
-            <div className="p-6">
-              <h3 className="mb-5 text-lg font-medium text-gray-800">Add Admin to Program</h3>
-              <div className="mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity"></div>
+          <div className="relative bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Add Admin to Program</h3>
+            <div className="space-y-4">
+              <div>
                 <input
                   type="email"
                   placeholder="User Account"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-800 text-sm"
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
-                {emailError && <p className="text-red-600 text-sm mt-1">{emailError}</p>}
+                {emailError && <p className="mt-1 text-sm text-red-600">{emailError}</p>}
               </div>
-              <div className="mb-4">
-                <Select
-                  isMulti
-                  value={selectedPrograms}
-                  onChange={(newSelectedPrograms: MultiValue<ProgramOption>) =>
-                    setSelectedPrograms(newSelectedPrograms)
-                  } // Correctly set selected programs
-                  options={programs.map((program) => ({
-                    value: program.id,
-                    label: program.program_name_en,
-                  }))}
-                  className="w-full"
-                />
-              </div>
-              <div className="flex justify-end">
-                <button
-                  onClick={handleAddAdmin}
-                  className="px-4 py-2 bg-blue-600 text-white font-medium rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-900 text-sm"
-                >
-                  Add
-                </button>
+              <Select
+                isMulti
+                value={selectedPrograms}
+                onChange={(newSelectedPrograms: MultiValue<ProgramOption>) =>
+                  setSelectedPrograms(newSelectedPrograms)
+                }
+                options={programs.map((program) => ({
+                  value: program.id,
+                  label: program.program_name_en,
+                }))}
+                className="w-full"
+                classNamePrefix="select"
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    borderColor: '#e5e7eb',
+                    '&:hover': {
+                      borderColor: '#e5e7eb'
+                    }
+                  }),
+                  option: (base, state) => ({
+                    ...base,
+                    backgroundColor: state.isSelected ? '#3b82f6' : state.isFocused ? '#eff6ff' : 'white',
+                    color: state.isSelected ? 'white' : '#374151'
+                  })
+                }}
+              />
+              <div className="flex justify-end gap-3 mt-6">
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="ml-3 px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded hover:bg-gray-300 focus:outline-none text-sm"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
                 >
                   Cancel
+                </button>
+                <button
+                  onClick={handleAddAdmin}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                >
+                  Add
                 </button>
               </div>
             </div>
@@ -399,29 +515,35 @@ export default function AdminManagePage(): JSX.Element {
 
       {/* Delete Admin Modal */}
       {isDeleteModalOpen && adminToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="relative bg-white rounded-lg shadow-lg w-full max-w-md">
-            <div className="p-6 text-center">
-              <button type="button" className="text-gray-400 absolute top-2.5 right-2.5 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center" onClick={() => setIsDeleteModalOpen(false)}>
-                <svg aria-hidden="true" className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
-                <span className="sr-only">Close modal</span>
-              </button>
-              <svg className="text-gray-400 w-11 h-11 mb-3.5 mx-auto" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"></path></svg>
-              <p className="mb-4 text-gray-500">Are you sure you want to delete this admin?</p>
-              <p className="mb-4 text-gray-500">{adminToDelete.nameEn} ({adminToDelete.nameTh})</p>
-              <p className="mb-4 text-gray-500">{adminToDelete.email}</p>
-              <p className="mb-4 text-red-600">Delete will remove admin of all programs including </p>
-                <div className="mb-4 p-2 border border-red-300 rounded">
-                  {adminToDelete.programs.split(", ").map((program: string, index: number) => (
-                  <p key={index} className="text-gray-500">{program}</p>
-                  ))}
-                </div>
-              <div className="flex justify-center items-center space-x-4">
-                <button onClick={() => setIsDeleteModalOpen(false)} type="button" className="py-2 px-3 text-sm font-medium text-gray-500 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 hover:text-gray-900 focus:z-10">
-                  No, cancel
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity"></div>
+          <div className="relative bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+            <div className="text-center">
+              <svg className="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Delete Admin</h3>
+              <p className="text-sm text-gray-500 mb-4">Are you sure you want to delete this admin?</p>
+              <div className="text-sm text-gray-900 mb-2">{adminToDelete.nameEn}</div>
+              <div className="text-sm text-gray-500 mb-4">{adminToDelete.email}</div>
+              <div className="text-sm text-red-600 mb-2">Programs to be removed:</div>
+              <div className="p-2 bg-gray-50 rounded-md mb-6">
+                {adminToDelete.programs.split(", ").map((program: string, index: number) => (
+                  <div key={index} className="text-sm text-gray-600">{program}</div>
+                ))}
+              </div>
+              <div className="flex justify-center gap-3">
+                <button
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+                >
+                  Cancel
                 </button>
-                <button onClick={handleDeleteAdmin} type="button" className="py-2 px-3 text-sm font-medium text-center text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300">
-                  Remove
+                <button
+                  onClick={handleDeleteAdmin}
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
+                >
+                  Delete
                 </button>
               </div>
             </div>
@@ -429,91 +551,46 @@ export default function AdminManagePage(): JSX.Element {
         </div>
       )}
 
-      {/* Manage Program Section */}
-      <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-md p-4 mb-6">
-        <div className="flex justify-between items-center mb-3">
-          <h1 className="text-lg font-semibold text-gray-800">Program Names</h1>
-          <button
-            onClick={() => setIsProgramModalOpen(true)}
-            className="bg-white text-blue-700 font-bold px-6 py-2 rounded shadow-md hover:bg-gray-100 focus:outline-none flex items-center gap-2"
-          >
-            Add Program
-          </button>
-        </div>
-
-        <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-          <table className="w-full text-sm text-left text-gray-500">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-              <tr>
-                <th scope="col" className="px-6 py-3">No.</th>
-                <th scope="col" className="px-6 py-3">Program Name En</th>
-                <th scope="col" className="px-6 py-3">Program Name Th</th>
-                <th scope="col" className="px-6 py-3">Abbreviation</th>
-                <th scope="col" className="px-6 py-3">Action</th> {/* New Action column */}
-              </tr>
-            </thead>
-            <tbody>
-              {programs.map((program , index) => (
-                <tr key={program.id} className="bg-white border-b hover:bg-gray-50">
-                  <td className="px-6 py-4 font-medium text-gray-900">{index + 1}</td>
-                  <td className="px-6 py-4 font-medium text-gray-900">{program.program_name_en}</td>
-                  <td className="px-6 py-4 font-medium text-gray-900">{program.program_name_th}</td>
-                  <td className="px-6 py-4 font-medium text-gray-900">{program.abbreviation}</td>
-                  <td className="px-6 py-4 font-medium text-blue-600 cursor-pointer" onClick={() => { setProgramToEdit(program); setEditProgramEn(program.program_name_en); setEditProgramTh(program.program_name_th); setEditAbbreviation(program.abbreviation); setIsEditModalOpen(true); }}>
-                    Edit
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
       {/* Add Program Modal */}
       {isProgramModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="relative bg-white rounded-lg shadow-lg w-full max-w-md">
-            <div className="p-6">
-              <h3 className="mb-5 text-lg font-medium text-gray-800">Add Program</h3>
-              <div className="mb-4">
-                <input
-                  type="text"
-                  placeholder="Program Name (En)"
-                  value={newProgramEn}
-                  onChange={(e) => setNewProgramEn(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-800 text-sm"
-                />
-              </div>
-              <div className="mb-4">
-                <input
-                  type="text"
-                  placeholder="Program Name (Th)"
-                  value={newProgramTh}
-                  onChange={(e) => setNewProgramTh(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-800 text-sm"
-                />
-              </div>
-              <div className="mb-4">
-                <input
-                  type="text"
-                  placeholder="Abbrevaition ex. CPE"
-                  value={newAbbreviation}
-                  onChange={(e) => setNewAbbreviation(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-800 text-sm"
-                />
-              </div>
-              <div className="flex justify-end">
-                <button
-                  onClick={handleAddProgram}
-                  className="px-4 py-2 bg-blue-600 text-white font-medium rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-900 text-sm"
-                >
-                  Add
-                </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity"></div>
+          <div className="relative bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Add Program</h3>
+            <div className="space-y-4">
+              <input
+                type="text"
+                placeholder="Program Name (En)"
+                value={newProgramEn}
+                onChange={(e) => setNewProgramEn(e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <input
+                type="text"
+                placeholder="Program Name (Th)"
+                value={newProgramTh}
+                onChange={(e) => setNewProgramTh(e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <input
+                type="text"
+                placeholder="Abbreviation (e.g. CPE)"
+                value={newAbbreviation}
+                onChange={(e) => setNewAbbreviation(e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <div className="flex justify-end gap-3 mt-6">
                 <button
                   onClick={() => setIsProgramModalOpen(false)}
-                  className="ml-3 px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded hover:bg-gray-300 focus:outline-none text-sm"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
                 >
                   Cancel
+                </button>
+                <button
+                  onClick={handleAddProgram}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                >
+                  Add
                 </button>
               </div>
             </div>
@@ -523,52 +600,50 @@ export default function AdminManagePage(): JSX.Element {
 
       {/* Edit Program Modal */}
       {isEditModalOpen && programToEdit && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="relative bg-white rounded-lg shadow-lg w-full max-w-md">
-            <div className="p-6">
-              <h3 className="mb-5 text-lg font-medium text-gray-800">Edit Program</h3>
-              <div className="mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity"></div>
+          <div className="relative bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Edit Program</h3>
+            <div className="space-y-4">
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Program Name (En)</label>
                 <input
                   type="text"
-                  placeholder="Program Name (En)"
                   value={editProgramEn}
                   onChange={(e) => setEditProgramEn(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-800 text-sm"
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
-              <div className="mb-4">
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Program Name (Th)</label>
                 <input
                   type="text"
-                  placeholder="Program Name (Th)"
                   value={editProgramTh}
                   onChange={(e) => setEditProgramTh(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-800 text-sm"
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
-              <div className="mb-4">
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Abbreviation</label>
                 <input
                   type="text"
-                  placeholder="Abbreviation"
                   value={editAbbreviation}
                   onChange={(e) => setEditAbbreviation(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-800 text-sm"
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
-              <div className="flex justify-end">
-                <button
-                  onClick={handleEditProgram}
-                  className="px-4 py-2 bg-blue-600 text-white font-medium rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-900 text-sm"
-                >
-                  Save
-                </button>
+              <div className="flex justify-end gap-3 mt-6">
                 <button
                   onClick={() => setIsEditModalOpen(false)}
-                  className="ml-3 px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded hover:bg-gray-300 focus:outline-none text-sm"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
                 >
                   Cancel
+                </button>
+                <button
+                  onClick={handleEditProgram}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                >
+                  Save
                 </button>
               </div>
             </div>

@@ -12,6 +12,7 @@ import Pagination from "@/components/Pagination"; // Import Pagination component
 import { getProgramName } from "@/utils/programHelpers";
 import { deobfuscateId } from "@/utils/encodePath";
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import Avatar from "@/components/Avatar";
 
 export default function AdvisorProfilePage() {
   const params = useParams();
@@ -97,82 +98,95 @@ export default function AdvisorProfilePage() {
 
   const roles = ["Advisor", "Co Advisor", "Committee", "External Committee"];
  return (
-    <div className="min-h-screen p-6 bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 ">
-      
-      <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden">
-        {/* Advisor Details Section */}
-        <section className="bg-gray-800 text-white p-6">
-          {/* <h1 className="text-2xl font-bold">Advisor Profile</h1> */}
-          {advisor ? (
-            <div className="space-y-2">
-              <div className="flex items-center text-white ">
+    <div className="min-h-screen bg-gray-50 py-6">
+      <div className="container mx-auto max-w-4xl px-4">
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+          {/* Advisor Details Section */}
+          <div className="border-b border-gray-100">
+            <div className="px-6 py-4">
+              <div className="flex items-center space-x-4">
                 <button
                   onClick={handleGoBack}
-                  className="text-white rounded flex items-center"
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  <ArrowBackIosNewIcon className="mr-2" />
+                  <ArrowBackIosNewIcon className="w-4 h-4" />
                 </button>
-                <p className="text-lg font-semibold ml-4">
-                  {advisor.prefix_en} {advisor.first_name_en} {advisor.last_name_en}
-                  <br />
-                  {advisor.prefix_th} {advisor.first_name_th} {advisor.last_name_th}
+                <div className="flex items-center space-x-3">
+                  <Avatar
+                    name={`${advisor?.first_name_en} ${advisor?.last_name_en}`}
+                    size="md"
+                  />
+                  <div>
+                    <h1 className="text-base font-medium text-gray-900">
+                      {advisor?.prefix_en} {advisor?.first_name_en} {advisor?.last_name_en}
+                    </h1>
+                    <p className="text-sm text-gray-500">
+                      {advisor?.prefix_th} {advisor?.first_name_th} {advisor?.last_name_th}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 space-y-1">
+                <p className="text-sm text-gray-600">
+                  <span className="font-medium">Email:</span> {advisor?.email}
+                </p>
+                <p className="text-sm text-gray-600">
+                  <span className="font-medium">Major:</span> {programName}
                 </p>
               </div>
-              <p className="text-sm">
-                <span className="font-medium">Email:</span> {advisor.email}
-              </p>
-              <p className="text-sm">
-                <span className="font-medium">Major :</span> {programName}
-              </p>
-            </div>
-          ) : (
-            <p className="mt-2 text-sm">No advisor details found.</p>
-          )}
-        </section>
-
-        {/* Advisor Projects Section */}
-        <section className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-gray-800">Projects</h2>
-            <div className="flex gap-4">
-              <input
-                type="text"
-                placeholder="Search projects..."
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                className="p-2 border border-gray-300 rounded"
-              />
-              <select
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value)}
-                className="p-2 border border-gray-300 rounded"
-              >
-                <option value="">All Roles</option>
-                {roles.map((role) => (
-                  <option key={role} value={role}>
-                    {role}
-                  </option>
-                ))}
-              </select>
             </div>
           </div>
-          {filteredProjects.length > 0 ? (
-            <>
-              <ul className="space-y-6">
-                {currentProjects.map((project) => (
-                  <ProjectComponent key={project.id} project={project}  />
-                ))}
-              </ul>
-              <Pagination
-                currentPage={currentPage}
-                totalPages={Math.ceil(filteredProjects.length / itemsPerPage)}
-                onPageChange={handlePageChange}
-              />
-            </>
-          ) : (
-            <p className="text-gray-600">No projects found for this advisor.</p>
-          )}
-        </section>
+
+          {/* Projects Section */}
+          <div className="px-6 py-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+              <h2 className="text-sm font-semibold text-gray-800">Projects</h2>
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                <input
+                  type="text"
+                  placeholder="Search projects..."
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  className="px-3 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-primary-light"
+                />
+                <select
+                  value={selectedRole}
+                  onChange={(e) => setSelectedRole(e.target.value)}
+                  className="px-3 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-primary-light bg-white"
+                >
+                  <option value="">All Roles</option>
+                  {roles.map((role) => (
+                    <option key={role} value={role}>
+                      {role}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {filteredProjects.length > 0 ? (
+              <>
+                <div className="space-y-3">
+                  {currentProjects.map((project) => (
+                    <ProjectComponent key={project.id} project={project} />
+                  ))}
+                </div>
+                <div className="mt-4 border-t border-gray-100 pt-4">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={Math.ceil(filteredProjects.length / itemsPerPage)}
+                    onPageChange={handlePageChange}
+                  />
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-sm text-gray-500">No projects found.</p>
+                <p className="text-xs text-gray-400 mt-1">Try adjusting your search criteria</p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -6,11 +6,11 @@ import { Project, ProjectResource } from "@/models/Project";
 import getProjectById from "@/utils/projects/getProjectById";
 import { ProjectResourceConfig } from "@/models/ProjectResourceConfig"; // Import ProjectResourceConfig type
 import Select from "react-select";
-// import Image from "next/image";
+import Image from "next/image";
 import axios from "axios"; // Import axios for making API requests
 import { useRouter } from "next/navigation"; // Import useRouter from next/navigation
 import getAllEmployees from "@/utils/advisorstats/getAllEmployee";
-import { Advisor } from "@/models/Advisor";
+import { Advisor } from "@/models/Advisor"
 import { getStudentsByProgram } from "@/utils/createproject/getStudentsByProgram";
 import { Student } from "@/models/Student"; // Import the new Student type
 import { getProjectRoles } from "@/utils/createproject/getProjectRoles"; // Import the getProjectRoles function
@@ -90,38 +90,39 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
           courseNo: projectData.course?.courseNo,
           section: projectData.sectionId,
           semester: projectData.semester?.toString(),
+          // Map students with correct id and type
           student: projectData.members.map((member) => ({
-            value: parseInt(member.id, 10),
+            value: typeof member.id === 'string' ? parseInt(member.id, 10) : member.id,
             label: `${member.firstName} ${member.lastName} (${member.studentId})`,
           })),
+          // Map advisor (role_id: 1)
           advisor: projectData.staffs
-            .filter((staff) => staff.projectRole.roleNameEN === "Advisor")
+            .filter((staff) => staff.projectRole.id === 1)
             .map((staff) => ({
               value: staff.id,
               label: `${staff.prefixEN} ${staff.firstNameEN} ${staff.lastNameEN} / ${staff.prefixTH} ${staff.firstNameTH} ${staff.lastNameTH}`,
             })),
+          // Map co-advisor (role_id: 2)
           co_advisor: projectData.staffs
-            .filter((staff) => staff.projectRole.roleNameEN === "Co-Advisor")
+            .filter((staff) => staff.projectRole.id === 2)
             .map((staff) => ({
               value: staff.id,
               label: `${staff.prefixEN} ${staff.firstNameEN} ${staff.lastNameEN} / ${staff.prefixTH} ${staff.firstNameTH} ${staff.lastNameTH}`,
             })),
+          // Map committee (role_id: 3)
           committee: projectData.staffs
-            .filter((staff) => staff.projectRole.roleNameEN === "Committee")
+            .filter((staff) => staff.projectRole.id === 3)
             .map((staff) => ({
               value: staff.id,
               label: `${staff.prefixEN} ${staff.firstNameEN} ${staff.lastNameEN} / ${staff.prefixTH} ${staff.firstNameTH} ${staff.lastNameTH}`,
             })),
+          // Map external committee (role_id: 4)
           external_committee: projectData.staffs
-            .filter(
-              (staff) =>
-                staff.projectRole.roleNameEN === "External Committee Members"
-            )
+            .filter((staff) => staff.projectRole.id === 4)
             .map((staff) => ({
               value: staff.id,
               label: `${staff.prefixEN} ${staff.firstNameEN} ${staff.lastNameEN} / ${staff.prefixTH} ${staff.firstNameTH} ${staff.lastNameTH}`,
             })),
-          // Add other fields as needed
         });
 
         if (
@@ -130,17 +131,17 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
         ) {
           const resourceConfig = await getProjectResourceConfig(
             projectData.program.id
-          ); // Fetch project resource config
+          );
           setProjectResourceConfig(resourceConfig);
         }
 
         const employees = await getAllEmployees();
         setStaffList(employees);
 
-        const students = await getStudentsByProgram(projectData.program.id); // Use program ID from project data
+        const students = await getStudentsByProgram(projectData.program.id);
         setStudentList(students);
 
-        const roles = await getProjectRoles(); // Fetch project roles
+        const roles = await getProjectRoles();
         setProjectRoles(roles);
       } catch (error) {
         console.error("Error fetching project details:", error);
@@ -274,19 +275,40 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
             className="p-4 mb-4 rounded-lg border border-gray-300 bg-white"
           >
             <div className="flex items-center mb-4">
-              {/* {fileConfig.icon_name && (
-                <Image
-                  className="w-8 h-8 rounded-full"
-                  src="/logo-engcmu/CMU_LOGO_Crop.jpg"
-                  alt=""
-                  width={32}
-                  height={32}
-                />
-              )} */}
-              <h6 className="text-lg font-bold">{fileConfig.title}</h6>
+              {fileConfig.icon_name && (
+                <div className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center">
+                  <div className="w-7 h-7 flex items-center justify-center">
+                    <Image
+                      src={fileConfig.icon_url || "/IconProjectBox/BlueBox.png"}
+                      alt="icon"
+                      width={32}
+                      height={32}
+                      style={{ objectFit: "contain" }}
+                      className="w-full h-full object-contain"
+                      unoptimized
+                    />
+                  </div>
+                </div>
+              )}
+              <h6 className="text-lg font-bold ml-2">{fileConfig.title}</h6>
             </div>
 
-            {fileConfig.resource_type && fileConfig.resource_type.id === 2 ? (
+            {/* Always show file upload for "pdf" title */}
+            {fileConfig.title.toLowerCase() === "pdf" ? (
+              <div>
+                <label className="block text-sm font-semibold mb-2">
+                  Upload File
+                </label>
+                <input
+                  type="file"
+                  name={`file_upload_${fileConfig.id}`}
+                  onChange={(e) =>
+                    handleFileChange(e, `file_upload_${fileConfig.id}`)
+                  }
+                  className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
+                />
+              </div>
+            ) : fileConfig.resource_type.id === 2 ? (
               <div>
                 <label className="block text-sm font-semibold mb-2">
                   Paste Link
@@ -327,19 +349,25 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
           className="p-4 mb-4 rounded-lg border border-gray-300 bg-white"
         >
           <div className="flex items-center mb-4">
-            {/* {resource.icon_name && (
-              <Image
-                className="w-8 h-8 rounded-full"
-                src="/logo-engcmu/CMU_LOGO_Crop.jpg"
-                alt=""
-                width={32}
-                height={32}
-              />
-            )} */}
             <h6 className="text-lg font-bold">{resource.title}</h6>
           </div>
 
-          {resource.resourceType.id === 2 ? (
+          {/* Always show file upload for "pdf" title */}
+          {resource.title?.toLowerCase() === "pdf" ? (
+            <div>
+              <label className="block text-sm font-semibold mb-2">
+                Upload File
+              </label>
+              <input
+                type="file"
+                name={`file_upload_${resource.id}`}
+                onChange={(e) =>
+                  handleFileChange(e, `file_upload_${resource.id}`)
+                }
+                className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
+              />
+            </div>
+          ) : resource.resourceType.id === 2 ? (
             <div>
               <label className="block text-sm font-semibold mb-2">
                 Paste Link
@@ -408,7 +436,7 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
 
       const projectData = {
         id: parseInt(id, 10),
-        project_no: project?.projectNo, // Include project_no
+        project_no: project?.projectNo,
         title_th: formData.title_th,
         title_en: formData.title_en,
         abstract_text: formData.abstract_text,
@@ -418,121 +446,102 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
         course_id: project?.course?.id,
         program_id: project?.program?.id,
         staffs: [
-          ...(formData.advisor as { value: number; label: string }[]).map(
+          // Map advisor with role_id 1
+          ...(formData.advisor ? (formData.advisor as { value: number; label: string }[]).map(
             (advisor) => ({
               staff_id: advisor.value,
-              project_role_id:
-                projectRoles.find((role) => role.role_name_en === "Advisor")
-                  ?.id || 1,
+              project_role_id: 1
             })
-          ),
-          ...(formData.co_advisor as { value: number; label: string }[]).map(
+          ) : []),
+          // Map co-advisor with role_id 2
+          ...(formData.co_advisor ? (formData.co_advisor as { value: number; label: string }[]).map(
             (coAdvisor) => ({
               staff_id: coAdvisor.value,
-              project_role_id:
-                projectRoles.find((role) => role.role_name_en === "Co-Advisor")
-                  ?.id || 2,
+              project_role_id: 2
             })
-          ),
-          ...(formData.committee as { value: number; label: string }[]).map(
+          ) : []),
+          // Map committee with role_id 3
+          ...(formData.committee ? (formData.committee as { value: number; label: string }[]).map(
             (committee) => ({
               staff_id: committee.value,
-              project_role_id:
-                projectRoles.find((role) => role.role_name_en === "Committee")
-                  ?.id || 3,
+              project_role_id: 3
             })
-          ),
-          ...(
-            formData.external_committee as { value: number; label: string }[]
-          ).map((externalCommittee) => ({
-            staff_id: externalCommittee.value,
-            project_role_id:
-              projectRoles.find(
-                (role) => role.role_name_en === "External Committee Members"
-              )?.id || 4,
-          })),
+          ) : []),
+          // Map external committee with role_id 4
+          ...(formData.external_committee ? (formData.external_committee as { value: number; label: string }[]).map(
+            (externalCommittee) => ({
+              staff_id: externalCommittee.value,
+              project_role_id: 4
+            })
+          ) : []),
         ],
-        members: (formData.student as { value: number; label: string }[]).map(
+        members: formData.student ? (formData.student as { value: number; label: string }[]).map(
           (student) => ({
             id: student.value,
           })
-        ),
+        ) : [],
       };
 
       formDataToSend.append("project", JSON.stringify(projectData));
 
-      const fileConfigs = project?.projectResources as
-        | ProjectResourceConfig[]
-        | undefined;
+      const fileConfigs = project?.projectResources || projectResourceConfig;
       if (fileConfigs) {
         fileConfigs.forEach((fileConfig) => {
-          if (!fileConfig.is_active) return;
+          const configId = fileConfig.id;
+          const linkField = `file_link_${configId}`;
+          const fileField = `file_upload_${configId}`;
 
-          const linkField = `file_link_${fileConfig.id}`;
-          const fileField = `file_upload_${fileConfig.id}`;
+          const existingResource = project?.projectResources?.find(
+            (resource) => resource.id === configId
+          );
 
-          if (formData[linkField]) {
+          // For resources with title "pdf", always treat as file upload
+          const isPdfResource = (existingResource?.title || fileConfig.title)?.toLowerCase() === "pdf";
+
+          // Handle URL resources
+          if (formData[linkField] && !isPdfResource) {
             formDataToSend.append(
               "projectResources[]",
               JSON.stringify({
-                title: fileConfig.title,
+                title: existingResource?.title || fileConfig.title,
                 url: formData[linkField],
+                resource_type_id: 2, // URL type
+                ...(existingResource?.id && { id: existingResource.id })
               })
             );
           }
 
+          // Handle file uploads
           const selectedFiles = formData[fileField] as FileList | undefined;
           if (selectedFiles && selectedFiles.length > 0) {
             formDataToSend.append(
               "projectResources[]",
               JSON.stringify({
-                title: fileConfig.title,
+                title: existingResource?.title || fileConfig.title,
+                resource_type_id: 1, // File type
+                ...(existingResource?.id && { id: existingResource.id })
               })
             );
 
             Array.from(selectedFiles).forEach((file) => {
-              formDataToSend.append("files", file, file.name);
+              formDataToSend.append("files", file);
             });
+          } else if (existingResource && !formData[linkField]) {
+            // Keep existing resource if no new file or URL is provided
+            formDataToSend.append(
+              "projectResources[]",
+              JSON.stringify({
+                id: existingResource.id,
+                title: existingResource.title,
+                url: existingResource.url,
+                resource_type_id: isPdfResource ? 1 : existingResource.resourceTypeId
+              })
+            );
           }
         });
       }
 
-      const newFileConfigs = projectResourceConfig as
-        | ProjectResourceConfig[]
-        | undefined;
-      if (newFileConfigs) {
-        newFileConfigs.forEach((fileConfig) => {
-          if (!fileConfig.is_active) return;
-
-          const linkField = `file_link_${fileConfig.id}`;
-          const fileField = `file_upload_${fileConfig.id}`;
-
-          if (formData[linkField]) {
-            formDataToSend.append(
-              "projectResources[]",
-              JSON.stringify({
-                title: fileConfig.title,
-                url: formData[linkField],
-              })
-            );
-          }
-
-          const selectedFiles = formData[fileField] as FileList | undefined;
-          if (selectedFiles && selectedFiles.length > 0) {
-            formDataToSend.append(
-              "projectResources[]",
-              JSON.stringify({
-                title: fileConfig.title,
-              })
-            );
-
-            Array.from(selectedFiles).forEach((file) => {
-              formDataToSend.append("files", file, file.name);
-            });
-          }
-        });
-      }
-
+      // Make the API request
       await axios.put(
         `https://project-service.kunmhing.me/api/v1/projects`,
         formDataToSend,
@@ -540,7 +549,6 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
           headers: {
             Authorization:
               "Bearer Pl6sXUmjwzNtwcA4+rkBP8jTmRttcNwgJqp1Zn1a+qCRaYXdYdwgJ9mM5glzHQD2FOsLilpELbmVSF2nGZCOwTO6u5CTsVpyIGDguXoMobSApgEsO3avovqWYDAEuznY/Vu4XMvHDkFqyuY1dQfN+QdB04t89/1O/w1cDnyilFU=",
-            "Content-Type": "multipart/form-data",
           },
         }
       );

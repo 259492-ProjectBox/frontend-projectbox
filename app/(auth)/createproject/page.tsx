@@ -70,7 +70,6 @@ const CreateProject: React.FC = () => {
     "course_id",
     "title_en",
     "student",
-    "committee",
     "report_pdf",
   ];
 
@@ -346,13 +345,11 @@ const CreateProject: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    if (isSubmitting) return; // Prevent duplicate submissions
+    if (isSubmitting) return;
     setIsSubmitting(true);
     try {
-      // 1. Create a FormData instance.
       const formDataToSend = new FormData();
-  
-      // 2. Build the JSON for the project itself.
+
       const projectData = {
         title_th: formData.title_th,
         title_en: formData.title_en,
@@ -363,22 +360,22 @@ const CreateProject: React.FC = () => {
         program_id: data?.program_id,
         course_id: data?.course_id,
         staffs: [
-          ...(formData.advisor as { value: number; label: string }[]).map((advisor) => ({
+          ...(formData.advisor ? (formData.advisor as { value: number; label: string }[]).map((advisor) => ({
             staff_id: advisor.value,
             project_role_id: projectRoles.find(role => role.role_name_en === "Advisor")?.id || 1,
-          })),
-          ...(formData.co_advisor as { value: number; label: string }[]).map((coAdvisor) => ({
+          })) : []),
+          ...(formData.co_advisor ? (formData.co_advisor as { value: number; label: string }[]).map((coAdvisor) => ({
             staff_id: coAdvisor.value,
             project_role_id: projectRoles.find(role => role.role_name_en === "Co-Advisor")?.id || 2,
-          })),
-          ...(formData.committee as { value: number; label: string }[]).map((committee) => ({
+          })) : []),
+          ...(formData.committee ? (formData.committee as { value: number; label: string }[]).map((committee) => ({
             staff_id: committee.value,
             project_role_id: projectRoles.find(role => role.role_name_en === "Committee")?.id || 3,
-          })),
-          ...(formData.external_committee as { value: number; label: string }[]).map((externalCommittee) => ({
+          })) : []),
+          ...(formData.external_committee ? (formData.external_committee as { value: number; label: string }[]).map((externalCommittee) => ({
             staff_id: externalCommittee.value,
             project_role_id: projectRoles.find(role => role.role_name_en === "External Committee Members")?.id || 4,
-          })),
+          })) : []),
         ],
         members: (formData.student as { value: number; label: string }[]).map((student) => ({
           id: student.value,
