@@ -6,7 +6,7 @@ import { Project, ProjectResource } from "@/models/Project";
 import getProjectById from "@/utils/projects/getProjectById";
 import { ProjectResourceConfig } from "@/models/ProjectResourceConfig"; // Import ProjectResourceConfig type
 import Select from "react-select";
-// import Image from "next/image";
+import Image from "next/image";
 import axios from "axios"; // Import axios for making API requests
 import { useRouter } from "next/navigation"; // Import useRouter from next/navigation
 import getAllEmployees from "@/utils/advisorstats/getAllEmployee";
@@ -275,19 +275,40 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
             className="p-4 mb-4 rounded-lg border border-gray-300 bg-white"
           >
             <div className="flex items-center mb-4">
-              {/* {fileConfig.icon_name && (
-                <Image
-                  className="w-8 h-8 rounded-full"
-                  src="/logo-engcmu/CMU_LOGO_Crop.jpg"
-                  alt=""
-                  width={32}
-                  height={32}
-                />
-              )} */}
-              <h6 className="text-lg font-bold">{fileConfig.title}</h6>
+              {fileConfig.icon_name && (
+                <div className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center">
+                  <div className="w-7 h-7 flex items-center justify-center">
+                    <Image
+                      src={fileConfig.icon_url || "/IconProjectBox/BlueBox.png"}
+                      alt="icon"
+                      width={32}
+                      height={32}
+                      style={{ objectFit: "contain" }}
+                      className="w-full h-full object-contain"
+                      unoptimized
+                    />
+                  </div>
+                </div>
+              )}
+              <h6 className="text-lg font-bold ml-2">{fileConfig.title}</h6>
             </div>
 
-            {fileConfig.resource_type && fileConfig.resource_type.id === 2 ? (
+            {/* Always show file upload for "pdf" title */}
+            {fileConfig.title.toLowerCase() === "pdf" ? (
+              <div>
+                <label className="block text-sm font-semibold mb-2">
+                  Upload File
+                </label>
+                <input
+                  type="file"
+                  name={`file_upload_${fileConfig.id}`}
+                  onChange={(e) =>
+                    handleFileChange(e, `file_upload_${fileConfig.id}`)
+                  }
+                  className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
+                />
+              </div>
+            ) : fileConfig.resource_type.id === 2 ? (
               <div>
                 <label className="block text-sm font-semibold mb-2">
                   Paste Link
@@ -328,19 +349,25 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
           className="p-4 mb-4 rounded-lg border border-gray-300 bg-white"
         >
           <div className="flex items-center mb-4">
-            {/* {resource.icon_name && (
-              <Image
-                className="w-8 h-8 rounded-full"
-                src="/logo-engcmu/CMU_LOGO_Crop.jpg"
-                alt=""
-                width={32}
-                height={32}
-              />
-            )} */}
             <h6 className="text-lg font-bold">{resource.title}</h6>
           </div>
 
-          {resource.resourceType.id === 2 ? (
+          {/* Always show file upload for "pdf" title */}
+          {resource.title?.toLowerCase() === "pdf" ? (
+            <div>
+              <label className="block text-sm font-semibold mb-2">
+                Upload File
+              </label>
+              <input
+                type="file"
+                name={`file_upload_${resource.id}`}
+                onChange={(e) =>
+                  handleFileChange(e, `file_upload_${resource.id}`)
+                }
+                className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
+              />
+            </div>
+          ) : resource.resourceType.id === 2 ? (
             <div>
               <label className="block text-sm font-semibold mb-2">
                 Paste Link
@@ -468,7 +495,10 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
             (resource) => resource.id === configId
           );
 
-          if (formData[linkField]) {
+          // For resources with title "pdf", always treat as file upload
+          const isPdfResource = (existingResource?.title || fileConfig.title)?.toLowerCase() === "pdf";
+
+          if (formData[linkField] && !isPdfResource) {
             formDataToSend.append(
               "projectResources[]",
               JSON.stringify({
@@ -504,7 +534,7 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
                 title: existingResource.title,
                 url: existingResource.url,
                 resource_name: existingResource.resourceName,
-                resource_type_id: existingResource.resourceTypeId
+                resource_type_id: isPdfResource ? 1 : existingResource.resourceTypeId // Force type 1 for PDF
               })
             );
           }
