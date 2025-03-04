@@ -29,8 +29,9 @@ export default function ConfigProgram() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // File Upload state
-  const [file, setFile] = useState<File | null>(null);
+  // File Upload states - separate for student and project
+  const [studentFile, setStudentFile] = useState<File | null>(null);
+  const [projectFile, setProjectFile] = useState<File | null>(null);
 
   const { user } = useAuth();
   const [selectedMajor, setSelectedMajor] = useState<number>(0);
@@ -129,8 +130,8 @@ export default function ConfigProgram() {
     }
   };
 
-  // Handler for file upload
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handler for student file upload
+  const handleStudentFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const selectedFile = e.target.files[0];
       const allowedTypes = [
@@ -143,48 +144,66 @@ export default function ConfigProgram() {
         return;
       }
 
-      setFile(selectedFile);
+      setStudentFile(selectedFile);
     }
   };
 
-  // Handler for saving the uploaded file
-  const handleSaveUpload = async () => {
-    if (file) {
+  // Handler for project file upload
+  const handleProjectFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const selectedFile = e.target.files[0];
+      const allowedTypes = [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/vnd.ms-excel",
+      ];
+
+      if (!allowedTypes.includes(selectedFile.type)) {
+        alert("Please upload an Excel file.");
+        return;
+      }
+
+      setProjectFile(selectedFile);
+    }
+  };
+
+  // Handler for saving the uploaded student file
+  const handleSaveStudentUpload = async () => {
+    if (studentFile) {
       try {
-        const response = await uploadStudentList(file, selectedMajor);
-        console.log("File uploaded successfully:", response);
-        alert("File uploaded successfully!");
-        setFile(null); // Clear the file input
+        const response = await uploadStudentList(studentFile, selectedMajor);
+        console.log("Student file uploaded successfully:", response);
+        alert("Student file uploaded successfully!");
+        setStudentFile(null); // Clear the file input
       } catch (error) {
-        console.error("Error uploading file:", error);
-        alert("Failed to upload file.");
+        console.error("Error uploading student file:", error);
+        alert("Failed to upload student file.");
       }
     } else {
-      console.log("No file selected for upload.");
-      alert("No file selected for upload.");
+      console.log("No student file selected for upload.");
+      alert("No student file selected for upload.");
     }
   };
 
-  // Handler for saving the uploaded project creation file
+  // Handler for saving the uploaded project file
   const handleSaveProjectUpload = async () => {
-    if (file) {
+    if (projectFile) {
       try {
-        const response = await uploadCreateProject(file, selectedMajor);
-        console.log("File uploaded successfully:", response);
-        alert("File uploaded successfully!");
-        setFile(null); // Clear the file input
+        const response = await uploadCreateProject(projectFile, selectedMajor);
+        console.log("Project file uploaded successfully:", response);
+        alert("Project file uploaded successfully!");
+        setProjectFile(null); // Clear the file input
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
-          console.error("Error uploading file:", error.response.data);
-          alert("Failed to upload file: " + error.response.data.error);
+          console.error("Error uploading project file:", error.response.data);
+          alert("Failed to upload project file: " + error.response.data.error);
         } else {
-          console.error("Error uploading file:", error);
-          alert("Failed to upload file.");
+          console.error("Error uploading project file:", error);
+          alert("Failed to upload project file.");
         }
       }
     } else {
-      console.log("No file selected for upload.");
-      alert("No file selected for upload.");
+      console.log("No project file selected for upload.");
+      alert("No project file selected for upload.");
     }
   };
 
@@ -309,7 +328,7 @@ export default function ConfigProgram() {
                   templateUrl="/UploadExample/studentlist_261492-267.xlsx"
                 />
                 <label
-                  htmlFor="dropzone-file"
+                  htmlFor="student-file-upload"
                   className="mt-3 flex flex-col items-center justify-center w-full h-48 border-2 
                            border-gray-200 border-dashed rounded-lg cursor-pointer bg-gray-50 
                            hover:bg-gray-100 transition-colors duration-200"
@@ -338,21 +357,22 @@ export default function ConfigProgram() {
                     </p>
                   </div>
                   <input
-                    id="dropzone-file"
+                    id="student-file-upload"
                     type="file"
                     className="hidden"
-                    onChange={handleFileChange}
+                    onChange={handleStudentFileChange}
+                    accept=".xlsx,.xls"
                   />
                 </label>
-                {file && (
-                  <p className="mt-2 text-sm text-gray-500">Selected: {file.name}</p>
+                {studentFile && (
+                  <p className="mt-2 text-sm text-gray-500">Selected: {studentFile.name}</p>
                 )}
                 <button
-                  onClick={handleSaveUpload}
+                  onClick={handleSaveStudentUpload}
                   className="mt-3 w-full px-4 py-2 text-sm font-medium text-white bg-primary_button rounded-lg
                            hover:bg-button_hover transition-colors duration-200"
                 >
-                  Upload
+                  Upload Student List
                 </button>
               </div>
 
@@ -369,7 +389,7 @@ export default function ConfigProgram() {
                   templateUrl="/UploadExample/projectcreate.xlsx"
                 />
                 <label
-                  htmlFor="dropzone-file-existing"
+                  htmlFor="project-file-upload"
                   className="mt-3 flex flex-col items-center justify-center w-full h-48 border-2 
                            border-gray-200 border-dashed rounded-lg cursor-pointer bg-gray-50 
                            hover:bg-gray-100 transition-colors duration-200"
@@ -398,21 +418,22 @@ export default function ConfigProgram() {
                     </p>
                   </div>
                   <input
-                    id="dropzone-file-existing"
+                    id="project-file-upload"
                     type="file"
                     className="hidden"
-                    onChange={handleFileChange}
+                    onChange={handleProjectFileChange}
+                    accept=".xlsx,.xls"
                   />
                 </label>
-                {file && (
-                  <p className="mt-2 text-sm text-gray-500">Selected: {file.name}</p>
+                {projectFile && (
+                  <p className="mt-2 text-sm text-gray-500">Selected: {projectFile.name}</p>
                 )}
                 <button
                   onClick={handleSaveProjectUpload}
                   className="mt-3 w-full px-4 py-2 text-sm font-medium text-white bg-primary_button rounded-lg
                            hover:bg-button_hover transition-colors duration-200"
                 >
-                  Upload
+                  Upload Project List
                 </button>
               </div>
             </div>
