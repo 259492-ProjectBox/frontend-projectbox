@@ -163,7 +163,7 @@ const SearchPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-stone-100">
+    <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-gray-50">
       <div className=" max-w-3xl mt-8">
         <h1
           className={`text-lg font-semibold mb-2 text-gray-800 text-center ${getSearchModeStyle()}`}
