@@ -498,43 +498,43 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
           // For resources with title "pdf", always treat as file upload
           const isPdfResource = (existingResource?.title || fileConfig.title)?.toLowerCase() === "pdf";
 
+          // Handle URL resources
           if (formData[linkField] && !isPdfResource) {
             formDataToSend.append(
               "projectResources[]",
               JSON.stringify({
-                id: existingResource?.id,
                 title: existingResource?.title || fileConfig.title,
                 url: formData[linkField],
                 resource_type_id: 2, // URL type
-                resource_name: existingResource?.resourceName
+                ...(existingResource?.id && { id: existingResource.id })
               })
             );
           }
 
+          // Handle file uploads
           const selectedFiles = formData[fileField] as FileList | undefined;
           if (selectedFiles && selectedFiles.length > 0) {
             formDataToSend.append(
               "projectResources[]",
               JSON.stringify({
-                id: existingResource?.id,
                 title: existingResource?.title || fileConfig.title,
                 resource_type_id: 1, // File type
-                resource_name: existingResource?.resourceName
+                ...(existingResource?.id && { id: existingResource.id })
               })
             );
 
             Array.from(selectedFiles).forEach((file) => {
               formDataToSend.append("files", file);
             });
-          } else if (existingResource) {
+          } else if (existingResource && !formData[linkField]) {
+            // Keep existing resource if no new file or URL is provided
             formDataToSend.append(
               "projectResources[]",
               JSON.stringify({
                 id: existingResource.id,
                 title: existingResource.title,
                 url: existingResource.url,
-                resource_name: existingResource.resourceName,
-                resource_type_id: isPdfResource ? 1 : existingResource.resourceTypeId // Force type 1 for PDF
+                resource_type_id: isPdfResource ? 1 : existingResource.resourceTypeId
               })
             );
           }
