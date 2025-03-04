@@ -12,19 +12,23 @@ export const LimitedList = ({
 
   return (
     <div>
-      <h4 className="font-bold text-primary_text">{title}</h4>
-      {visibleItems.map((item, index) => (
-        <p key={index} className="text-sm">
-          {item.name || "No Data"} {item.id ? `(${item.id})` : ""} {item.role ? `(${item.role})` : ""}
-        </p>
-      ))}
+      <h4 className="text-sm font-medium text-gray-900 mb-2">{title}</h4>
+      <div className="space-y-1">
+        {visibleItems.map((item, index) => (
+          <p key={index} className="text-xs text-gray-600">
+            {item.name || "No Data"}
+            {item.id && <span className="text-gray-400"> ({item.id})</span>}
+            {item.role && <span className="text-gray-400"> ({item.role})</span>}
+          </p>
+        ))}
+      </div>
       {items.length > 3 && (
-        <p
-          className="text-sm text-primary_text underline cursor-pointer mt-2"
+        <button
+          className="text-xs text-gray-500 hover:text-gray-700 mt-2"
           onClick={() => setSeeMore(!seeMore)}
         >
-          {seeMore ? "See Less" : "See More"}
-        </p>
+          {seeMore ? "Show Less" : "Show More"}
+        </button>
       )}
     </div>
   );
@@ -35,14 +39,14 @@ export const LimitedText = ({ text }: { text: string }) => {
   const isLongText = text.length > 150;
 
   return (
-    <div className="bg-stone-50 border border-stone-200 rounded-lg p-4">
-      <h4 className="text-primary_text font-bold mb-2">Project Description</h4>
-      <p className="text-gray-700 leading-relaxed">
+    <div>
+      <h4 className="text-sm font-medium text-gray-900 mb-2">Project Description</h4>
+      <p className="text-xs text-gray-600 leading-relaxed">
         {isLongText && !seeMore ? `${text.slice(0, 150)}...` : text}
       </p>
       {isLongText && (
         <button
-          className="text-sm text-primary_text underline cursor-pointer mt-2"
+          className="text-xs text-gray-500 hover:text-gray-700 mt-2"
           onClick={() => setSeeMore(!seeMore)}
         >
           {seeMore ? "Show Less" : "Show More"}
