@@ -152,8 +152,18 @@ const SearchPage: React.FC = () => {
     }
   };
 
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      if (searchMode === "quick") {
+        handleSearch();
+      } else if (searchMode === "detail") {
+        handleDetailSearch();
+      }
+    }
+  };
+
   return (
-    <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-stone-100">
+    <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-gray-50">
       <div className=" max-w-3xl mt-8">
         <h1
           className={`text-lg font-semibold mb-2 text-gray-800 text-center ${getSearchModeStyle()}`}
@@ -269,6 +279,7 @@ const SearchPage: React.FC = () => {
                           [key]: e.target.value,
                         })
                       }
+                      onKeyPress={handleKeyPress} // Add this line
                       className="w-full p-1.5 border border-gray-300 rounded focus:outline-none focus:border-button_focus text-sm"
                     />
                   )}
@@ -293,6 +304,7 @@ const SearchPage: React.FC = () => {
                 placeholder="Enter search term..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyPress={handleKeyPress} // Add this line
                 className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-button_focus text-sm"
               />
               <button
@@ -301,16 +313,28 @@ const SearchPage: React.FC = () => {
                 Search
               </button>
             </div>
+            <div className="text-sm text-gray-600 mb-4 px-2">
+              <p>Search within PDF content of all projects. Results will show projects containing your search terms in their PDF documents.</p>
+              <div className="flex flex-wrap gap-2 mt-2">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                  Searches PDF Content
+                </span>
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  Matches Project Details
+                </span>
+              </div>
+            </div>
           </div>
         ) : (
           // QUICK SEARCH
           <div>
-            <div className="flex items-center mb-3">
+            <div className="flex items-center mb-2">
               <input
                 type="text"
                 placeholder="Enter search term..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyPress={handleKeyPress}
                 className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-button_focus text-sm"
               />
               <button
@@ -319,6 +343,20 @@ const SearchPage: React.FC = () => {
               >
                 Search
               </button>
+            </div>
+            <div className="flex flex-wrap gap-2 px-2">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                Project Title TH/EN
+              </span>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                Description
+              </span>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                Student ID/Name
+              </span>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                Advisor Name TH/EN
+              </span>
             </div>
           </div>
         )}

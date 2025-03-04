@@ -8,7 +8,7 @@ import Link from "next/link"; // Import Link for navigation
 import getAllProgram from "@/utils/getAllProgram";
 import { AllProgram } from "@/models/AllPrograms";
 import getAllEmployees from "@/utils/advisorstats/getAllEmployee"; // Import the getAllEmployees function
-import Image from "next/image";
+import Avatar from "@/components/Avatar";
 import Pagination from "@/components/Pagination"; // Import Pagination component
 import { obfuscateId } from "@/utils/encodePath";
 
@@ -20,7 +20,7 @@ export default function AdvisorStatsPage() {
   const [majorList, setMajorList] = useState<AllProgram[]>([]); // Store major list
   const [selectedMajor, setSelectedMajor] = useState<number>(0); // Default to 0 for "Select Major"
   const [currentPage, setCurrentPage] = useState<number>(1); // Current page state
-  const itemsPerPage = 5; // Items per page
+  const itemsPerPage = 10; // Items per page
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
@@ -91,109 +91,132 @@ export default function AdvisorStatsPage() {
     : [];
 
   return (
-    <div className="min-h-screen p-4 bg-stone-100">
-      <div className="relative overflow-x-auto shadow-md sm:rounded-lg max-w-6xl mx-auto bg-white rounded-lg p-6">
-        <h1 className="text-xl font-bold text-gray-800 mb-4">Advisor Stats</h1>
+    <div className="min-h-screen bg-gray-50/50 py-8">
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="p-6 border-b border-gray-100">
+            <h1 className="text-lg font-semibold text-gray-900">Advisor Directory</h1>
+            <p className="mt-1 text-sm text-gray-500">Browse and search for advisors across all programs</p>
+          </div>
 
-        {/* Flexbox for Select Major and Search Input */}
-        <div className="flex items-center space-x-4 mb-4">
-          {/* Major Selector */}
-          <select
-            id="majorSelect"
-            value={selectedMajor}
-            onChange={handleMajorChange}
-            className="block w-80 p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value={0}>Select Major</option>
-            <option value={-1}>All Majors</option>
-            {majorList.map((program) => (
-              <option key={program.id} value={program.id}>
-                {program.program_name_en}
-              </option>
-            ))}
-          </select>
-
-          {/* Search Input */}
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <svg
-                className="w-4 h-4 text-gray-500"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 20 20"
+          {/* Controls Section */}
+          <div className="p-6 border-b border-gray-100 space-y-4 sm:space-y-0 sm:flex sm:items-center sm:space-x-4">
+            {/* Major Selector */}
+            <div className="flex-1 min-w-[200px]">
+              <select
+                id="majorSelect"
+                value={selectedMajor}
+                onChange={handleMajorChange}
+                className="w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg 
+                         focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
               >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                />
-              </svg>
+                <option value={0}>Select Major</option>
+                <option value={-1}>All Majors</option>
+                {majorList.map((program) => (
+                  <option key={program.id} value={program.id}>
+                    {program.program_name_en}
+                  </option>
+                ))}
+              </select>
             </div>
-            <input
-              type="text"
-              className="block w-80 pl-10 p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Search for advisors..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+
+            {/* Search Input */}
+            <div className="flex-1 min-w-[200px]">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                  <svg
+                    className="w-4 h-4 text-gray-400"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                    />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  className="w-full pl-10 px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg
+                           focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
+                  placeholder="Search by name or email..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Content Section */}
+          <div className="p-6">
+            {loading ? (
+              <div className="flex justify-center py-8">
+                <Spinner />
+              </div>
+            ) : filteredAdvisors?.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500 text-sm">No advisors found.</p>
+                <p className="text-gray-400 text-xs mt-1">Try adjusting your search criteria</p>
+              </div>
+            ) : (
+              <>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-gray-100">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Program</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {currentAdvisors.map((advisor) => (
+                        <tr key={advisor.id} className="hover:bg-gray-50/50 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <Avatar
+                                name={`${advisor.first_name_en} ${advisor.last_name_en}`}
+                                size="sm"
+                              />
+                              <div className="ml-3">
+                                <Link href={`/advisorprofile/${obfuscateId(advisor.id)}`}>
+                                  <div className="text-sm font-medium text-primary-DEFAULT hover:text-primary-dark transition-colors">
+                                    {advisor.prefix_en} {advisor.first_name_en} {advisor.last_name_en}
+                                  </div>
+                                  <div className="text-xs text-gray-500">
+                                    {advisor.prefix_th} {advisor.first_name_th} {advisor.last_name_th}
+                                  </div>
+                                </Link>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {advisor.email}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {majorList.find((program) => program.id === advisor.program_id)?.program_name_en ?? "N/A"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="mt-6">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={filteredAdvisors ? Math.ceil(filteredAdvisors.length / itemsPerPage) : 0}
+                    onPageChange={handlePageChange}
+                  />
+                </div>
+              </>
+            )}
           </div>
         </div>
-
-        {loading ? (
-          <Spinner /> // Display spinner while loading
-        ) : filteredAdvisors?.length === 0 ? (
-          <div className="text-center text-gray-500">No advisors found.</div>
-        ) : (
-          <>
-            <table className="w-full text-sm text-left text-gray-500 rounded-lg">
-              <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                <tr>
-                  <th scope="col" className="px-6 py-3">Name</th>
-                  <th scope="col" className="px-6 py-3">Email</th>
-                  <th scope="col" className="px-6 py-3">Program</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentAdvisors.map((advisor) => (
-                  <tr key={advisor.id} className="bg-white border-b hover:bg-gray-50">
-                    <th scope="row" className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap">
-                      <Image
-                        className="w-8 h-8 rounded-full"
-                        src="/icon/teacher.png"
-                        alt={advisor.first_name_en}
-                        width={32} // Specify width (in px)
-                        height={32} // Specify height (in px)
-                      />
-                      <div className="pl-3">
-                        <Link href={`/advisorprofile/${obfuscateId(advisor.id)}`}>
-                          <span className="text-base font-semibold text-primary_text hover:underline cursor-pointer">
-                            {advisor.prefix_en} {advisor.first_name_en} {advisor.last_name_en}
-                          </span>
-                          <br />
-                          <span className="text-sm text-gray-500">
-                            {advisor.prefix_th} {advisor.first_name_th} {advisor.last_name_th}
-                          </span>
-                        </Link>
-                      </div>
-                    </th>
-                    <td className="px-6 py-4">{advisor.email}</td>
-                    <td className="px-6 py-4">
-                      {majorList.find((program) => program.id === advisor.program_id)?.program_name_en ?? "N/A"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <Pagination
-              currentPage={currentPage}
-              totalPages={filteredAdvisors ? Math.ceil(filteredAdvisors.length / itemsPerPage) : 0}
-              onPageChange={handlePageChange}
-            />
-          </>
-        )}
       </div>
     </div>
   );
