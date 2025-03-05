@@ -8,6 +8,7 @@ import Spinner from "@/components/Spinner"; // Import Spinner component
 import Pagination from "@/components/Pagination"; // Import Pagination component
 import { AllProgram } from "@/models/AllPrograms";
 import getAllProgram from "@/utils/getAllProgram";
+import { fetchPdfProjects } from "@/utils/pdfSearchApi"; // Import fetchPdfProjects
 
 interface SearchFields {
   courseNo: string | null;
@@ -110,6 +111,24 @@ const SearchPage: React.FC = () => {
     }
   };
 
+  const handleSearchPDF = async () => {
+    if (!searchTerm.trim()) {
+      alert("Please enter a search term.");
+      return;
+    }
+    setLoading(true); // Set loading to true when search starts
+    try {
+      const results = await fetchPdfProjects(searchTerm);
+      setFilteredRecords(results);
+      console.log("PDF search results:", results);
+    } catch (error) {
+      console.error("Error fetching PDF search results:", error);
+      setFilteredRecords([]);
+    } finally {
+      setLoading(false); // Set loading to false when search ends
+    }
+  };
+
   const toggleSearchMode = () => {
     setSearchMode((prevMode) => {
       if (prevMode === "quick") return "detail";
@@ -158,6 +177,8 @@ const SearchPage: React.FC = () => {
         handleSearch();
       } else if (searchMode === "detail") {
         handleDetailSearch();
+      } else if (searchMode === "pdf") {
+        handleSearchPDF(); // Add this line
       }
     }
   };
@@ -308,6 +329,7 @@ const SearchPage: React.FC = () => {
                 className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-button_focus text-sm"
               />
               <button
+                onClick={handleSearchPDF} // Add this line
                 className="bg-primary_button text-white py-2 px-4 rounded-r-md hover:bg-button_hover focus:outline-none focus:bg-button_focus text-sm"
               >
                 Search
