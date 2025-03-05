@@ -12,10 +12,9 @@ import { useRouter } from "next/navigation"; // Import useRouter from next/navig
 import getAllEmployees from "@/utils/advisorstats/getAllEmployee";
 import { Advisor } from "@/models/Advisor"
 import { getStudentsByProgram } from "@/utils/createproject/getStudentsByProgram";
-import { Student } from "@/models/Student"; // Import the new Student type
-import { getProjectRoles } from "@/utils/createproject/getProjectRoles"; // Import the getProjectRoles function
-import { ProjectRole } from "@/models/ProjectRoles"; // Import the ProjectRole type
+import { Student } from "@/models/Student"; // Import the Student type
 import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig"; // Import getProjectResourceConfig
+import EditIcon from '@mui/icons-material/Edit';
 
 interface EditProjectPageProps {
   params: {
@@ -71,17 +70,19 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [staffList, setStaffList] = useState<Advisor[]>([]);
   const [studentList, setStudentList] = useState<Student[]>([]); // Store student list
-  const [projectRoles, setProjectRoles] = useState<ProjectRole[]>([]); // Store project roles
   const [projectResourceConfig, setProjectResourceConfig] = useState<
     ProjectResourceConfig[]
   >([]); // Store project resource config
   const router = useRouter(); // Initialize useRouter
+  const [editModeResources, setEditModeResources] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     const loadProject = async () => {
       try {
         const projectData = await getProjectById(parseInt(id)); // Fetch project by ID
         setProject(projectData);
+        
+        // Initialize form data
         setFormData({
           title_en: projectData.titleEN || "",
           title_th: projectData.titleTH,
@@ -125,14 +126,10 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
             })),
         });
 
-        if (
-          !projectData.projectResources ||
-          projectData.projectResources.length === 0
-        ) {
-          const resourceConfig = await getProjectResourceConfig(
-            projectData.program.id
-          );
-          setProjectResourceConfig(resourceConfig);
+        // Always fetch resource configs for the program
+        if (projectData?.program?.id) {
+          const configs = await getProjectResourceConfig(projectData.program.id);
+          setProjectResourceConfig(configs);
         }
 
         const employees = await getAllEmployees();
@@ -141,8 +138,8 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
         const students = await getStudentsByProgram(projectData.program.id);
         setStudentList(students);
 
-        const roles = await getProjectRoles();
-        setProjectRoles(roles);
+        const configs = await getProjectResourceConfig(projectData.program.id);
+        setProjectResourceConfig(configs);
       } catch (error) {
         console.error("Error fetching project details:", error);
       } finally {
@@ -178,6 +175,13 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
         [fieldName]: files,
       }));
     }
+  };
+
+  const toggleEditMode = (resourceId: string) => {
+    setEditModeResources(prev => ({
+      ...prev,
+      [resourceId]: !prev[resourceId]
+    }));
   };
 
   const renderInputField = (
@@ -267,74 +271,105 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
 
     if (!fileConfigs || fileConfigs.length === 0) {
       return projectResourceConfig.map((fileConfig) => {
-        if (!fileConfig.is_active) return null; // Display only active fields
+        if (!fileConfig.is_active || !fileConfig.id) return null;
+
+        const configId = fileConfig.id;
+        const isEditMode = editModeResources[configId.toString()];
 
         return (
           <div
-            key={fileConfig.id}
-            className="p-4 mb-4 rounded-lg border border-gray-300 bg-white"
+            key={configId}
+            className="p-4 mb-4 rounded-lg border border-gray-300 bg-white shadow-sm hover:shadow-md transition-shadow duration-200"
           >
-            <div className="flex items-center mb-4">
-              {fileConfig.icon_name && (
-                <div className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center">
-                  <div className="w-7 h-7 flex items-center justify-center">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-9 h-9 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden flex items-center justify-center">
+                  <div className="w-6 h-6 flex items-center justify-center">
                     <Image
                       src={fileConfig.icon_url || "/IconProjectBox/BlueBox.png"}
-                      alt="icon"
-                      width={32}
-                      height={32}
-                      style={{ objectFit: "contain" }}
-                      className="w-full h-full object-contain"
+                      alt={fileConfig.icon_name || "Default Icon"}
+                      width={24}
+                      height={24}
+                      className="object-contain"
                       unoptimized
                     />
                   </div>
                 </div>
-              )}
-              <h6 className="text-lg font-bold ml-2">{fileConfig.title}</h6>
+                <div>
+                  <h3 className="text-base font-semibold text-gray-900">{fileConfig.title}</h3>
+                </div>
+              </div>
+              <button 
+                onClick={() => toggleEditMode(configId.toString())}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                aria-label="Edit resource"
+              >
+                <EditIcon className="text-gray-600 w-5 h-5" />
+              </button>
             </div>
 
-            {/* Always show file upload for "pdf" title */}
-            {fileConfig.title.toLowerCase() === "pdf" ? (
-              <div>
-                <label className="block text-sm font-semibold mb-2">
-                  Upload File
-                </label>
-                <input
-                  type="file"
-                  name={`file_upload_${fileConfig.id}`}
-                  onChange={(e) =>
-                    handleFileChange(e, `file_upload_${fileConfig.id}`)
-                  }
-                  className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
-                />
-              </div>
-            ) : fileConfig.resource_type.id === 2 ? (
-              <div>
-                <label className="block text-sm font-semibold mb-2">
-                  Paste Link
-                </label>
-                <input
-                  type="text"
-                  name={`file_link_${fileConfig.id}`}
-                  value={(formData[`file_link_${fileConfig.id}`] as string) || ""}
-                  onChange={handleInputChange}
-                  className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
-                  placeholder="Paste the URL here"
-                />
-              </div>
-            ) : (
-              <div>
-                <label className="block text-sm font-semibold mb-2">
-                  Upload File
-                </label>
-                <input
-                  type="file"
-                  name={`file_upload_${fileConfig.id}`}
-                  onChange={(e) =>
-                    handleFileChange(e, `file_upload_${fileConfig.id}`)
-                  }
-                  className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
-                />
+            {isEditMode && (
+              <div className="mt-4 pl-13">
+                {fileConfig.title.toLowerCase() === "pdf" ? (
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Upload PDF File
+                    </label>
+                    <input
+                      type="file"
+                      accept=".pdf"
+                      name={`file_upload_${configId}`}
+                      onChange={(e) => handleFileChange(e, `file_upload_${configId}`)}
+                      className="block w-full text-sm text-gray-500
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-full file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-blue-50 file:text-blue-700
+                        hover:file:bg-blue-100
+                        cursor-pointer border rounded-lg
+                        focus:outline-none focus:border-blue-500
+                        focus:ring-1 focus:ring-blue-500"
+                    />
+                  </div>
+                ) : fileConfig.resource_type.id === 2 ? (
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Resource URL
+                    </label>
+                    <input
+                      type="text"
+                      name={`file_link_${configId}`}
+                      value={(formData[`file_link_${configId}`] as string) || ""}
+                      onChange={handleInputChange}
+                      className="block w-full px-3 py-2 text-sm
+                        border border-gray-300 rounded-lg
+                        focus:outline-none focus:border-blue-500
+                        focus:ring-1 focus:ring-blue-500
+                        placeholder-gray-400"
+                      placeholder="Enter resource URL"
+                    />
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Upload File
+                    </label>
+                    <input
+                      type="file"
+                      name={`file_upload_${configId}`}
+                      onChange={(e) => handleFileChange(e, `file_upload_${configId}`)}
+                      className="block w-full text-sm text-gray-500
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-full file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-blue-50 file:text-blue-700
+                        hover:file:bg-blue-100
+                        cursor-pointer border rounded-lg
+                        focus:outline-none focus:border-blue-500
+                        focus:ring-1 focus:ring-blue-500"
+                    />
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -343,86 +378,131 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
     }
 
     return fileConfigs.map((resource) => {
+      const isEditMode = editModeResources[resource.id.toString()];
+      // Find matching config by title (case-insensitive)
+      const matchingConfig = projectResourceConfig.find(
+        config => config.title?.toLowerCase() === resource.title?.toLowerCase()
+      );
+
       return (
         <div
           key={resource.id}
-          className="p-4 mb-4 rounded-lg border border-gray-300 bg-white"
+          className="p-4 mb-4 rounded-lg border border-gray-300 bg-white shadow-sm hover:shadow-md transition-shadow duration-200"
         >
-          <div className="flex items-center mb-4">
-            <h6 className="text-lg font-bold">{resource.title}</h6>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-9 h-9 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden flex items-center justify-center">
+                {matchingConfig ? (
+                  <div className="w-6 h-6 flex items-center justify-center">
+                    <Image
+                      src={matchingConfig.icon_url || "/IconProjectBox/BlueBox.png"}
+                      alt={matchingConfig.icon_name || "Resource Icon"}
+                      width={24}
+                      height={24}
+                      className="object-contain"
+                      unoptimized
+                    />
+                  </div>
+                ) : (
+                  <div className="w-6 h-6 flex items-center justify-center">
+                    <Image
+                      src="/IconProjectBox/BlueBox.png"
+                      alt="Default Icon"
+                      width={24}
+                      height={24}
+                      className="object-contain"
+                      unoptimized
+                    />
+                  </div>
+                )}
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-gray-900">{resource.title}</h3>
+                {resource.url && (
+                  <a
+                    href={resource.url}
+                    className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View Resource
+                  </a>
+                )}
+              </div>
+            </div>
+            <button 
+              onClick={() => toggleEditMode(resource.id.toString())}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              aria-label="Edit resource"
+            >
+              <EditIcon className="text-gray-600 w-5 h-5" />
+            </button>
           </div>
 
-          {/* Always show file upload for "pdf" title */}
-          {resource.title?.toLowerCase() === "pdf" ? (
-            <div>
-              <label className="block text-sm font-semibold mb-2">
-                Upload File
-              </label>
-              <input
-                type="file"
-                name={`file_upload_${resource.id}`}
-                onChange={(e) =>
-                  handleFileChange(e, `file_upload_${resource.id}`)
-                }
-                className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
-              />
-            </div>
-          ) : resource.resourceType.id === 2 ? (
-            <div>
-              <label className="block text-sm font-semibold mb-2">
-                Paste Link
-              </label>
-              <input
-                type="text"
-                name={`file_link_${resource.id}`}
-                value={(formData[`file_link_${resource.id}`] as string) || ""}
-                onChange={handleInputChange}
-                className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
-                placeholder="Paste the URL here"
-              />
-            </div>
-          ) : (
-            <div>
-              <label className="block text-sm font-semibold mb-2">
-                Upload File
-              </label>
-              <input
-                type="file"
-                name={`file_upload_${resource.id}`}
-                onChange={(e) =>
-                  handleFileChange(e, `file_upload_${resource.id}`)
-                }
-                className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
-              />
+          {isEditMode && (
+            <div className="mt-4 pl-13">
+              {resource.title?.toLowerCase() === "pdf" ? (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Upload PDF File
+                  </label>
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    name={`file_upload_${resource.id}`}
+                    onChange={(e) => handleFileChange(e, `file_upload_${resource.id}`)}
+                    className="block w-full text-sm text-gray-500
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-full file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-blue-50 file:text-blue-700
+                      hover:file:bg-blue-100
+                      cursor-pointer border rounded-lg
+                      focus:outline-none focus:border-blue-500
+                      focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+              ) : resource.resourceType.id === 2 ? (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Resource URL
+                  </label>
+                  <input
+                    type="text"
+                    name={`file_link_${resource.id}`}
+                    value={(formData[`file_link_${resource.id}`] as string) || ""}
+                    onChange={handleInputChange}
+                    className="block w-full px-3 py-2 text-sm
+                      border border-gray-300 rounded-lg
+                      focus:outline-none focus:border-blue-500
+                      focus:ring-1 focus:ring-blue-500
+                      placeholder-gray-400"
+                    placeholder="Enter resource URL"
+                  />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Upload File
+                  </label>
+                  <input
+                    type="file"
+                    name={`file_upload_${resource.id}`}
+                    onChange={(e) => handleFileChange(e, `file_upload_${resource.id}`)}
+                    className="block w-full text-sm text-gray-500
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-full file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-blue-50 file:text-blue-700
+                      hover:file:bg-blue-100
+                      cursor-pointer border rounded-lg
+                      focus:outline-none focus:border-blue-500
+                      focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+              )}
             </div>
           )}
-
-          <div className="mt-4">
-            {resource.url ? (
-              <a
-                href={resource.url}
-                className="font-semibold text-blue-500 hover:underline"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {resource.title !== null ? resource.title : "No Title"}
-              </a>
-            ) : (
-              <p className="font-semibold text-gray-800">
-                {resource.title !== null ? resource.title : "No Title"}
-              </p>
-            )}
-            {resource.resourceName && (
-              <p className="text-gray-500 text-sm">
-                Resource Name: {resource.resourceName}
-              </p>
-            )}
-            {resource.createdAt && (
-              <p className="text-gray-500 text-sm">
-                Created At: {resource.createdAt}
-              </p>
-            )}
-          </div>
         </div>
       );
     });
