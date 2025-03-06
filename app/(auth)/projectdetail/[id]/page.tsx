@@ -9,12 +9,14 @@ import { deobfuscateId} from "@/utils/encodePath";
 import Avatar from "@/components/Avatar";
 import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig";
 import { ProjectResourceConfig } from "@/models/ProjectResourceConfig";
+import { useAuth } from "@/hooks/useAuth";
 
 const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
   const { id } = params; // Get project ID from  the route params
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [resourceConfigs, setResourceConfigs] = useState<ProjectResourceConfig[]>([]);
+  const { user } = useAuth();
   
   useEffect(() => {
     const loadProject = async () => {
@@ -178,84 +180,86 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
           </div>
 
           {/* Resources Section */}
-          <div className="px-6 py-4">
-            <h3 className="text-sm font-semibold text-gray-800 mb-3">Project Resources</h3>
-            {project.projectResources?.length > 0 ? (
-              <div className="space-y-3">
-                {project.projectResources.map((resource) => {
-                  // Find matching resource config
-                  const matchingConfig = resourceConfigs.find(
-                    (config: ProjectResourceConfig) => config.title.toLowerCase() === resource.title?.toLowerCase()
-                  );
+          {user && (
+            <div className="px-6 py-4">
+              <h3 className="text-sm font-semibold text-gray-800 mb-3">Project Resources</h3>
+              {project.projectResources?.length > 0 ? (
+                <div className="space-y-3">
+                  {project.projectResources.map((resource) => {
+                    // Find matching resource config
+                    const matchingConfig = resourceConfigs.find(
+                      (config: ProjectResourceConfig) => config.title.toLowerCase() === resource.title?.toLowerCase()
+                    );
 
-                  return (
-                    <div key={resource.id} className="bg-gray-50 rounded p-3">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <div className="w-9 h-9 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden flex items-center justify-center">
-                            {matchingConfig ? (
-                              <div className="w-6 h-6 flex items-center justify-center">
-                                <Image
-                                  src={matchingConfig.icon_url}
-                                  alt={matchingConfig.icon_name}
-                                  width={24}
-                                  height={24}
-                                  className="object-contain"
-                                  unoptimized
-                                />
-                              </div>
+                    return (
+                      <div key={resource.id} className="bg-gray-50 rounded p-3">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <div className="w-9 h-9 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden flex items-center justify-center">
+                              {matchingConfig ? (
+                                <div className="w-6 h-6 flex items-center justify-center">
+                                  <Image
+                                    src={matchingConfig.icon_url}
+                                    alt={matchingConfig.icon_name}
+                                    width={24}
+                                    height={24}
+                                    className="object-contain"
+                                    unoptimized
+                                  />
+                                </div>
+                              ) : (
+                                <div className="w-6 h-6 flex items-center justify-center">
+                                  <Image
+                                    src="/IconProjectBox/BlueBox.png"
+                                    alt="Default Icon"
+                                    width={24}
+                                    height={24}
+                                    className="object-contain"
+                                    unoptimized
+                                  />
+                                </div>
+                              )}
+                            </div>
+                            {resource?.url ? (
+                              <a
+                                href={resource.url}
+                                className="text-sm text-primary-DEFAULT hover:text-primary-dark font-medium block"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {resource.title !== null ? resource.title : "No Title"}
+                              </a>
                             ) : (
-                              <div className="w-6 h-6 flex items-center justify-center">
-                                <Image
-                                  src="/IconProjectBox/BlueBox.png"
-                                  alt="Default Icon"
-                                  width={24}
-                                  height={24}
-                                  className="object-contain"
-                                  unoptimized
-                                />
-                              </div>
+                              <p className="text-sm font-medium text-gray-900">
+                                {resource.title !== null ? resource.title : "No Title"}
+                              </p>
                             )}
                           </div>
-                          {resource?.url ? (
-                            <a
-                              href={resource.url}
-                              className="text-sm text-primary-DEFAULT hover:text-primary-dark font-medium block"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              {resource.title !== null ? resource.title : "No Title"}
-                            </a>
-                          ) : (
-                            <p className="text-sm font-medium text-gray-900">
-                              {resource.title !== null ? resource.title : "No Title"}
+                          {resource?.path && (
+                            <p className="text-xs text-gray-600 ml-11">
+                              Path: {resource.path}
+                            </p>
+                          )}
+                          {resource?.resourceName && (
+                            <p className="text-xs text-gray-600 ml-11">
+                              Resource Name: {resource.resourceName}
+                            </p>
+                          )}
+                          {resource?.createdAt && (
+                            <p className="text-xs text-gray-500 ml-11">
+                              Created At: {resource.createdAt}
                             </p>
                           )}
                         </div>
-                        {resource?.path && (
-                          <p className="text-xs text-gray-600 ml-11">
-                            Path: {resource.path}
-                          </p>
-                        )}
-                        {resource?.resourceName && (
-                          <p className="text-xs text-gray-600 ml-11">
-                            Resource Name: {resource.resourceName}
-                          </p>
-                        )}
-                        {resource?.createdAt && (
-                          <p className="text-xs text-gray-500 ml-11">
-                            Created At: {resource.createdAt}
-                          </p>
-                        )}
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <p className="text-xs text-gray-500">No resources available.</p>
-            )}
-          </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-xs text-gray-500">No resources available.</p>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
