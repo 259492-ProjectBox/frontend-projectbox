@@ -13,7 +13,7 @@ const LinkIcon: React.FC<{ color?: string }> = ({ color = "#10B981" }) => {
       <g
         id="SVGRepo_tracerCarrier"
         strokeLinecap="round"
-        stroke-linejoin="round"
+        strokeLinejoin="round"
       ></g>
       <g id="SVGRepo_iconCarrier">
         <g id="Interface / Link_Horizontal">
@@ -23,7 +23,7 @@ const LinkIcon: React.FC<{ color?: string }> = ({ color = "#10B981" }) => {
             stroke={color}
             strokeWidth="2"
             strokeLinecap="round"
-            stroke-linejoin="round"
+            strokeLinejoin="round"
           ></path>
         </g>
       </g>

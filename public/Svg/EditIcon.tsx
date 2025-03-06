@@ -12,7 +12,7 @@ const EditIcon = () => {
         fill="none"
         stroke="#1E40AF" // Updated to red color
         strokeLinecap="round"
-        stroke-linejoin="round"
+        strokeLinejoin="round"
         strokeWidth="2"
       ></path>
       <polygon
@@ -20,7 +20,7 @@ const EditIcon = () => {
         points="12.5 15.8 22 6.2 17.8 2 8.3 11.5 8 16 12.5 15.8"
         stroke="#1E40AF" // Updated to red color
         strokeLinecap="round"
-        stroke-linejoin="round"
+        strokeLinejoin="round"
         strokeWidth="2"
       ></polygon>
     </svg>
