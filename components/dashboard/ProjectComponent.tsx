@@ -59,73 +59,83 @@ const ProjectComponent = ({ project }: { project: Project }) => {
         </div>
 
         {/* Resource Icons */}
-        <div className="flex flex-wrap gap-2 mb-3">
-          {project.projectResources?.map((resource) => {
-            // Find matching resource config
-            const matchingConfig = resourceConfigs.find(
-              (config) => config.title.toLowerCase() === resource.title?.toLowerCase()
-            );
+        {user && project.projectResources?.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-3">
+            {project.projectResources?.map((resource) => {
+              // Find matching resource config
+              const matchingConfig = resourceConfigs.find(
+                (config) => config.title.toLowerCase() === resource.title?.toLowerCase()
+              );
 
-            return (
-              <div key={resource.id} className="relative">
-                {resource.url ? (
-                  <a
-                    href={resource.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block p-1.5 bg-gray-50 rounded-md hover:bg-gray-100"
-                  >
-                    <div className="w-6 h-6 flex items-center justify-center">
-                      {matchingConfig ? (
-                        <Image
-                          src={matchingConfig.icon_url}
-                          alt={matchingConfig.title}
-                          width={24}
-                          height={24}
-                          className="object-contain"
-                          unoptimized
-                        />
-                      ) : (
-                        <Image
-                          src="/IconProjectBox/BlueBox.png"
-                          alt="Default Icon"
-                          width={24}
-                          height={24}
-                          className="object-contain"
-                          unoptimized
-                        />
-                      )}
+              return (
+                <div key={resource.id} className="relative group">
+                  {resource.url ? (
+                    <a
+                      href={resource.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block p-1.5 bg-gray-50 rounded-md hover:bg-gray-100"
+                    >
+                      <div className="w-6 h-6 flex items-center justify-center">
+                        {matchingConfig ? (
+                          <Image
+                            src={matchingConfig.icon_url}
+                            alt={matchingConfig.title}
+                            width={24}
+                            height={24}
+                            className="object-contain"
+                            unoptimized
+                          />
+                        ) : (
+                          <Image
+                            src="/IconProjectBox/BlueBox.png"
+                            alt="Default Icon"
+                            width={24}
+                            height={24}
+                            className="object-contain"
+                            unoptimized
+                          />
+                        )}
+                      </div>
+                      {/* Tooltip */}
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+                        {resource.title || "No Title"}
+                      </div>
+                    </a>
+                  ) : (
+                    <div className="p-1.5 bg-gray-50 rounded-md">
+                      <div className="w-6 h-6 flex items-center justify-center">
+                        {matchingConfig ? (
+                          <Image
+                            src={matchingConfig.icon_url}
+                            alt={matchingConfig.title}
+                            width={24}
+                            height={24}
+                            className="object-contain"
+                            unoptimized
+                          />
+                        ) : (
+                          <Image
+                            src="/IconProjectBox/BlueBox.png"
+                            alt="Default Icon"
+                            width={24}
+                            height={24}
+                            className="object-contain"
+                            unoptimized
+                          />
+                        )}
+                      </div>
+                      {/* Tooltip */}
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+                        {resource.title || "No Title"}
+                      </div>
                     </div>
-                  </a>
-                ) : (
-                  <div className="p-1.5 bg-gray-50 rounded-md">
-                    <div className="w-6 h-6 flex items-center justify-center">
-                      {matchingConfig ? (
-                        <Image
-                          src={matchingConfig.icon_url}
-                          alt={matchingConfig.title}
-                          width={24}
-                          height={24}
-                          className="object-contain"
-                          unoptimized
-                        />
-                      ) : (
-                        <Image
-                          src="/IconProjectBox/BlueBox.png"
-                          alt="Default Icon"
-                          width={24}
-                          height={24}
-                          className="object-contain"
-                          unoptimized
-                        />
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Students and Committees */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
