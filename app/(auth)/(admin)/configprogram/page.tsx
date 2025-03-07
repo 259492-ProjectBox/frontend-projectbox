@@ -11,6 +11,10 @@ import { uploadStudentList } from "@/utils/configprogram/uploadstudentlist";
 import { uploadCreateProject } from "@/utils/configprogram/uploadcreateproject";
 import ExcelTemplateSection from "@/components/ExcelTemplateSection";
 import axios from "axios";
+import { getAcademicYears } from "@/utils/configprogram/getAcademicYears";
+import { getStudentsByProgram } from "@/utils/configprogram/getStudentsListByProgram";
+import { AcademicYear } from "@/models/AcademicYear";
+import { Student } from "@/models/Student";
 
 // Function to convert string to title case
 const toTitleCase = (str: string) => {
@@ -36,6 +40,13 @@ export default function ConfigProgram() {
   const { user } = useAuth();
   const [selectedMajor, setSelectedMajor] = useState<number>(0);
   const [options, setOptions] = useState<AllProgram[]>([]);
+
+  const [academicYears, setAcademicYears] = useState<AcademicYear[]>([]);
+  const [selectedSearchAcademicYear, setSelectedSearchAcademicYear] = useState<string>("");
+  const [selectedSearchSemester, setSelectedSearchSemester] = useState<string>("1");
+  const [studentListData, setStudentListData] = useState<Student[]>([]);
+  const [isLoadingStudents, setIsLoadingStudents] = useState(false);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   useEffect(() => {
     const fetchOptions = async () => {
@@ -95,6 +106,19 @@ export default function ConfigProgram() {
 
     loadData();
   }, [selectedMajor]);
+
+  useEffect(() => {
+    const fetchAcademicYears = async () => {
+      try {
+        const years = await getAcademicYears();
+        setAcademicYears(years);
+      } catch (error) {
+        console.error("Error fetching academic years:", error);
+      }
+    };
+
+    fetchAcademicYears();
+  }, []);
 
   // Handler for saving changes in edit mode
   const handleSave = async () => {
@@ -206,6 +230,40 @@ export default function ConfigProgram() {
       alert("No project file selected for upload.");
     }
   };
+
+  const handleFindStudents = async () => {
+    if (!selectedMajor || !selectedSearchAcademicYear || !selectedSearchSemester) {
+      alert("Please select all required fields");
+      return;
+    }
+
+    setIsLoadingStudents(true);
+    try {
+      const students = await getStudentsByProgram(
+        selectedMajor,
+        parseInt(selectedSearchAcademicYear),
+        parseInt(selectedSearchSemester)
+      );
+      setStudentListData(students);
+    } catch (error) {
+      console.error("Error fetching students:", error);
+      alert("Failed to fetch students");
+    } finally {
+      setIsLoadingStudents(false);
+    }
+  };
+
+  // Add this new function to filter students
+  const filteredStudents = studentListData.filter((student) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      student.student_id.toLowerCase().includes(query) ||
+      student.first_name.toLowerCase().includes(query) ||
+      student.last_name.toLowerCase().includes(query) ||
+      // student.email.toLowerCase().includes(query) ||
+      student.sec_lab.toLowerCase().includes(query)
+    );
+  });
 
   // Show loading or error
   if (loading) return <Spinner />;
@@ -435,6 +493,139 @@ export default function ConfigProgram() {
                 >
                   Upload Project List
                 </button>
+              </div>
+            </div>
+
+            {/* Student List Section */}
+            <div className="mt-6 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden p-4">
+              <h3 className="text-sm font-medium text-gray-700 mb-4">
+                Student List
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Academic Year
+                  </label>
+                  <select
+                    value={selectedSearchAcademicYear}
+                    onChange={(e) => setSelectedSearchAcademicYear(e.target.value)}
+                    className="w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg
+                             focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
+                  >
+                    <option value="">Select Academic Year</option>
+                    {academicYears.map((year) => (
+                      <option key={year.year_be} value={year.year_be}>
+                        {year.year_be}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Semester
+                  </label>
+                  <select
+                    value={selectedSearchSemester}
+                    onChange={(e) => setSelectedSearchSemester(e.target.value)}
+                    className="w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg
+                             focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
+                  >
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3 (Summer)</option>
+                  </select>
+                </div>
+
+                <div className="flex items-end">
+                  <button
+                    onClick={handleFindStudents}
+                    disabled={isLoadingStudents}
+                    className="w-full px-4 py-2 text-sm font-medium text-white bg-primary_button rounded-lg
+                             hover:bg-button_hover transition-colors duration-200 disabled:opacity-50"
+                  >
+                    {isLoadingStudents ? "Loading..." : "Find"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Search Input */}
+              <div className="mt-4 mb-4">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search by ID, name, or section..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full px-4 py-2 pl-10 text-sm bg-white border border-gray-200 rounded-lg
+                             focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
+                  />
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg
+                      className="h-5 w-5 text-gray-400"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* Student Table */}
+              <div className="mt-4 overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Student ID
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Name
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Email
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Section
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {filteredStudents.length > 0 ? (
+                      filteredStudents.map((student) => (
+                        <tr key={student.id}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {student.student_id}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {student.first_name} {student.last_name}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {student.email}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {student.sec_lab}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500">
+                          {studentListData.length === 0
+                            ? "No students found"
+                            : "No matching students found"}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
