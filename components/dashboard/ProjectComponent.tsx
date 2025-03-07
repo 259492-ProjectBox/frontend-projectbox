@@ -21,9 +21,15 @@ const ProjectComponent = ({ project }: { project: Project }) => {
       if (project.program?.id) {
         try {
           const configs = await getProjectResourceConfig(project.program.id);
-          setResourceConfigs(configs.filter((config: ProjectResourceConfig) => config.is_active));
+          if (configs) {
+            setResourceConfigs(configs);
+          } else {
+            setResourceConfigs([]);
+            // console.warn("No resource configs found for program:", project.program.id);
+          }
         } catch (error) {
           console.error("Error loading resource configs:", error);
+          setResourceConfigs([]);
         }
       }
     };
@@ -59,7 +65,7 @@ const ProjectComponent = ({ project }: { project: Project }) => {
         </div>
 
         {/* Resource Icons */}
-        {user && project.projectResources?.length > 0 && (
+        {user && project.projectResources?.length > 0 && (isMember || isProjectProgramAdmin) && (
           <div className="flex flex-wrap gap-2 mb-3">
             {project.projectResources?.map((resource) => {
               // Find matching resource config
