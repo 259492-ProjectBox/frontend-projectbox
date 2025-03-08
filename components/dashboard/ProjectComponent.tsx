@@ -18,7 +18,7 @@ const ProjectComponent = ({ project }: { project: Project }) => {
 
   useEffect(() => {
     const loadResourceConfigs = async () => {
-      if (project.program?.id) {
+      if (project.program.id) {
         try {
           const configs = await getProjectResourceConfig(project.program.id);
           if (configs) {

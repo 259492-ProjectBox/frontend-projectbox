@@ -1,4 +1,4 @@
-export function obfuscateId(id: number) {
+export function obfuscateId(id: number | string) {
   return Buffer.from(id.toString(), 'utf-8')
   .toString('base64')
   .replace(/=/g, '') // Remove padding
@@ -7,7 +7,11 @@ export function obfuscateId(id: number) {
 }
 
 export function deobfuscateId(encodedId: string) {
-    const base64 = encodedId
+  if (!encodedId || typeof encodedId !== 'string') {
+    throw new Error('Invalid encodedId');
+  }
+
+  const base64 = encodedId
     .replace(/-/g, '+') // Restore '+' from '-'
     .replace(/_/g, '/'); // Restore '/' from '_'
   return parseInt(Buffer.from(base64, 'base64').toString('utf-8'));
