@@ -3,6 +3,7 @@
 import React from "react";
 import { useAuth } from "@/hooks/useAuth";
 import HamburgerIcon from "@/public/Svg/HamburgerIcon";
+import Image from "next/image";
 
 export default function FlowbiteNavbar({
   toggleSidebar,
@@ -24,9 +25,16 @@ export default function FlowbiteNavbar({
               <span className="sr-only">Open sidebar</span>
               <HamburgerIcon />
             </button>
-            <a href="#" className="flex ms-2 md:me-24">
+            <a href="#" className="flex items-center ms-2 md:me-24">
+              <Image
+                src="/IconProjectBox/BlueBox.png"
+                alt="CMU Logo"
+                width={30}
+                height={30}
+                className="mr-2"
+                />
               <span className="self-center text-xl font-semibold whitespace-nowrap">
-                CMU ENG Project
+                CMU ENG PROJECT
               </span>
             </a>
           </div>
