@@ -7,10 +7,9 @@ import Spinner from "@/components/Spinner"; // Import the Spinner component
 import Link from "next/link"; // Import Link for navigation
 import getAllProgram from "@/utils/getAllProgram";
 import { AllProgram } from "@/models/AllPrograms";
-import getAllEmployees from "@/utils/advisorstats/getAllEmployee"; // Import the getAllEmployees function
+import getAllEmployees, { getAllEmployeesNew } from "@/utils/advisorstats/getAllEmployee"; // Import the getAllEmployees function
 import Avatar from "@/components/Avatar";
 import Pagination from "@/components/Pagination"; // Import Pagination component
-import { obfuscateId } from "@/utils/encodePath";
 
 export default function AdvisorStatsPage() {
   const [advisors, setAdvisors] = useState<Advisor[]>([]); // Default to empty array
@@ -21,6 +20,7 @@ export default function AdvisorStatsPage() {
   const [selectedMajor, setSelectedMajor] = useState<number>(0); // Default to 0 for "Select Major"
   const [currentPage, setCurrentPage] = useState<number>(1); // Current page state
   const itemsPerPage = 10; // Items per page
+  const [mapData, setMapData] = useState<Map<string, Advisor[]>>(new Map<string, Advisor[]>());
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
@@ -37,16 +37,22 @@ export default function AdvisorStatsPage() {
         setMajorList(programData);
 
         let data: Advisor[];
+        let newMap = new Map<string, Advisor[]>();
         if (selectedMajor === -1) {
-          data = await getAllEmployees(); // Fetch all employees if "All Majors" is selected
+          newMap = await getAllEmployeesNew(); // Fetch all employees if "All Majors" is selected
+          data = Array.from(newMap.values()).flat(); // Flatten the map values into an array
+          console.log("newMap", newMap);
+          setMapData(newMap);
+          setFilteredAdvisors(data); // Initialize filtered data with newMap data
         } else if (selectedMajor === 0) {
           data = [];
+          setFilteredAdvisors(data); // Initialize filtered data with empty array
         } else {
           data = await getEmployeeByMajorId(selectedMajor); // Fetch employees by major
+          setFilteredAdvisors(data); // Initialize filtered data with fetched data
         }
 
         setAdvisors(data);
-        setFilteredAdvisors(data); // Initialize filtered data
       } catch (error) {
         console.error("Error fetching advisor data:", error);
       } finally {
@@ -59,19 +65,19 @@ export default function AdvisorStatsPage() {
 
   // Filter advisors based on search term
   useEffect(() => {
-    if (advisors && advisors.length > 0) {
-      // Make sure advisors is not null and has data
+    if (mapData && mapData.size > 0) {
       const lowerCaseSearchTerm = searchTerm.toLowerCase();
-      setFilteredAdvisors(
-        advisors.filter(
+      const filtered = Array.from(mapData.values())
+        .flat()
+        .filter(
           (advisor) =>
             advisor.first_name_en.toLowerCase().includes(lowerCaseSearchTerm) ||
             advisor.last_name_en.toLowerCase().includes(lowerCaseSearchTerm) ||
             advisor.email.toLowerCase().includes(lowerCaseSearchTerm)
-        )
-      );
+        );
+      setFilteredAdvisors(filtered);
     }
-  }, [searchTerm, advisors]);
+  }, [searchTerm, mapData]);
 
   const handleMajorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedMajor(Number(event.target.value)); // Set selected major
@@ -89,6 +95,25 @@ export default function AdvisorStatsPage() {
         currentPage * itemsPerPage
       )
     : [];
+
+  const getProgramAbbreviations = (advisorMap: Map<string, Advisor[]>, majorList: AllProgram[]): string => {
+    const programIds: Set<number> = new Set(); // Use a Set to ensure unique program IDs
+    advisorMap.forEach((advisors) => {
+      advisors.forEach((advisor) => {
+        if (Array.isArray(advisor.program_id)) {
+          advisor.program_id.forEach((id) => programIds.add(id));
+        } else {
+          programIds.add(advisor.program_id);
+        }
+      });
+    });
+
+    const programAbbreviations = Array.from(programIds)
+      .map((programId) => majorList.find((program) => program.id === programId)?.abbreviation)
+      .filter((abbreviation) => abbreviation) // Filter out undefined values
+      .join(", ");
+    return programAbbreviations || "N/A";
+  };
 
   return (
     <div className="min-h-screen bg-gray-50/50 py-8">
@@ -113,8 +138,8 @@ export default function AdvisorStatsPage() {
                 <option value={0}>Select Major</option>
                 <option value={-1}>All Majors</option>
                 {majorList.map((program) => (
-                  <option key={program.id} value={program.id}>
-                    {program.program_name_en}
+                  <option key={program.id} value={program.id} className="text-wrap w-full ">
+                    {'(' + program.abbreviation + ') ' + program.program_name_en}
                   </option>
                 ))}
               </select>
@@ -166,7 +191,9 @@ export default function AdvisorStatsPage() {
             ) : (
               <>
                 <div className="overflow-x-auto">
+                    <p>{filteredAdvisors?.length}</p>
                   <table className="w-full">
+                    {/* count the advisor */}
                     <thead>
                       <tr className="border-b border-gray-100">
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
@@ -184,7 +211,7 @@ export default function AdvisorStatsPage() {
                                 size="sm"
                               />
                               <div className="ml-3">
-                                <Link href={`/advisorprofile/${obfuscateId(advisor.id)}`}>
+                                <Link href={`/advisorprofile/${advisor.email}`}>
                                   <div className="text-sm font-medium text-primary-DEFAULT hover:text-primary-dark transition-colors">
                                     {advisor.prefix_en} {advisor.first_name_en} {advisor.last_name_en}
                                   </div>
@@ -198,8 +225,8 @@ export default function AdvisorStatsPage() {
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                             {advisor.email}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                            {majorList.find((program) => program.id === advisor.program_id)?.program_name_en ?? "N/A"}
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600" title={getProgramAbbreviations(mapData, majorList)}>
+                            {getProgramAbbreviations(mapData, majorList)}
                           </td>
                         </tr>
                       ))}

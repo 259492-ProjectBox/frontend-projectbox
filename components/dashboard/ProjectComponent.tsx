@@ -18,10 +18,14 @@ const ProjectComponent = ({ project }: { project: Project }) => {
 
   useEffect(() => {
     const loadResourceConfigs = async () => {
-      if (project.program?.id) {
+      if (project.program.id) {
         try {
           const configs = await getProjectResourceConfig(project.program.id);
-          setResourceConfigs(configs.filter((config: ProjectResourceConfig) => config.is_active));
+          if (configs && Array.isArray(configs)) {
+            setResourceConfigs(configs.filter((config: ProjectResourceConfig) => config.is_active));
+          } else {
+            console.error("Invalid configs data");
+          }
         } catch (error) {
           console.error("Error loading resource configs:", error);
         }

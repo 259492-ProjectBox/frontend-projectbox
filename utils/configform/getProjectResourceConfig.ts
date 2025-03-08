@@ -1,7 +1,8 @@
 // src/utils/apiController.ts
+import { ProjectResourceConfig } from "@/models/ProjectResourceConfig";
 import axios from "axios";
 
-export const getProjectResourceConfig = async (programId: number) : Promise<any> => {
+export const getProjectResourceConfig = async (programId: number) : Promise<ProjectResourceConfig[]> => {
   try {
     const response = await axios.get(
       `https://project-service.kunmhing.me/api/v1/projectResourceConfigs/program/${programId}`,
@@ -12,8 +13,13 @@ export const getProjectResourceConfig = async (programId: number) : Promise<any>
       }
     );
     console.log("getProjectResourceConfig", response.data);
-  
-    return response.data; // Axios returns data in the `data` property of the response
+
+    // Ensure the response data is valid
+    if (response.data) {
+      return response.data;
+    } else {
+      throw new Error("Invalid response data");
+    }
   } catch (error) {
     console.error("Error fetching data:", error);
     throw error; // Rethrow error to handle it in the component

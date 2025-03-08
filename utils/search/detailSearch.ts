@@ -52,7 +52,7 @@ const detailSearchProjects = async ({ searchFields }: DetailSearchPayload): Prom
 
     if (searchFields.programId !== undefined || searchFields.programId !== null ) {
       fields.push("programId");
-      if (searchFields.programId !== undefined && searchFields.programId !== null) {
+      if (searchFields.programId !== undefined && searchFields.programId !== null && searchFields.programId !== 0) {
         searchInput.push(searchFields.programId.toString());
       }
     }
