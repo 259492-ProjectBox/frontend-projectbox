@@ -400,8 +400,11 @@ export default function ConfigProgram() {
                   <h3 className="text-sm font-medium text-gray-700 mb-2">
                     Upload Student
                   </h3>
-                  <p className="text-sm text-gray-500 mb-3">
+                  <p className="text-sm text-gray-500 mb-2">
                     Upload a list of students to grant them permission to create projects for the current academic year and semester. This allows students to submit their own project details.
+                  </p>
+                  <p className="text-sm text-red-500 font-medium mb-3">
+                    ⚠️ Please ensure you upload students with the correct Academic Year and Semester. Incorrect academic period may result in students being unable to access the system.
                   </p>
                   <ExcelTemplateSection
                     title="Roster_Student_Template"
@@ -465,8 +468,11 @@ export default function ConfigProgram() {
                   <h3 className="text-sm font-medium text-gray-700 mb-2">
                     Upload Project
                   </h3>
-                  <p className="text-sm text-gray-500 mb-3">
+                  <p className="text-sm text-gray-500 mb-2">
                     Upload projects directly as staff. Use this option to create projects on behalf of students or to import existing/old projects into the system.
+                  </p>
+                  <p className="text-sm text-red-500 font-medium mb-3">
+                    ⚠️ Please verify that the Academic Year and Semester in your project list match the intended academic period. Incorrect values may cause projects to appear in the wrong term.
                   </p>
                   <ExcelTemplateSection
                     title="Roster_Project_Template"
