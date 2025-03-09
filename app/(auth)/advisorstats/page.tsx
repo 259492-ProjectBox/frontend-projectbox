@@ -7,7 +7,7 @@ import Spinner from "@/components/Spinner"; // Import the Spinner component
 import Link from "next/link"; // Import Link for navigation
 import getAllProgram from "@/utils/getAllProgram";
 import { AllProgram } from "@/models/AllPrograms";
-import getAllEmployees, { getAllEmployeesNew } from "@/utils/advisorstats/getAllEmployee"; // Import the getAllEmployees function
+import { getAllEmployeesNew } from "@/utils/advisorstats/getAllEmployee"; // Import the getAllEmployees function
 import Avatar from "@/components/Avatar";
 import Pagination from "@/components/Pagination"; // Import Pagination component
 
