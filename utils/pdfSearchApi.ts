@@ -1,5 +1,5 @@
+import { Project } from "@/models/Project";
 import axios from "axios";
-import { Project } from "@/models/SearchContentPdf";
 
 export async function fetchPdfProjects(searchInput: string): Promise<Project[]> {
   try {
