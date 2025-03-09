@@ -126,6 +126,13 @@ export default function AdvisorStatsPage() {
 
           {/* Controls Section */}
           <div className="p-6 border-b border-gray-100 space-y-4 sm:space-y-0 sm:flex sm:items-center sm:space-x-4">
+            {/* Advisor Count */}
+            <div className="bg-blue-50 px-4 py-2 rounded-lg">
+              <p className="text-sm text-gray-700">
+                Total Advisors: <span className="text-blue-600 font-medium">{filteredAdvisors?.length || 0}</span>
+              </p>
+            </div>
+
             {/* Major Selector */}
             <div className="flex-1 min-w-[200px]">
               <select
@@ -191,7 +198,7 @@ export default function AdvisorStatsPage() {
             ) : (
               <>
                 <div className="overflow-x-auto">
-                    <p>{filteredAdvisors?.length}</p>
+                    {/* <p>{filteredAdvisors?.length}</p> */}
                   <table className="w-full">
                     {/* count the advisor */}
                     <thead>
