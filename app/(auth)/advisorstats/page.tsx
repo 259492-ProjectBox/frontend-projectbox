@@ -40,7 +40,7 @@ export default function AdvisorStatsPage() {
         if (selectedMajor === -1) {
           newMap = await getAllEmployeesNew(); // Fetch all employees if "All Majors" is selected
           data = Array.from(newMap.values()).flat(); // Flatten the map values into an array
-          console.log("newMap", newMap);
+          // console.log("newMap", newMap);
           setMapData(newMap);
           setFilteredAdvisors(data); // Initialize filtered data with newMap data
         } else if (selectedMajor === 0) {

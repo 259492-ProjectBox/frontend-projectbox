@@ -117,7 +117,7 @@ const SearchPage: React.FC = () => {
     try {
       const results = await detailSearchProjects({ searchFields });
       setFilteredRecords(results);
-      console.log("Advanced search results:", results);
+      // console.log("Advanced search results:", results);
     } catch (error) {
       console.error("Error fetching advanced search results:", error);
       setFilteredRecords([]);
@@ -135,7 +135,7 @@ const SearchPage: React.FC = () => {
     try {
       const results = await fetchPdfProjects(searchTerm);
       setFilteredRecords(results);
-      console.log("PDF search results:", results);
+      // console.log("PDF search results:", results);
     } catch (error) {
       console.error("Error fetching PDF search results:", error);
       setFilteredRecords([]);

@@ -10,7 +10,7 @@ const getProjectByStudentId = async (studentId: string): Promise<Project[]> => {
         headers: { Accept: "application/json" },
       }
     );
-    console.log(`getProjectByStudentId ${studentId}:`, response.data);
+    // console.log(`getProjectByStudentId ${studentId}:`, response.data);
 
     return response.data;
   } catch (error) {

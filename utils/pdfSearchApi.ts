@@ -12,7 +12,7 @@ export async function fetchPdfProjects(searchInput: string): Promise<Project[]> 
       }
     );
 
-    console.log("PDF Search Response:", response.data);
+    // console.log("PDF Search Response:", response.data);
 
     return response.data;
   } catch (error) {

@@ -28,7 +28,7 @@ export default function AdvisorProfilePage() {
   const [currentPage, setCurrentPage] = useState<number>(1); // Current page state
   // const originalId = deobfuscateId(email as string).toString(); // Deobfuscate the ID
   // const originalId = deobfuscateId(id as string); // Deobfuscate the ID
-  console.log("Project", projects);
+  // console.log("Project", projects);
   
   const handlePageChange = (page: number) => {
     setCurrentPage(page); // Set current page
@@ -70,7 +70,7 @@ export default function AdvisorProfilePage() {
       const searchLower = searchInput.toLowerCase();
       // console.log("Select role " ,selectedRole)
       // console.log("Project staffs", project.staffs);
-      console.log("selectedRole", selectedRole,email);
+      // console.log("selectedRole", selectedRole,email);
       
       return (
         (project.titleEN?.toLowerCase().includes(searchLower) ||

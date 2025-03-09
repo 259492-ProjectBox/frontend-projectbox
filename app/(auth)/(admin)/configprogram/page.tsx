@@ -85,7 +85,7 @@ export default function ConfigProgram() {
       setLoading(true);
       try {
         const data = await getConfigProgram(selectedMajor);
-        console.log("Data Config:", data);
+        // console.log("Data Config:", data);
 
         if (!Array.isArray(data)) {
           throw new Error("Unexpected response format");
@@ -200,15 +200,15 @@ export default function ConfigProgram() {
     if (studentFile) {
       try {
         const response = await uploadStudentList(studentFile, selectedMajor);
-        console.log("Student file uploaded successfully:", response);
+        // console.log("Student file uploaded successfully:", response);
         alert("Student file uploaded successfully!");
         setStudentFile(null); // Clear the file input
       } catch (error) {
-        console.error("Error uploading student file:", error);
+        // console.error("Error uploading student file:", error);
         alert("Failed to upload student file.");
       }
     } else {
-      console.log("No student file selected for upload.");
+      // console.log("No student file selected for upload.");
       alert("No student file selected for upload.");
     }
   };
@@ -218,7 +218,7 @@ export default function ConfigProgram() {
     if (projectFile) {
       try {
         const response = await uploadCreateProject(projectFile, selectedMajor);
-        console.log("Project file uploaded successfully:", response);
+        // console.log("Project file uploaded successfully:", response);
         alert("Project file uploaded successfully!");
         setProjectFile(null); // Clear the file input
       } catch (error) {
@@ -231,7 +231,7 @@ export default function ConfigProgram() {
         }
       }
     } else {
-      console.log("No project file selected for upload.");
+      // console.log("No project file selected for upload.");
       alert("No project file selected for upload.");
     }
   };
