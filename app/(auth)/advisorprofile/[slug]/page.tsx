@@ -5,11 +5,9 @@ import { useParams, useRouter } from "next/navigation"; // Import useRouter for 
 import { Project } from "@/models/Project";
 import { Advisor } from "@/models/Advisor"; // Assuming this matches the response structure
 import Spinner from "@/components/Spinner";
-import getProjectsByAdvisorId from "@/utils/advisorstats/getProjectsByAdvisorId";
 import ProjectComponent from "@/components/dashboard/ProjectComponent"; // Import ProjectComponent
 import Pagination from "@/components/Pagination"; // Import Pagination component
 import { getProgramName } from "@/utils/programHelpers";
-import { deobfuscateId } from "@/utils/encodePath";
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import Avatar from "@/components/Avatar";
 import getAdvisorByEmail from "@/utils/advisorstats/getAdvisorByEmail";
@@ -19,7 +17,7 @@ export default function AdvisorProfilePage() {
   const params = useParams();
   const router = useRouter(); // Initialize useRouter
   // const id = params && Array.isArray(params.id) ? params.id[0] : params?.id; // Ensure id is a string
-  const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug; // Ensure slug is a string
+  const slug = Array.isArray(params?.slug) ? params?.slug[0] : params?.slug; // Ensure slug is a string
   const email = slug as string
   const [advisor, setAdvisor] = useState<Advisor | null>(null); // State for advisor details
   const [projects, setProjects] = useState<Project[]>([]);
@@ -77,6 +75,7 @@ export default function AdvisorProfilePage() {
       const searchLower = searchInput.toLowerCase();
       // console.log("Select role " ,selectedRole)
       // console.log("Project staffs", project.staffs);
+      console.log("selectedRole", selectedRole,email);
       
       return (
         (project.titleEN?.toLowerCase().includes(searchLower) ||
@@ -91,7 +90,7 @@ export default function AdvisorProfilePage() {
             `${staff.firstNameEN} ${staff.lastNameEN}`.toLowerCase().includes(searchLower)
           )) &&
           
-        (selectedRole === "" || project.staffs.some(staff => staff.projectRole.roleNameEN === selectedRole && staff.email === email))
+        (selectedRole === "" || project.staffs.some(staff => staff.projectRole.roleNameEN === selectedRole && staff.id === advisor?.id))
       );
     });
     setFilteredProjects(filtered);
