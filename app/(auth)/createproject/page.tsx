@@ -72,8 +72,10 @@ const CreateProject: React.FC = () => {
   const requiredFields: string[] = [
     "course_id",
     "title_en",
+    "title_th",
     "student",
-    "report_pdf",
+    "advisor",
+    "report_pdf"
   ];
 
   // Fetch data on mount
@@ -107,6 +109,18 @@ const CreateProject: React.FC = () => {
 
           const students = await getStudentsByProgram(data.program_id); // Use program ID from student data
           setStudentList(students);
+
+          // Auto-select current student if found in the student list
+          const currentStudent = students.find(student => student.student_id === user.studentId);
+          if (currentStudent) {
+            setFormData(prevData => ({
+              ...prevData,
+              student: [{
+                value: currentStudent.id,
+                label: `${currentStudent.first_name} ${currentStudent.last_name} (${currentStudent.student_id})`
+              }]
+            }));
+          }
 
           const programConfig = await getConfigProgram(data.program_id); // Fetch program config
           setConfigProgram(programConfig);
@@ -361,6 +375,33 @@ const CreateProject: React.FC = () => {
 
   const handleSubmit = async () => {
     if (isSubmitting) return;
+
+    // Check required fields
+    const missingFields = requiredFields.filter(field => {
+      if (field === 'advisor' || field === 'student') {
+        return !formData[field] || (formData[field] as { value: number; label: string }[]).length === 0;
+      }
+      if (field === 'report_pdf') {
+        const fileConfigs = formConfig["report_pdf"] as ProjectResourceConfig[] | undefined;
+        if (!fileConfigs) return true;
+        
+        // Check if at least one file or URL is provided for active configs
+        return !fileConfigs.some(config => {
+          if (!config.is_active) return true;
+          const linkField = `file_link_${config.id}`;
+          const fileField = `file_upload_${config.id}`;
+          return formData[linkField] || (formData[fileField] as FileList)?.length > 0;
+        });
+      }
+      return !formData[field] || (formData[field] as string).trim() === '';
+    });
+
+    if (missingFields.length > 0) {
+      const missingFieldLabels = missingFields.map(field => labels[field]).join(', ');
+      alert(`Please fill in all required fields: ${missingFieldLabels}`);
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const formDataToSend = new FormData();
