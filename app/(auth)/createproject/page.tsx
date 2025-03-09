@@ -18,6 +18,8 @@ import { useRouter } from "next/navigation"; // Import useRouter from next/navig
 import { getProjectRoles } from "@/utils/createproject/getProjectRoles"; // Import the getProjectRoles function
 import { ProjectRole } from "@/models/ProjectRoles"; // Import the ProjectRole type
 import { ProjectResourceConfig } from "@/models/ProjectResourceConfig";
+import getAllProgram from "@/utils/getAllProgram";
+import { AllProgram } from "@/models/AllPrograms";
 
 // Types
 
@@ -46,6 +48,7 @@ const CreateProject: React.FC = () => {
   const [data, setData] = useState<Student | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [projectRoles, setProjectRoles] = useState<ProjectRole[]>([]); // Store project roles
+  const [programs, setPrograms] = useState<AllProgram[]>([]);
 
   const { user } = useAuth(); // Get user from useAuth
   const router = useRouter(); // Initialize useRouter
@@ -98,6 +101,8 @@ const CreateProject: React.FC = () => {
           }));
 
           const employees = await getAllEmployees();
+          const allPrograms = await getAllProgram();
+          setPrograms(allPrograms);
           setStaffList(employees);
 
           const students = await getStudentsByProgram(data.program_id); // Use program ID from student data
@@ -344,6 +349,16 @@ const CreateProject: React.FC = () => {
     });
   };
 
+  const getStaffOptions = (staff: Advisor[]) => {
+    return staff.map((staff) => {
+      const programAbbr = programs.find(p => p.id === staff.program_id)?.abbreviation || staff.program_id;
+      return {
+        value: staff.id,
+        label: `${programAbbr} / ${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
+      };
+    });
+  };
+
   const handleSubmit = async () => {
     if (isSubmitting) return;
     setIsSubmitting(true);
@@ -482,37 +497,25 @@ const CreateProject: React.FC = () => {
             "advisor",
             "Advisor",
             true,
-            staffList.map((staff) => ({
-              value: staff.id,
-              label: `${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
-            }))
+            getStaffOptions(staffList)
           )}
           {renderMultiSelectField(
             "co_advisor",
             "Co-Advisor",
             false,
-            staffList.map((staff) => ({
-              value: staff.id,
-              label: `${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
-            }))
+            getStaffOptions(staffList)
           )}
           {renderMultiSelectField(
             "committee",
             "Committee Members",
             false,
-            staffList.map((staff) => ({
-              value: staff.id,
-              label: `${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
-            }))
+            getStaffOptions(staffList)
           )}
           {renderMultiSelectField(
             "external_committee",
             "External Committee Members",
             false,
-            staffList.map((staff) => ({
-              value: staff.id,
-              label: `${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
-            }))
+            getStaffOptions(staffList)
           )}
         </div>
         <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
