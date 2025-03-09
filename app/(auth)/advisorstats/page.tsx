@@ -96,25 +96,6 @@ export default function AdvisorStatsPage() {
       )
     : [];
 
-  const getProgramAbbreviations = (advisorMap: Map<string, Advisor[]>, majorList: AllProgram[]): string => {
-    const programIds: Set<number> = new Set(); // Use a Set to ensure unique program IDs
-    advisorMap.forEach((advisors) => {
-      advisors.forEach((advisor) => {
-        if (Array.isArray(advisor.program_id)) {
-          advisor.program_id.forEach((id) => programIds.add(id));
-        } else {
-          programIds.add(advisor.program_id);
-        }
-      });
-    });
-
-    const programAbbreviations = Array.from(programIds)
-      .map((programId) => majorList.find((program) => program.id === programId)?.abbreviation)
-      .filter((abbreviation) => abbreviation) // Filter out undefined values
-      .join(", ");
-    return programAbbreviations || "N/A";
-  };
-
   return (
     <div className="min-h-screen bg-gray-50/50 py-8">
       <div className="max-w-6xl mx-auto px-4">
@@ -232,8 +213,8 @@ export default function AdvisorStatsPage() {
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                             {advisor.email}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600" title={getProgramAbbreviations(mapData, majorList)}>
-                            {getProgramAbbreviations(mapData, majorList)}
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {majorList.find(program => program.id === advisor.program_id)?.abbreviation || 'N/A'}
                           </td>
                         </tr>
                       ))}
