@@ -12,7 +12,6 @@ import Avatar from "@/components/Avatar";
 import Pagination from "@/components/Pagination"; // Import Pagination component
 
 export default function AdvisorStatsPage() {
-  const [advisors, setAdvisors] = useState<Advisor[]>([]); // Default to empty array
   const [filteredAdvisors, setFilteredAdvisors] = useState<Advisor[]>([]); // Default to empty array
   const [searchTerm, setSearchTerm] = useState<string>(""); // Search term state
   const [loading, setLoading] = useState<boolean>(true);
@@ -52,7 +51,6 @@ export default function AdvisorStatsPage() {
           setFilteredAdvisors(data); // Initialize filtered data with fetched data
         }
 
-        setAdvisors(data);
       } catch (error) {
         console.error("Error fetching advisor data:", error);
       } finally {

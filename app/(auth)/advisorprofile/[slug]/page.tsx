@@ -7,7 +7,6 @@ import { Advisor } from "@/models/Advisor"; // Assuming this matches the respons
 import Spinner from "@/components/Spinner";
 import ProjectComponent from "@/components/dashboard/ProjectComponent"; // Import ProjectComponent
 import Pagination from "@/components/Pagination"; // Import Pagination component
-import { getProgramName } from "@/utils/programHelpers";
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import Avatar from "@/components/Avatar";
 import getAdvisorByEmail from "@/utils/advisorstats/getAdvisorByEmail";
@@ -27,7 +26,6 @@ export default function AdvisorProfilePage() {
   const [selectedRole, setSelectedRole] = useState<string>("");
   const itemsPerPage = 5; // Items per page
   const [currentPage, setCurrentPage] = useState<number>(1); // Current page state
-  const [programName, setProgramName] = useState<string | undefined>("");
   // const originalId = deobfuscateId(email as string).toString(); // Deobfuscate the ID
   // const originalId = deobfuscateId(id as string); // Deobfuscate the ID
   console.log("Project", projects);
@@ -54,9 +52,6 @@ export default function AdvisorProfilePage() {
           // Fetch advisor details
           const advisorData = await getAdvisorByEmail(email );
           setAdvisor(advisorData);
-          const programId = advisorData?.program_id;
-          const programN =  await getProgramName(programId) ;
-          setProgramName(programN);
           const projectData: Project[] = await getProjectsByAdvisorEmail(email );
           setProjects(projectData);
           setFilteredProjects(projectData);
