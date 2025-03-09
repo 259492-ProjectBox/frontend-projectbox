@@ -69,7 +69,7 @@ export default function AssetsPage() {
                     </a>
                     <button
                       className="text-[#A71919] hover:underline"
-                      onClick={() => console.log(`Downloading file from: ${asset.link}`)}
+                      // onClick={() => console.log(`Downloading file from: ${asset.link}`)}
                     >
                       Download
                     </button>

@@ -10,7 +10,7 @@ export const getStudentsByProgram = async (programId: number): Promise<Student[]
         'accept': 'application/json',
       },
     });
-    console.log("getStudentsByProgram:", response.data);
+    // console.log("getStudentsByProgram:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching students by program:", error);

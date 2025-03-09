@@ -9,7 +9,7 @@ const getProjectById = async (projectId: number): Promise<Project> => {
         headers: { Accept: "application/json" },
       }
     );
-    console.log(`getProjectById ${projectId}:`, response.data);
+    // console.log(`getProjectById ${projectId}:`, response.data);
     
     return response.data;
   } catch (error) {

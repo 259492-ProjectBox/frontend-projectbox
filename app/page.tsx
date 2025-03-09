@@ -58,9 +58,10 @@ export default function Home() {
     <div className="flex justify-center mt-2">
       <ImageCarousel 
         images={[
-          { src: "/dashboard/create_project.png", alt: "Create Project", description: "Insert or store new projects." },
-          { src: "/dashboard/manage_staff.png", alt: "Manage Staff", description: "For administrators to add staff (e.g., Advisors, Committee Members, External Committee Members)." },
-          { src: "/dashboard/manage_submission.png", alt: "Manage Submission", description: "Manage the data input form for creating new projects. If a field is not required, it can be disabled to remove the input requirement." },
+          { src: "/dashboard/New_Create.png", alt: "Create Project", description: "Insert or store new projects." },
+          { src: "/dashboard/New_Manage_Staff.png", alt: "Manage Staff", description: "For administrators to add staff (e.g., Advisors, Committee Members, External Committee Members)." },
+          { src: "/dashboard/New_Manage_Submission.png", alt: "Manage Submission", description: "Manage the data input form for creating new projects. If a field is not required, it can be disabled to remove the input requirement." },
+          { src: "/dashboard/New_Manage_Student.png", alt: "Manage Student", description: "Manage Permission for Student can creating new projects. Also Upload Existing Project ." },
         ]} />
     </div>
   </div>
@@ -74,9 +75,9 @@ export default function Home() {
     <div className="flex justify-center mt-8">
     <ImageCarousel
       images={[
-        { src: "/dashboard/quick_search.png", alt: "Quick Search", description: "Quick Search allows you to search using a single input, combining project name, course, student name, and more" },
-        { src: "/dashboard/detail_search.png", alt: "Advance Search", description: "Advance Search provides structured fields for more precise filtering, helping you find projects efficiently" },
-        { src: "/dashboard/pdf_content_search.png", alt: "PDF Content Search", description: "PDF Content Search scans project PDFs to find specific words within the document’s content." },
+        { src: "/dashboard/New_Quick_Search.png", alt: "Quick Search", description: "Quick Search allows you to search using a single input, combining project name, course, student name, and more" },
+        { src: "/dashboard/New_Advance_Search.png", alt: "Advance Search", description: "Advance Search provides structured fields for more precise filtering, helping you find projects efficiently" },
+        { src: "/dashboard/New_Pdf_Search.png", alt: "PDF Content Search", description: "PDF Content Search scans project PDFs to find specific words within the document’s content." },
       ]}
     />
 

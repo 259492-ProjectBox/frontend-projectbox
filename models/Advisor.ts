@@ -10,5 +10,5 @@ export interface Advisor {
   last_name_th: string;
   email: string;
   program_id: number;
-is_resigned : boolean;
+  is_resigned : boolean;
 }

@@ -7,7 +7,7 @@ const API_URL = "https://auth-service.kunmhing.me/api/getAdmin";
 export const getAdmins = async () => {
   try {
     const response = await axios.get(API_URL);
-    console.log("getAdmins:", response.data);
+    // console.log("getAdmins:", response.data);
     
     return response.data; // Assuming the data is in the form you need
   } catch (error) {

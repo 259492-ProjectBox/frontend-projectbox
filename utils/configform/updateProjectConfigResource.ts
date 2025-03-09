@@ -10,7 +10,7 @@ export const fetchProjectResourceConfigs = async (programId: number) => {
         "Content-Type": "application/json",
       },
     });
-    console.log("fetchProjectResourceConfigs.data", response.data);
+    // console.log("fetchProjectResourceConfigs.data", response.data);
     return response.data;
     
   } catch (error) {

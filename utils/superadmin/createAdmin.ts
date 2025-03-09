@@ -12,7 +12,7 @@ export const createAdmin = async (userAccount: string, adminAccount: string, pro
       adminAccount,
       programId: programIds,
     });
-    console.log("createAdmin:", response.data);
+    // console.log("createAdmin:", response.data);
     
     return response.data; // Return the response after creating the admin
   } catch (error) {

@@ -18,12 +18,18 @@ const ProjectComponent = ({ project }: { project: Project }) => {
 
   useEffect(() => {
     const loadResourceConfigs = async () => {
-      if (project.program?.id) {
+      if (project.program.id) {
         try {
           const configs = await getProjectResourceConfig(project.program.id);
-          setResourceConfigs(configs.filter((config: ProjectResourceConfig) => config.is_active));
+          if (configs) {
+            setResourceConfigs(configs);
+          } else {
+            setResourceConfigs([]);
+            // console.warn("No resource configs found for program:", project.program.id);
+          }
         } catch (error) {
           console.error("Error loading resource configs:", error);
+          setResourceConfigs([]);
         }
       }
     };
@@ -59,7 +65,7 @@ const ProjectComponent = ({ project }: { project: Project }) => {
         </div>
 
         {/* Resource Icons */}
-        {user && project.projectResources?.length > 0 && (
+        {user && project.projectResources?.length > 0 && (isMember || isProjectProgramAdmin) && (
           <div className="flex flex-wrap gap-2 mb-3">
             {project.projectResources?.map((resource) => {
               // Find matching resource config
@@ -154,7 +160,7 @@ const ProjectComponent = ({ project }: { project: Project }) => {
                 items={project.staffs
                   .filter((staff) => ["Advisor", "Co Advisor", "Committee", "External Committee"].includes(staff.projectRole.roleNameEN))
                   .map((staff) => ({
-                    name: `${staff.prefixEN || ""} ${staff.firstNameTH || "No First Name"} ${staff.lastNameTH || "No Last Name"}`,
+                    name: `${staff.prefixEN || ""} ${staff.firstNameTH || "No First Name"} ${staff.lastNameTH || "No Last Name"} / ${staff.firstNameEN || "No First Name"} ${staff.lastNameEN || "No Last Name"}`,
                     role: staff.projectRole.roleNameEN,
                   }))}
                 title="Professor"

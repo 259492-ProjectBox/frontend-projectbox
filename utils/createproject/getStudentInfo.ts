@@ -12,7 +12,7 @@ export const getStudentInfo = async (studentId: string): Promise<Student | null>
       }
     );
     const data = await response.json();
-    console.log("getStudentInfo data:", data);
+    // console.log("getStudentInfo data:", data);
     
     return data;
   } catch (error) {

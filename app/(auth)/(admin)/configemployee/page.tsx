@@ -198,17 +198,17 @@ export default function ConfigAdvisorPage() {
   // Handler for confirming toggle action
   const handleConfirmToggle = async () => {
     if (advisorToToggle) {
-      console.log("Resigned 1", advisorToToggle);
+      // console.log("Resigned 1", advisorToToggle);
 
       const updatedAdvisor = {
         ...advisorToToggle,
         is_resigned: true,
       };
-      console.log("Resigned 2", updatedAdvisor);
+      // console.log("Resigned 2", updatedAdvisor);
 
       try {
         const updatedEmployee = await putUpdateEmployee(updatedAdvisor);
-        console.log("Updated employee response:", updatedEmployee);
+        // console.log("Updated employee response:", updatedEmployee);
         setAdvisors((prev) =>
           prev.map((advisor) =>
             advisor.id === advisorToToggle.id ? updatedEmployee : advisor
@@ -535,11 +535,13 @@ export default function ConfigAdvisorPage() {
                         checked={isActive}
                         onChange={() => setIsActive(!isActive)}
                       />
-                      <div className="relative w-10 h-5 bg-gray-200 rounded-full peer 
-                        peer-checked:bg-green-500 peer-checked:after:translate-x-full 
-                        after:content-[''] after:absolute after:top-0.5 after:left-[2px] 
-                        after:bg-white after:rounded-full after:h-4 after:w-4 
-                        after:transition-all after:duration-300"></div>
+                      <div className="relative w-9 h-5 bg-gray-200 rounded-full peer 
+                                          peer-checked:bg-primary-light peer-focus:ring-2 
+                                          peer-focus:ring-primary-light/30 
+                                          after:content-[''] after:absolute after:top-[2px] 
+                                          after:left-[2px] after:bg-white after:rounded-full 
+                                          after:h-4 after:w-4 after:transition-all
+                                          peer-checked:after:translate-x-full"></div>
                     </label>
                   </div>
 

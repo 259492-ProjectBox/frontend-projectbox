@@ -14,7 +14,7 @@ export const deleteAdmin = async (userAccount: string, adminAccount: string) => 
         adminAccount,
       },
     });
-    console.log("deleteAdmin:", response.data);
+    // console.log("deleteAdmin:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error deleting admin:", error);
