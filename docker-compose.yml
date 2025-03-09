@@ -1,0 +1,22 @@
+services:
+  app:
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    image: kunmhing/pbox_fe:latest
+    container_name: pbox_fe
+    restart: unless-stopped
+    ports:
+      - "3005:3000"
+    # environment:
+    #   - NODE_ENV=production
+    #   - SCOPE=${SCOPE}
+    #   - CMU_ENTRAID_CLIENT_ID=${CMU_ENTRAID_CLIENT_ID}
+    #   - CMU_ENTRAID_CLIENT_SECRET=${CMU_ENTRAID_CLIENT_SECRET}
+    #   - CMU_ENTRAID_REDIRECT_URL=${CMU_ENTRAID_REDIRECT_URL}
+    #   - CMU_ENTRAID_GET_TOKEN_URL=${CMU_ENTRAID_GET_TOKEN_URL}
+    #   - CMU_ENTRAID_LOGOUT_URL=${CMU_ENTRAID_LOGOUT_URL}
+    #   - CMU_ENTRAID_GET_BASIC_INFO=${CMU_ENTRAID_GET_BASIC_INFO}
+    #   - NEXT_PUBLIC_CMU_ENTRAID_URL=${NEXT_PUBLIC_CMU_ENTRAID_URL}
+    #   - AUTHSERVICE_URL=${AUTHSERVICE_URL}
+    #   - JWT_SECRET=${JWT_SECRET}
