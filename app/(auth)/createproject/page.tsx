@@ -49,6 +49,8 @@ const CreateProject: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [projectRoles, setProjectRoles] = useState<ProjectRole[]>([]); // Store project roles
   const [programs, setPrograms] = useState<AllProgram[]>([]);
+  const [fileErrors, setFileErrors] = useState<{ [key: string]: string }>({});
+  const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB in bytes
 
   const { user } = useAuth(); // Get user from useAuth
   const router = useRouter(); // Initialize useRouter
@@ -66,7 +68,7 @@ const CreateProject: React.FC = () => {
     co_advisor: "Co-Advisor",
     committee: "Committee Members",
     external_committee: "External Committee Members",
-    report_pdf: "Report PDF",
+    upload_section: "Upload Section",
   };
 
   const requiredFields: string[] = [
@@ -75,7 +77,7 @@ const CreateProject: React.FC = () => {
     "title_th",
     "student",
     "advisor",
-    "report_pdf"
+    "upload_section"
   ];
 
   // Fetch data on mount
@@ -99,7 +101,7 @@ const CreateProject: React.FC = () => {
           const projectResourceConfigs = await getProjectResourceConfig(data.program_id); // Use program ID from student data
           setFormConfig((prevConfig) => ({
             ...prevConfig,
-            report_pdf: projectResourceConfigs,
+            upload_section: projectResourceConfigs,
           }));
 
           const employees = await getAllEmployees();
@@ -183,11 +185,26 @@ const CreateProject: React.FC = () => {
   ) => {
     const { files } = e.target;
     if (files && files.length > 0) {
+      const file = files[0];
+      if (file.size > MAX_FILE_SIZE) {
+        setFileErrors(prev => ({
+          ...prev,
+          [fieldName]: `File size exceeds 25MB limit (Current size: ${(file.size / (1024 * 1024)).toFixed(2)}MB)`
+        }));
+        e.target.value = ''; // Reset file input
+        return;
+      }
       // Save the FileList directly instead of blob URLs
       setFormData((prevData) => ({
         ...prevData,
         [fieldName]: files,
       }));
+      // Clear any previous error for this field
+      setFileErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[fieldName];
+        return newErrors;
+      });
     }
   };
   
@@ -292,7 +309,7 @@ const CreateProject: React.FC = () => {
   };
 
   const renderFileUploadSections = () => {
-    const fileConfigs = formConfig["report_pdf"] as
+    const fileConfigs = formConfig["upload_section"] as
       | ProjectResourceConfig[]
       | undefined;
 
@@ -348,6 +365,7 @@ const CreateProject: React.FC = () => {
               <label className="block text-sm font-semibold mb-2">
                 Upload File
               </label>
+              <div className="text-xs text-red-500 mb-1">Maximum file size: 25MB</div>
               <input
                 type="file"
                 name={`file_upload_${fileConfig.id}`}
@@ -356,6 +374,11 @@ const CreateProject: React.FC = () => {
                 }
                 className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
               />
+              {fileErrors[`file_upload_${fileConfig.id}`] && (
+                <div className="text-sm text-red-500 mt-1">
+                  {fileErrors[`file_upload_${fileConfig.id}`]}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -381,8 +404,8 @@ const CreateProject: React.FC = () => {
       if (field === 'advisor' || field === 'student') {
         return !formData[field] || (formData[field] as { value: number; label: string }[]).length === 0;
       }
-      if (field === 'report_pdf') {
-        const fileConfigs = formConfig["report_pdf"] as ProjectResourceConfig[] | undefined;
+      if (field === 'upload_section') {
+        const fileConfigs = formConfig["upload_section"] as ProjectResourceConfig[] | undefined;
         if (!fileConfigs) return true;
         
         // Check if at least one file or URL is provided for active configs
@@ -442,7 +465,7 @@ const CreateProject: React.FC = () => {
       formDataToSend.append("project", JSON.stringify(projectData));
   
       // 4. For each ProjectResourceConfig, decide if we have a URL or a file upload.
-      const fileConfigs = formConfig["report_pdf"] as ProjectResourceConfig[] | undefined;
+      const fileConfigs = formConfig["upload_section"] as ProjectResourceConfig[] | undefined;
       if (fileConfigs) {
         fileConfigs.forEach((fileConfig) => {
           if (!fileConfig.is_active) return; // skip if inactive
