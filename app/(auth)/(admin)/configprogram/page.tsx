@@ -15,6 +15,7 @@ import { getAcademicYears } from "@/utils/configprogram/getAcademicYears";
 import { getStudentsByProgram } from "@/utils/configprogram/getStudentsListByProgram";
 import { AcademicYear } from "@/models/AcademicYear";
 import { Student } from "@/models/Student";
+import Pagination from "@/components/Pagination";
 
 // Function to convert string to title case
 const toTitleCase = (str: string) => {
@@ -47,6 +48,10 @@ export default function ConfigProgram() {
   const [studentListData, setStudentListData] = useState<Student[]>([]);
   const [isLoadingStudents, setIsLoadingStudents] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
+
+  // Add pagination states
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 10; // Number of items to show per page
 
   useEffect(() => {
     const fetchOptions = async () => {
@@ -264,6 +269,22 @@ export default function ConfigProgram() {
       student.sec_lab.toLowerCase().includes(query)
     );
   });
+
+  // Calculate pagination values
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredStudents.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
+
+  // Handle page change
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Reset to first page when search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   // Show loading or error
   if (loading) return <Spinner />;
@@ -606,8 +627,8 @@ export default function ConfigProgram() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredStudents.length > 0 ? (
-                      filteredStudents.map((student) => (
+                    {currentItems.length > 0 ? (
+                      currentItems.map((student) => (
                         <tr key={student.id}>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {student.student_id}
@@ -634,6 +655,13 @@ export default function ConfigProgram() {
                     )}
                   </tbody>
                 </table>
+                {filteredStudents.length > 0 && (
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                  />
+                )}
               </div>
             </div>
           </div>
