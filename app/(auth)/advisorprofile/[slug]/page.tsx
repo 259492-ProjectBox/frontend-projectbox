@@ -125,16 +125,13 @@ export default function AdvisorProfilePage() {
                     <p className="text-sm text-gray-500">
                       {advisor?.prefix_th} {advisor?.first_name_th} {advisor?.last_name_th}
                     </p>
+                <p className="text-sm text-gray-600">
+                  <span className="font-medium">Email:</span> {advisor?.email}
+                </p>
                   </div>
                 </div>
               </div>
               <div className="mt-4 space-y-1">
-                <p className="text-sm text-gray-600">
-                  <span className="font-medium">Email:</span> {advisor?.email}
-                </p>
-                <p className="text-sm text-gray-600">
-                  <span className="font-medium">Major:</span> {programName}
-                </p>
               </div>
             </div>
           </div>
