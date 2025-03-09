@@ -37,6 +37,12 @@ const SearchPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const recordsPerPage = 5;
   const [programOptions, setProgramOptions] = useState<AllProgram[]>([]); // State for program options
+  const [searchableFields, setSearchableFields] = useState({
+    title: true,
+    description: true,
+    student: true,
+    advisor: true
+  });
 
   useEffect(() => {
     const fetchPrograms = async () => {
@@ -51,6 +57,13 @@ const SearchPage: React.FC = () => {
     fetchPrograms();
   }, []);
 
+  const toggleSearchField = (field: keyof typeof searchableFields) => {
+    setSearchableFields(prev => ({
+      ...prev,
+      [field]: !prev[field]
+    }));
+  };
+
   const handleSearch = async () => {
     if (!searchTerm.trim()) {
       alert("Please enter a search term.");
@@ -59,28 +72,30 @@ const SearchPage: React.FC = () => {
     setLoading(true); // Set loading to true when search starts
     if (searchMode === "quick") {
       try {
+        const searchFields = [];
+        if (searchableFields.title) {
+          searchFields.push("titleTH", "titleEN");
+        }
+        if (searchableFields.description) {
+          searchFields.push("abstractText");
+        }
+        if (searchableFields.student) {
+          searchFields.push("members.studentId", "members.firstName", "members.lastName");
+        }
+        if (searchableFields.advisor) {
+          searchFields.push("staffs.firstNameTH", "staffs.lastNameTH", "staffs.firstNameEN", "staffs.lastNameEN");
+        }
+
         const results = await quickSearchProjects({
           searchInput: searchTerm,
-          fields: [
-            "titleTH",
-            "titleEN",
-            "abstractText",
-            "staffs.firstNameTH",
-            "staffs.lastNameTH",
-            "staffs.firstNameEN",
-            "staffs.lastNameEN",
-            "members.studentId",
-            "members.firstName",
-            "members.lastName",
-          ],
+          fields: searchFields,
         });
         setFilteredRecords(results);
-        // console.log("Quick search results:", results);
       } catch (error) {
         console.error("Error fetching quick search results:", error);
         setFilteredRecords([]);
       } finally {
-        setLoading(false); // Set loading to false when search ends
+        setLoading(false);
       }
     }
   };
@@ -366,19 +381,42 @@ const SearchPage: React.FC = () => {
                 Search
               </button>
             </div>
+            <div className="text-sm text-gray-600 mb-3 px-2">
+              <p>Quick search allows you to search across multiple fields. Click on badges below to toggle search fields.</p>
+            </div>
             <div className="flex flex-wrap gap-2 px-2">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              <button
+                onClick={() => toggleSearchField('title')}
+                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors duration-200 ${
+                  searchableFields.title ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-500'
+                }`}
+              >
                 Project Title TH/EN
-              </span>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+              </button>
+              <button
+                onClick={() => toggleSearchField('description')}
+                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors duration-200 ${
+                  searchableFields.description ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-500'
+                }`}
+              >
                 Description
-              </span>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+              </button>
+              <button
+                onClick={() => toggleSearchField('student')}
+                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors duration-200 ${
+                  searchableFields.student ? 'bg-orange-100 text-orange-800' : 'bg-gray-100 text-gray-500'
+                }`}
+              >
                 Student ID/Name
-              </span>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+              </button>
+              <button
+                onClick={() => toggleSearchField('advisor')}
+                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors duration-200 ${
+                  searchableFields.advisor ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-500'
+                }`}
+              >
                 Advisor Name TH/EN
-              </span>
+              </button>
             </div>
           </div>
         )}
