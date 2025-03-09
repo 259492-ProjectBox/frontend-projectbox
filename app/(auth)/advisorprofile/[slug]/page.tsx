@@ -5,19 +5,19 @@ import { useParams, useRouter } from "next/navigation"; // Import useRouter for 
 import { Project } from "@/models/Project";
 import { Advisor } from "@/models/Advisor"; // Assuming this matches the response structure
 import Spinner from "@/components/Spinner";
-import getProjectsByAdvisorId from "@/utils/advisorstats/getProjectsByAdvisorId";
-import getEmployeeById from "@/utils/advisorstats/getAdvisorById";
 import ProjectComponent from "@/components/dashboard/ProjectComponent"; // Import ProjectComponent
 import Pagination from "@/components/Pagination"; // Import Pagination component
-import { getProgramName } from "@/utils/programHelpers";
-import { deobfuscateId } from "@/utils/encodePath";
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import Avatar from "@/components/Avatar";
+import getAdvisorByEmail from "@/utils/advisorstats/getAdvisorByEmail";
+import getProjectsByAdvisorEmail from "@/utils/advisorstats/getProjectByAdvisorEmail";
 
 export default function AdvisorProfilePage() {
   const params = useParams();
   const router = useRouter(); // Initialize useRouter
-  const id = params && Array.isArray(params.id) ? params.id[0] : params?.id; // Ensure id is a string
+  // const id = params && Array.isArray(params.id) ? params.id[0] : params?.id; // Ensure id is a string
+  const slug = Array.isArray(params?.slug) ? params?.slug[0] : params?.slug; // Ensure slug is a string
+  const email = slug as string
   const [advisor, setAdvisor] = useState<Advisor | null>(null); // State for advisor details
   const [projects, setProjects] = useState<Project[]>([]);
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
@@ -26,9 +26,10 @@ export default function AdvisorProfilePage() {
   const [selectedRole, setSelectedRole] = useState<string>("");
   const itemsPerPage = 5; // Items per page
   const [currentPage, setCurrentPage] = useState<number>(1); // Current page state
-  const [programName, setProgramName] = useState<string | undefined>("");
-  const originalId = deobfuscateId(id as string); // Deobfuscate the ID
-
+  // const originalId = deobfuscateId(email as string).toString(); // Deobfuscate the ID
+  // const originalId = deobfuscateId(id as string); // Deobfuscate the ID
+  // console.log("Project", projects);
+  
   const handlePageChange = (page: number) => {
     setCurrentPage(page); // Set current page
     window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top
@@ -45,17 +46,13 @@ export default function AdvisorProfilePage() {
   );
 
   useEffect(() => {
-    if (id) {
+    if (email) {
       const fetchData = async () => {
         try {
           // Fetch advisor details
-          const advisorData = await getEmployeeById(originalId.toString());
+          const advisorData = await getAdvisorByEmail(email );
           setAdvisor(advisorData);
-          const programId = advisorData?.program_id;
-          const programN = programId ? await getProgramName(programId) : "";
-          setProgramName(programN);
-          // Fetch projects associated with the advisor
-          const projectData: Project[] = await getProjectsByAdvisorId(originalId.toString());
+          const projectData: Project[] = await getProjectsByAdvisorEmail(email );
           setProjects(projectData);
           setFilteredProjects(projectData);
         } catch (error) {
@@ -66,14 +63,14 @@ export default function AdvisorProfilePage() {
       };
       fetchData();
     }
-  }, [id , originalId]);
+  }, [email]);
 
   useEffect(() => {
     const filtered = projects.filter((project) => {
       const searchLower = searchInput.toLowerCase();
-      console.log("Select role " ,selectedRole)
-      console.log("Project staffs", project.staffs);
-      console.log("id", originalId);
+      // console.log("Select role " ,selectedRole)
+      // console.log("Project staffs", project.staffs);
+      // console.log("selectedRole", selectedRole,email);
       
       return (
         (project.titleEN?.toLowerCase().includes(searchLower) ||
@@ -88,11 +85,11 @@ export default function AdvisorProfilePage() {
             `${staff.firstNameEN} ${staff.lastNameEN}`.toLowerCase().includes(searchLower)
           )) &&
           
-        (selectedRole === "" || project.staffs.some(staff => staff.projectRole.roleNameEN === selectedRole && staff.id === originalId))
+        (selectedRole === "" || project.staffs.some(staff => staff.projectRole.roleNameEN === selectedRole && staff.id === advisor?.id))
       );
     });
     setFilteredProjects(filtered);
-  }, [searchInput, selectedRole, projects ,originalId]);
+  }, [searchInput, selectedRole, projects ,email]);
 
   if (loading) return <Spinner />;
 
@@ -123,16 +120,13 @@ export default function AdvisorProfilePage() {
                     <p className="text-sm text-gray-500">
                       {advisor?.prefix_th} {advisor?.first_name_th} {advisor?.last_name_th}
                     </p>
+                <p className="text-sm text-gray-600">
+                  <span className="font-medium">Email:</span> {advisor?.email}
+                </p>
                   </div>
                 </div>
               </div>
               <div className="mt-4 space-y-1">
-                <p className="text-sm text-gray-600">
-                  <span className="font-medium">Email:</span> {advisor?.email}
-                </p>
-                <p className="text-sm text-gray-600">
-                  <span className="font-medium">Major:</span> {programName}
-                </p>
               </div>
             </div>
           </div>

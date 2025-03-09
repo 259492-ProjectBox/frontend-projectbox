@@ -18,6 +18,8 @@ import { useRouter } from "next/navigation"; // Import useRouter from next/navig
 import { getProjectRoles } from "@/utils/createproject/getProjectRoles"; // Import the getProjectRoles function
 import { ProjectRole } from "@/models/ProjectRoles"; // Import the ProjectRole type
 import { ProjectResourceConfig } from "@/models/ProjectResourceConfig";
+import getAllProgram from "@/utils/getAllProgram";
+import { AllProgram } from "@/models/AllPrograms";
 
 // Types
 
@@ -46,6 +48,7 @@ const CreateProject: React.FC = () => {
   const [data, setData] = useState<Student | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [projectRoles, setProjectRoles] = useState<ProjectRole[]>([]); // Store project roles
+  const [programs, setPrograms] = useState<AllProgram[]>([]);
 
   const { user } = useAuth(); // Get user from useAuth
   const router = useRouter(); // Initialize useRouter
@@ -69,8 +72,10 @@ const CreateProject: React.FC = () => {
   const requiredFields: string[] = [
     "course_id",
     "title_en",
+    "title_th",
     "student",
-    "report_pdf",
+    "advisor",
+    "report_pdf"
   ];
 
   // Fetch data on mount
@@ -98,10 +103,24 @@ const CreateProject: React.FC = () => {
           }));
 
           const employees = await getAllEmployees();
+          const allPrograms = await getAllProgram();
+          setPrograms(allPrograms);
           setStaffList(employees);
 
           const students = await getStudentsByProgram(data.program_id); // Use program ID from student data
           setStudentList(students);
+
+          // Auto-select current student if found in the student list
+          const currentStudent = students.find(student => student.student_id === user.studentId);
+          if (currentStudent) {
+            setFormData(prevData => ({
+              ...prevData,
+              student: [{
+                value: currentStudent.id,
+                label: `${currentStudent.first_name} ${currentStudent.last_name} (${currentStudent.student_id})`
+              }]
+            }));
+          }
 
           const programConfig = await getConfigProgram(data.program_id); // Fetch program config
           setConfigProgram(programConfig);
@@ -344,8 +363,45 @@ const CreateProject: React.FC = () => {
     });
   };
 
+  const getStaffOptions = (staff: Advisor[]) => {
+    return staff.map((staff) => {
+      const programAbbr = programs.find(p => p.id === staff.program_id)?.abbreviation || staff.program_id;
+      return {
+        value: staff.id,
+        label: `${programAbbr} / ${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
+      };
+    });
+  };
+
   const handleSubmit = async () => {
     if (isSubmitting) return;
+
+    // Check required fields
+    const missingFields = requiredFields.filter(field => {
+      if (field === 'advisor' || field === 'student') {
+        return !formData[field] || (formData[field] as { value: number; label: string }[]).length === 0;
+      }
+      if (field === 'report_pdf') {
+        const fileConfigs = formConfig["report_pdf"] as ProjectResourceConfig[] | undefined;
+        if (!fileConfigs) return true;
+        
+        // Check if at least one file or URL is provided for active configs
+        return !fileConfigs.some(config => {
+          if (!config.is_active) return true;
+          const linkField = `file_link_${config.id}`;
+          const fileField = `file_upload_${config.id}`;
+          return formData[linkField] || (formData[fileField] as FileList)?.length > 0;
+        });
+      }
+      return !formData[field] || (formData[field] as string).trim() === '';
+    });
+
+    if (missingFields.length > 0) {
+      const missingFieldLabels = missingFields.map(field => labels[field]).join(', ');
+      alert(`Please fill in all required fields: ${missingFieldLabels}`);
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const formDataToSend = new FormData();
@@ -482,37 +538,25 @@ const CreateProject: React.FC = () => {
             "advisor",
             "Advisor",
             true,
-            staffList.map((staff) => ({
-              value: staff.id,
-              label: `${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
-            }))
+            getStaffOptions(staffList)
           )}
           {renderMultiSelectField(
             "co_advisor",
             "Co-Advisor",
             false,
-            staffList.map((staff) => ({
-              value: staff.id,
-              label: `${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
-            }))
+            getStaffOptions(staffList)
           )}
           {renderMultiSelectField(
             "committee",
             "Committee Members",
             false,
-            staffList.map((staff) => ({
-              value: staff.id,
-              label: `${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
-            }))
+            getStaffOptions(staffList)
           )}
           {renderMultiSelectField(
             "external_committee",
             "External Committee Members",
             false,
-            staffList.map((staff) => ({
-              value: staff.id,
-              label: `${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
-            }))
+            getStaffOptions(staffList)
           )}
         </div>
         <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">

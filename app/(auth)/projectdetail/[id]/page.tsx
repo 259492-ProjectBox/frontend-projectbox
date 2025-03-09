@@ -235,16 +235,16 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
                               </p>
                             )}
                           </div>
-                          {resource?.path && (
+                          {/* {resource?.path && (
                             <p className="text-xs text-gray-600 ml-11">
                               Path: {resource.path}
                             </p>
-                          )}
-                          {resource?.resourceName && (
+                          )} */}
+                          {/* {resource?.resourceName && (
                             <p className="text-xs text-gray-600 ml-11">
                               Resource Name: {resource.resourceName}
                             </p>
-                          )}
+                          )} */}
                           {resource?.createdAt && (
                             <p className="text-xs text-gray-500 ml-11">
                               Created At: {resource.createdAt}
