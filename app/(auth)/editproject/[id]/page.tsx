@@ -15,6 +15,8 @@ import { getStudentsByProgram } from "@/utils/createproject/getStudentsByProgram
 import { Student } from "@/models/Student"; // Import the Student type
 import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig"; // Import getProjectResourceConfig
 import EditIcon from '@mui/icons-material/Edit';
+import getAllProgram from "@/utils/getAllProgram";
+import { AllProgram } from "@/models/AllPrograms";
 
 interface EditProjectPageProps {
   params: {
@@ -73,6 +75,7 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
   const [projectResourceConfig, setProjectResourceConfig] = useState<
     ProjectResourceConfig[]
   >([]); // Store project resource config
+  const [programs, setPrograms] = useState<AllProgram[]>([]);
   const router = useRouter(); // Initialize useRouter
   const [editModeResources, setEditModeResources] = useState<{ [key: string]: boolean }>({});
 
@@ -133,6 +136,8 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
         }
 
         const employees = await getAllEmployees();
+        const allPrograms = await getAllProgram();
+        setPrograms(allPrograms);
         setStaffList(employees);
 
         const students = await getStudentsByProgram(projectData.program.id);
@@ -508,6 +513,16 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
     });
   };
 
+  const getStaffOptions = (staff: Advisor[]) => {
+    return staff.map((staff) => {
+      const programAbbr = programs.find(p => p.id === staff.program_id)?.abbreviation || staff.program_id;
+      return {
+        value: staff.id,
+        label: `${programAbbr} / ${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
+      };
+    });
+  };
+
   const handleSubmit = async () => {
     if (isSubmitting) return; // Prevent duplicate submissions
     setIsSubmitting(true);
@@ -675,37 +690,25 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
             "advisor",
             "Advisor",
             true,
-            staffList.map((staff) => ({
-              value: staff.id,
-              label: `${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
-            }))
+            getStaffOptions(staffList)
           )}
           {renderMultiSelectField(
             "co_advisor",
             "Co-Advisor",
             false,
-            staffList.map((staff) => ({
-              value: staff.id,
-              label: `${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
-            }))
+            getStaffOptions(staffList)
           )}
           {renderMultiSelectField(
             "committee",
             "Committee Members",
             false,
-            staffList.map((staff) => ({
-              value: staff.id,
-              label: `${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
-            }))
+            getStaffOptions(staffList)
           )}
           {renderMultiSelectField(
             "external_committee",
             "External Committee Members",
             false,
-            staffList.map((staff) => ({
-              value: staff.id,
-              label: `${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
-            }))
+            getStaffOptions(staffList)
           )}
         </div>
 
