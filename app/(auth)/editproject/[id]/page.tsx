@@ -89,6 +89,8 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
   const router = useRouter(); // Initialize useRouter
   const [editModeResources, setEditModeResources] = useState<{ [key: string]: boolean }>({});
   const [fileBlobs, setFileBlobs] = useState<{ [key: string]: Blob }>({});
+  const [fileErrors, setFileErrors] = useState<{ [key: string]: string }>({});
+  const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB in bytes
 
   useEffect(() => {
     const loadProject = async () => {
@@ -218,11 +220,25 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
     const { files } = e.target;
     if (files && files.length > 0) {
       const file = files[0];
+      if (file.size > MAX_FILE_SIZE) {
+        setFileErrors(prev => ({
+          ...prev,
+          [fieldName]: `File size exceeds 25MB limit (Current size: ${(file.size / (1024 * 1024)).toFixed(2)}MB)`
+        }));
+        e.target.value = ''; // Reset file input
+        return;
+      }
       const blob = new Blob([file], { type: file.type });
       setFormData((prevData) => ({
         ...prevData,
         [fieldName]: blob,
       }));
+      // Clear any previous error for this field
+      setFileErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[fieldName];
+        return newErrors;
+      });
     }
   };
 
@@ -408,6 +424,7 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
                   <label className="block text-sm font-medium text-gray-700">
                     Upload File {hasExistingBlob && "(Current file will be replaced)"}
                   </label>
+                  <div className="text-xs text-red-500 mb-1">Maximum file size: 25MB</div>
                   <input
                     type="file"
                     accept=".pdf"
@@ -423,6 +440,11 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
                       focus:outline-none focus:border-blue-500
                       focus:ring-1 focus:ring-blue-500"
                   />
+                  {fileErrors[`file_upload_${resource.id || resource.title}`] && (
+                    <div className="text-sm text-red-500 mt-1">
+                      {fileErrors[`file_upload_${resource.id || resource.title}`]}
+                    </div>
+                  )}
                   {hasExistingBlob && (
                     <div className="text-sm text-gray-600">
                       Current file is loaded and will be preserved unless you upload a new one
