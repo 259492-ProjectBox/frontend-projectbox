@@ -9,7 +9,7 @@ export interface FormConfig {
     advisor: boolean;
     committee: boolean;
     student: boolean;
-    report_pdf: boolean;
+    upload_section: boolean;
     poster_picture: boolean;
     presentation_ppt: boolean;
     presentation_pdf: boolean;
