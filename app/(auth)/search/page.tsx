@@ -144,25 +144,6 @@ const SearchPage: React.FC = () => {
     }
   };
 
-  const toggleSearchMode = () => {
-    setSearchMode((prevMode) => {
-      if (prevMode === "quick") return "detail";
-      if (prevMode === "detail") return "pdf";
-      return "quick";
-    });
-    setSearchTerm("");
-    setSearchFields({
-      courseNo: "",
-      projectTitle: "",
-      studentNo: "",
-      advisorName: "",
-      academicYear: "",
-      semester: "",
-      programId: 0,
-    });
-    setFilteredRecords([]);
-  };
-
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top
@@ -200,23 +181,98 @@ const SearchPage: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-gray-50">
-      <div className=" max-w-3xl mt-8">
-        <h1
-          className={`text-lg font-semibold mb-2 text-gray-800 text-center ${getSearchModeStyle()}`}
-        >
-          {searchMode === "quick"
-            ? "Quick Search"
-            : searchMode === "detail"
-            ? "Advanced Search"
-            : "PDF Search"}
-        </h1>
-        <button
-          onClick={toggleSearchMode}
-          className="block text-primary_button text-sm font-medium mx-auto hover:underline focus:outline-none focus:underline"
-          aria-label="Switch Search Mode"
-        >
-          Switch Search Mode
-        </button>
+      <div className="max-w-3xl mt-2">
+        {/* Mobile dropdown */}
+        <div className="sm:hidden mb-4">
+          <label htmlFor="searchMode" className="sr-only">Select search mode</label>
+          <select 
+            id="searchMode" 
+            value={searchMode}
+            onChange={(e) => {
+              setSearchMode(e.target.value as "quick" | "detail" | "pdf");
+              setSearchTerm("");
+              setSearchFields({
+                courseNo: "",
+                projectTitle: "",
+                studentNo: "",
+                advisorName: "",
+                academicYear: "",
+                semester: "",
+                programId: 0,
+              });
+              setFilteredRecords([]);
+            }}
+            className="block w-full py-2 px-3 text-sm rounded-lg border border-gray-200 bg-white focus:ring-1 focus:ring-gray-200 focus:border-gray-200"
+          >
+            <option value="quick">Quick Search</option>
+            <option value="detail">Advanced Search</option>
+            <option value="pdf">PDF Search</option>
+          </select>
+        </div>
+
+        {/* Desktop tabs */}
+        <div className="hidden sm:flex rounded-lg bg-white border border-gray-200 p-1 text-sm">
+          <button
+            onClick={() => {
+              setSearchMode("quick");
+              setSearchTerm("");
+              setFilteredRecords([]);
+            }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors duration-200 ${
+              searchMode === "quick"
+                ? "bg-[#4285F4] text-white"
+                : "text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <span>Quick Search</span>
+          </button>
+          <button
+            onClick={() => {
+              setSearchMode("detail");
+              setSearchTerm("");
+              setSearchFields({
+                courseNo: "",
+                projectTitle: "",
+                studentNo: "",
+                advisorName: "",
+                academicYear: "",
+                semester: "",
+                programId: 0,
+              });
+              setFilteredRecords([]);
+            }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors duration-200 ${
+              searchMode === "detail"
+                ? "bg-[#34A853] text-white"
+                : "text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+            <span>Advanced Search</span>
+          </button>
+          <button
+            onClick={() => {
+              setSearchMode("pdf");
+              setSearchTerm("");
+              setFilteredRecords([]);
+            }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors duration-200 ${
+              searchMode === "pdf"
+                ? "bg-[#F7B928] text-white"
+                : "text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+            <span>PDF Search</span>
+          </button>
+        </div>
       </div>
 
       <div className="w-full max-w-5xl mt-4">
