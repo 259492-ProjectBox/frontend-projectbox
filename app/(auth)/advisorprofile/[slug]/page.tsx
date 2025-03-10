@@ -16,6 +16,7 @@ export default function AdvisorProfilePage() {
   const params = useParams();
   const router = useRouter(); // Initialize useRouter
   // const id = params && Array.isArray(params.id) ? params.id[0] : params?.id; // Ensure id is a string
+
   const slug = Array.isArray(params?.slug) ? params?.slug[0] : params?.slug; // Ensure slug is a string
   const email = slug as string
   const [advisor, setAdvisor] = useState<Advisor | null>(null); // State for advisor details

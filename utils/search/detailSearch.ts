@@ -38,6 +38,45 @@ const detailSearchProjects = async ({ searchFields }: DetailSearchPayload): Prom
       searchFields.semester || "",
       searchFields.programId && searchFields.programId !== 0 ? searchFields.programId.toString() : ""
     ];
+    // const fields = [];
+    // const searchInput = [];
+
+    // if (searchFields.courseNo) {
+    //   fields.push("course.courseNo");
+    //   searchInput.push(searchFields.courseNo);
+    // }
+
+    // if (searchFields.projectTitle) {
+    //   fields.push("titleTH/titleEN");
+    //   searchInput.push(searchFields.projectTitle);
+    // }
+
+    // if (searchFields.studentNo !== null || searchFields.studentNo !== "") {
+    //   fields.push("members.studentId");
+    //   searchInput.push(searchFields.studentNo);
+    // }
+
+    // if (searchFields.advisorName !== null || searchFields.advisorName !== "") {
+    //   fields.push("staffs.firstNameTH/staffs.lastNameTH/staffs.firstNameEN/staffs.lastNameEN");
+    //   searchInput.push(searchFields.advisorName);
+    // }
+
+    // if (searchFields.academicYear !== null || searchFields.academicYear !== "") {
+    //   fields.push("academicYear");
+    //   searchInput.push(searchFields.academicYear);
+    // }
+
+    // if (searchFields.semester !== null || searchFields.semester !== "") {
+    //   fields.push("semester");
+    //   searchInput.push(searchFields.semester);
+    // }
+
+    // if (searchFields.programId !== undefined || searchFields.programId !== null ) {
+    //   fields.push("programId");
+    //   if (searchFields.programId !== undefined && searchFields.programId !== null && searchFields.programId !== 0) {
+    //     searchInput.push(searchFields.programId.toString());
+    //   }
+    // }
 
     const response = await axios.get(
       `https://search-service.kunmhing.me/api/v1/projects/selected-fields`,

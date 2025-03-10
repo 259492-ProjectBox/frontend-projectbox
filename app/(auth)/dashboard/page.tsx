@@ -81,7 +81,7 @@ function Dashboard() {
             <span className="text-widwa font-bold">
               {projects.length || "No"}
             </span>{" "}
-            projects on your plate
+            project on your plate
           </h2>
         </div>
         {hasPermission && projects.length === 0 && (
