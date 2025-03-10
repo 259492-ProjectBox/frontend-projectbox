@@ -49,8 +49,10 @@ export function useAuth() {
 					 router.push("/dashboard");
 				 }
 				}  
+
 			);
 			setAuthState({ user: null, isLoading: false, error: null });
+			router.push("/");
 		} catch (error) {
 			console.error("Sign-out error:", error);
 			setAuthState((prev) => ({
