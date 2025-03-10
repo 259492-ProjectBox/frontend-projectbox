@@ -6,7 +6,6 @@ import axios from "axios";
 import { FetchUserInfoResult } from "@/types/UserInfo";
 
 export function useAuth() {
-	const SignOut = process.env.CMU_ENTRAID_LOGOUT_URL;
 	const [authState, setAuthState] = useState<FetchUserInfoResult>({
 		user: null,
 		isLoading: true,
@@ -31,24 +30,25 @@ export function useAuth() {
 			setAuthState({ user: response.user, isLoading: false, error: null });
 		}
 	};
-
+	
 	// Function to sign out the user
 	const signOut = async () => {
+		const SignOut = process.env.CMU_ENTRAID_LOGOUT_URL;
 		try {
 			await axios.post("/api/signOut").then((response) => {
-				console.log("SignOut Response",response.data);
 				if(response.data.ok) {
-
 					
 					if (SignOut) { 
-						window.location.href = SignOut;
-						// router.push(SignOut);
-
+						console.log("SignOut",SignOut);
+						// window.location.href = SignOut;
+						router.push(SignOut);
 					}
 				 }else{
 					 router.push("/dashboard");
 				 }
+				//  router.push("/");
 				}  
+
 			);
 			setAuthState({ user: null, isLoading: false, error: null });
 		} catch (error) {
