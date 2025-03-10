@@ -36,11 +36,14 @@ export function useAuth() {
 	const signOut = async () => {
 		try {
 			await axios.post("/api/signOut").then((response) => {
+				console.log("SignOut Response",response.data);
 				if(response.data.ok) {
+
 					
 					if (SignOut) { 
 						window.location.href = SignOut;
 						// router.push(SignOut);
+
 					}
 				 }else{
 					 router.push("/dashboard");
