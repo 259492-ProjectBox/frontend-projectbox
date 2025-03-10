@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import FlowbiteNavbar from "./FlowbiteNavbar";
 import SidebarMenuSection from "./sidebar/SidebarMenuSection";
-import LogoutButton from "./sidebar/LogoutButton";
 import PersonIcon from "@mui/icons-material/Person";
 import SearchIcon from "@mui/icons-material/Search";
 import GroupsIcon from "@mui/icons-material/Groups";
@@ -15,7 +14,7 @@ import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 
 export default function Sidebar({ children }: React.PropsWithChildren) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { signOut, user } = useAuth();
+  const { user } = useAuth();
 
   const menuItems = [
     { text: "My Project", icon: <PersonIcon className="w-4 h-4 text-blue-500" />, path: "/dashboard" },
@@ -74,11 +73,6 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
               <SidebarMenuSection items={superAdminMenuItems} />
             </>
           )}
-
-          {/* Logout Section */}
-          <div className="mt-4">
-            <LogoutButton onLogout={signOut} />
-          </div>
         </div>
       </aside>
 
