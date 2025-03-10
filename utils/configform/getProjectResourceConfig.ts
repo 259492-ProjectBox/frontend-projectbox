@@ -12,7 +12,7 @@ export const getProjectResourceConfig = async (programId: number) : Promise<Proj
         },
       }
     );
-    console.log("getProjectResourceConfig", response.data);
+    // console.log("getProjectResourceConfig", response.data);
 
     // Ensure the response data is valid
     if (response.data) {

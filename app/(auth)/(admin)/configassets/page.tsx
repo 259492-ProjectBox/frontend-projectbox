@@ -7,12 +7,12 @@ export default function ConfigAssets() {
   const [isUploadMode, setIsUploadMode] = useState(true);
 
   const handleUpload = () => {
-    console.log("File uploaded!");
+    // console.log("File uploaded!");
     setIsModalOpen(false);
   };
 
   const handlePasteLink = () => {
-    console.log("Link submitted!");
+    // console.log("Link submitted!");
     setIsModalOpen(false);
   };
 
@@ -98,7 +98,7 @@ export default function ConfigAssets() {
                     </a>
                     <button
                       className="text-[#A71919] hover:underline"
-                      onClick={() => console.log(`Downloading file from: ${asset.link}`)}
+                      // onClick={() => console.log(`Downloading file from: ${asset.link}`)}
                     >
                       Download
                     </button>
@@ -145,7 +145,7 @@ export default function ConfigAssets() {
                   <p className="text-gray-500 mb-2">Drag & Drop files here</p>
                   <button
                     className="text-[#A71919] hover:underline"
-                    onClick={() => console.log("Browse files clicked")}
+                    // onClick={() => console.log("Browse files clicked")}
                   >
                     Browse Files
                   </button>

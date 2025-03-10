@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Spinner from "@/components/Spinner";
-import { Project, ProjectResource } from "@/models/Project";
+import { Project } from "@/models/Project";
 import getProjectById from "@/utils/projects/getProjectById";
 import { ProjectResourceConfig } from "@/models/ProjectResourceConfig"; // Import ProjectResourceConfig type
 import Select from "react-select";
@@ -15,6 +15,9 @@ import { getStudentsByProgram } from "@/utils/createproject/getStudentsByProgram
 import { Student } from "@/models/Student"; // Import the Student type
 import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig"; // Import getProjectResourceConfig
 import EditIcon from '@mui/icons-material/Edit';
+import getAllProgram from "@/utils/getAllProgram";
+import { AllProgram } from "@/models/AllPrograms";
+
 
 interface EditProjectPageProps {
   params: {
@@ -29,11 +32,20 @@ interface FormData {
     | { url: string }[]
     | { value: number; label: string }[]
     | FileList
+    | Blob
     | undefined;
   academicYear?: string;
   courseNo?: string;
   section?: string;
   semester?: string;
+  title_en?: string;
+  title_th?: string;
+  abstract_text?: string;
+  student?: { value: number; label: string }[];
+  advisor?: { value: number; label: string }[];
+  co_advisor?: { value: number; label: string }[];
+  committee?: { value: number; label: string }[];
+  external_committee?: { value: number; label: string }[];
 }
 
 const labels: { [key: string]: string } = {
@@ -73,8 +85,12 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
   const [projectResourceConfig, setProjectResourceConfig] = useState<
     ProjectResourceConfig[]
   >([]); // Store project resource config
+  const [programs, setPrograms] = useState<AllProgram[]>([]);
   const router = useRouter(); // Initialize useRouter
   const [editModeResources, setEditModeResources] = useState<{ [key: string]: boolean }>({});
+  const [fileBlobs, setFileBlobs] = useState<{ [key: string]: Blob }>({});
+  const [fileErrors, setFileErrors] = useState<{ [key: string]: string }>({});
+  const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB in bytes
 
   useEffect(() => {
     const loadProject = async () => {
@@ -82,8 +98,34 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
         const projectData = await getProjectById(parseInt(id)); // Fetch project by ID
         setProject(projectData);
         
-        // Initialize form data
-        setFormData({
+        // Fetch file blobs for existing resources
+        const blobPromises = projectData.projectResources
+          .filter(resource => resource.resourceType?.id === 1) // Only file type resources
+          .map(async (resource) => {
+            if (resource.url) {
+              try {
+                const response = await fetch(resource.url);
+                const blob = await response.blob();
+                return { id: resource.id, blob };
+              } catch (error) {
+                console.error(`Error fetching blob for resource ${resource.id}:`, error);
+                return null;
+              }
+            }
+            return null;
+          });
+
+        const blobs = await Promise.all(blobPromises);
+        const blobMap = blobs.reduce((acc, curr) => {
+          if (curr) {
+            acc[`file_blob_${curr.id}`] = curr.blob;
+          }
+          return acc;
+        }, {} as { [key: string]: Blob });
+        setFileBlobs(blobMap);
+        
+        // Initialize form data with existing URLs
+        const initialFormData: FormData = {
           title_en: projectData.titleEN || "",
           title_th: projectData.titleTH,
           abstract_text: projectData.abstractText,
@@ -91,40 +133,45 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
           courseNo: projectData.course?.courseNo,
           section: projectData.sectionId,
           semester: projectData.semester?.toString(),
-          // Map students with correct id and type
           student: projectData.members.map((member) => ({
             value: typeof member.id === 'string' ? parseInt(member.id, 10) : member.id,
             label: `${member.firstName} ${member.lastName} (${member.studentId})`,
           })),
-          // Map advisor (role_id: 1)
           advisor: projectData.staffs
             .filter((staff) => staff.projectRole.id === 1)
             .map((staff) => ({
               value: staff.id,
               label: `${staff.prefixEN} ${staff.firstNameEN} ${staff.lastNameEN} / ${staff.prefixTH} ${staff.firstNameTH} ${staff.lastNameTH}`,
             })),
-          // Map co-advisor (role_id: 2)
           co_advisor: projectData.staffs
             .filter((staff) => staff.projectRole.id === 2)
             .map((staff) => ({
               value: staff.id,
               label: `${staff.prefixEN} ${staff.firstNameEN} ${staff.lastNameEN} / ${staff.prefixTH} ${staff.firstNameTH} ${staff.lastNameTH}`,
             })),
-          // Map committee (role_id: 3)
           committee: projectData.staffs
             .filter((staff) => staff.projectRole.id === 3)
             .map((staff) => ({
               value: staff.id,
               label: `${staff.prefixEN} ${staff.firstNameEN} ${staff.lastNameEN} / ${staff.prefixTH} ${staff.firstNameTH} ${staff.lastNameTH}`,
             })),
-          // Map external committee (role_id: 4)
           external_committee: projectData.staffs
             .filter((staff) => staff.projectRole.id === 4)
             .map((staff) => ({
               value: staff.id,
               label: `${staff.prefixEN} ${staff.firstNameEN} ${staff.lastNameEN} / ${staff.prefixTH} ${staff.firstNameTH} ${staff.lastNameTH}`,
             })),
+          ...blobMap,
+        };
+
+        // Add existing URLs to form data
+        projectData.projectResources.forEach(resource => {
+          if (resource.resourceType?.id === 2 && resource.url) {
+            initialFormData[`file_link_${resource.id || resource.title}` as keyof FormData] = resource.url;
+          }
         });
+
+        setFormData(initialFormData);
 
         // Always fetch resource configs for the program
         if (projectData?.program?.id) {
@@ -133,6 +180,8 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
         }
 
         const employees = await getAllEmployees();
+        const allPrograms = await getAllProgram();
+        setPrograms(allPrograms);
         setStaffList(employees);
 
         const students = await getStudentsByProgram(projectData.program.id);
@@ -164,16 +213,32 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
     setFormData((prevData) => ({ ...prevData, [field]: selectedOptions }));
   };
 
-  const handleFileChange = (
+  const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
     fieldName: string
   ) => {
     const { files } = e.target;
     if (files && files.length > 0) {
+      const file = files[0];
+      if (file.size > MAX_FILE_SIZE) {
+        setFileErrors(prev => ({
+          ...prev,
+          [fieldName]: `File size exceeds 25MB limit (Current size: ${(file.size / (1024 * 1024)).toFixed(2)}MB)`
+        }));
+        e.target.value = ''; // Reset file input
+        return;
+      }
+      const blob = new Blob([file], { type: file.type });
       setFormData((prevData) => ({
         ...prevData,
-        [fieldName]: files,
+        [fieldName]: blob,
       }));
+      // Clear any previous error for this field
+      setFileErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[fieldName];
+        return newErrors;
+      });
     }
   };
 
@@ -267,158 +332,71 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
   );
 
   const renderFileUploadSections = () => {
-    const fileConfigs = project?.projectResources as ProjectResource[] | undefined;
+    // Get existing resources from project
+    const existingResources = project?.projectResources || [];
+    
+    // Get all available resource configs
+    const availableConfigs = projectResourceConfig || [];
+    
+    // Create a map of existing resources by title (case insensitive)
+    const existingResourceMap = new Map(
+      existingResources.map(resource => [resource.title?.toLowerCase(), resource])
+    );
+    
+    // Create a combined array of all resources to display
+    const allResources = [
+      // First add existing resources
+      ...existingResources,
+      // Then add configs that don't have matching existing resources
+      ...availableConfigs.filter(config => 
+        config.is_active && !existingResourceMap.has(config.title?.toLowerCase())
+      )
+    ];
 
-    if (!fileConfigs || fileConfigs.length === 0) {
-      return projectResourceConfig.map((fileConfig) => {
-        if (!fileConfig.is_active || !fileConfig.id) return null;
-
-        const configId = fileConfig.id;
-        const isEditMode = editModeResources[configId.toString()];
-
-        return (
-          <div
-            key={configId}
-            className="p-4 mb-4 rounded-lg border border-gray-300 bg-white shadow-sm hover:shadow-md transition-shadow duration-200"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-9 h-9 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden flex items-center justify-center">
-                  <div className="w-6 h-6 flex items-center justify-center">
-                    <Image
-                      src={fileConfig.icon_url || "/IconProjectBox/BlueBox.png"}
-                      alt={fileConfig.icon_name || "Default Icon"}
-                      width={24}
-                      height={24}
-                      className="object-contain"
-                      unoptimized
-                    />
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-base font-semibold text-gray-900">{fileConfig.title}</h3>
-                </div>
-              </div>
-              <button 
-                onClick={() => toggleEditMode(configId.toString())}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                aria-label="Edit resource"
-              >
-                <EditIcon className="text-gray-600 w-5 h-5" />
-              </button>
-            </div>
-
-            {isEditMode && (
-              <div className="mt-4 pl-13">
-                {fileConfig.title.toLowerCase() === "pdf" ? (
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Upload PDF File
-                    </label>
-                    <input
-                      type="file"
-                      accept=".pdf"
-                      name={`file_upload_${configId}`}
-                      onChange={(e) => handleFileChange(e, `file_upload_${configId}`)}
-                      className="block w-full text-sm text-gray-500
-                        file:mr-4 file:py-2 file:px-4
-                        file:rounded-full file:border-0
-                        file:text-sm file:font-semibold
-                        file:bg-blue-50 file:text-blue-700
-                        hover:file:bg-blue-100
-                        cursor-pointer border rounded-lg
-                        focus:outline-none focus:border-blue-500
-                        focus:ring-1 focus:ring-blue-500"
-                    />
-                  </div>
-                ) : fileConfig.resource_type.id === 2 ? (
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Resource URL
-                    </label>
-                    <input
-                      type="text"
-                      name={`file_link_${configId}`}
-                      value={(formData[`file_link_${configId}`] as string) || ""}
-                      onChange={handleInputChange}
-                      className="block w-full px-3 py-2 text-sm
-                        border border-gray-300 rounded-lg
-                        focus:outline-none focus:border-blue-500
-                        focus:ring-1 focus:ring-blue-500
-                        placeholder-gray-400"
-                      placeholder="Enter resource URL"
-                    />
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Upload File
-                    </label>
-                    <input
-                      type="file"
-                      name={`file_upload_${configId}`}
-                      onChange={(e) => handleFileChange(e, `file_upload_${configId}`)}
-                      className="block w-full text-sm text-gray-500
-                        file:mr-4 file:py-2 file:px-4
-                        file:rounded-full file:border-0
-                        file:text-sm file:font-semibold
-                        file:bg-blue-50 file:text-blue-700
-                        hover:file:bg-blue-100
-                        cursor-pointer border rounded-lg
-                        focus:outline-none focus:border-blue-500
-                        focus:ring-1 focus:ring-blue-500"
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        );
-      });
-    }
-
-    return fileConfigs.map((resource) => {
-      const isEditMode = editModeResources[resource.id.toString()];
-      // Find matching config by title (case-insensitive)
+    return allResources.map((resource) => {
+      const isExistingResource = 'url' in resource; // Check if it's an existing resource
       const matchingConfig = projectResourceConfig.find(
         config => config.title?.toLowerCase() === resource.title?.toLowerCase()
       );
+      
+      // Skip if it's a config resource that's not active
+      if (!isExistingResource && !matchingConfig?.is_active) return null;
+
+      const isEditMode = editModeResources[resource.id?.toString() || resource.title || ''];
+      const blobKey = `file_blob_${resource.id}`;
+      const hasExistingBlob = blobKey in fileBlobs;
 
       return (
         <div
-          key={resource.id}
+          key={resource.id || resource.title}
           className="p-4 mb-4 rounded-lg border border-gray-300 bg-white shadow-sm hover:shadow-md transition-shadow duration-200"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-9 h-9 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden flex items-center justify-center">
-                {matchingConfig ? (
-                  <div className="w-6 h-6 flex items-center justify-center">
-                    <Image
-                      src={matchingConfig.icon_url || "/IconProjectBox/BlueBox.png"}
-                      alt={matchingConfig.icon_name || "Resource Icon"}
-                      width={24}
-                      height={24}
-                      className="object-contain"
-                      unoptimized
-                    />
-                  </div>
-                ) : (
-                  <div className="w-6 h-6 flex items-center justify-center">
-                    <Image
-                      src="/IconProjectBox/BlueBox.png"
-                      alt="Default Icon"
-                      width={24}
-                      height={24}
-                      className="object-contain"
-                      unoptimized
-                    />
-                  </div>
-                )}
+                <div className="w-6 h-6 flex items-center justify-center">
+                  <Image
+                    src={
+                      (matchingConfig?.icon_url || 
+                      (isExistingResource && 'icon_url' in resource ? resource.icon_url : undefined) || 
+                      "/IconProjectBox/BlueBox.png") as string
+                    }
+                    alt={matchingConfig?.icon_name || resource.title || "Resource Icon"}
+                    width={24}
+                    height={24}
+                    className="object-contain"
+                    unoptimized
+                  />
+                </div>
               </div>
               <div>
-                <h3 className="text-base font-semibold text-gray-900">{resource.title}</h3>
-                {resource.url && (
+                <div className="flex items-center gap-2">
+                  <h3 className="text-base font-semibold text-gray-900">{resource.title}</h3>
+                  {isExistingResource && resource.url && (
+                    <span className="text-sm font-medium text-green-600">(Uploaded)</span>
+                  )}
+                </div>
+                {isExistingResource && resource.url && (
                   <a
                     href={resource.url}
                     className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
@@ -431,7 +409,7 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
               </div>
             </div>
             <button 
-              onClick={() => toggleEditMode(resource.id.toString())}
+              onClick={() => toggleEditMode(resource.id?.toString() || resource.title || '')}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               aria-label="Edit resource"
             >
@@ -441,16 +419,17 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
 
           {isEditMode && (
             <div className="mt-4 pl-13">
-              {resource.title?.toLowerCase() === "pdf" ? (
+              {resource.title?.toLowerCase() === "pdf" || (matchingConfig?.resource_type?.type_name === "file") ? (
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700">
-                    Upload PDF File
+                    Upload File {hasExistingBlob && "(Current file will be replaced)"}
                   </label>
+                  <div className="text-xs text-red-500 mb-1">Maximum file size: 25MB</div>
                   <input
                     type="file"
                     accept=".pdf"
-                    name={`file_upload_${resource.id}`}
-                    onChange={(e) => handleFileChange(e, `file_upload_${resource.id}`)}
+                    name={`file_upload_${resource.id || resource.title}`}
+                    onChange={(e) => handleFileChange(e, `file_upload_${resource.id || resource.title}`)}
                     className="block w-full text-sm text-gray-500
                       file:mr-4 file:py-2 file:px-4
                       file:rounded-full file:border-0
@@ -461,16 +440,27 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
                       focus:outline-none focus:border-blue-500
                       focus:ring-1 focus:ring-blue-500"
                   />
+                  {fileErrors[`file_upload_${resource.id || resource.title}`] && (
+                    <div className="text-sm text-red-500 mt-1">
+                      {fileErrors[`file_upload_${resource.id || resource.title}`]}
+                    </div>
+                  )}
+                  {hasExistingBlob && (
+                    <div className="text-sm text-gray-600">
+                      Current file is loaded and will be preserved unless you upload a new one
+                    </div>
+                  )}
                 </div>
-              ) : resource.resourceType.id === 2 ? (
+              ) : ((matchingConfig?.resource_type?.type_name === "url") || 
+                   (isExistingResource && 'resourceType' in resource && resource.resourceType?.id === 2)) ? (
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700">
                     Resource URL
                   </label>
                   <input
                     type="text"
-                    name={`file_link_${resource.id}`}
-                    value={(formData[`file_link_${resource.id}`] as string) || ""}
+                    name={`file_link_${resource.id || resource.title}`}
+                    value={(formData[`file_link_${resource.id || resource.title}`] as string) || ""}
                     onChange={handleInputChange}
                     className="block w-full px-3 py-2 text-sm
                       border border-gray-300 rounded-lg
@@ -487,8 +477,8 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
                   </label>
                   <input
                     type="file"
-                    name={`file_upload_${resource.id}`}
-                    onChange={(e) => handleFileChange(e, `file_upload_${resource.id}`)}
+                    name={`file_upload_${resource.id || resource.title}`}
+                    onChange={(e) => handleFileChange(e, `file_upload_${resource.id || resource.title}`)}
                     className="block w-full text-sm text-gray-500
                       file:mr-4 file:py-2 file:px-4
                       file:rounded-full file:border-0
@@ -505,6 +495,16 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
           )}
         </div>
       );
+    });
+  };
+
+  const getStaffOptions = (staff: Advisor[]) => {
+    return staff.map((staff) => {
+      const programAbbr = programs.find(p => p.id === staff.program_id)?.abbreviation || staff.program_id;
+      return {
+        value: staff.id,
+        label: `${programAbbr} / ${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
+      };
     });
   };
 
@@ -564,62 +564,79 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
 
       formDataToSend.append("project", JSON.stringify(projectData));
 
-      const fileConfigs = project?.projectResources || projectResourceConfig;
-      if (fileConfigs) {
-        fileConfigs.forEach((fileConfig) => {
-          const configId = fileConfig.id;
-          const linkField = `file_link_${configId}`;
-          const fileField = `file_upload_${configId}`;
+      // Get all resources (both existing and config)
+      const existingResources = project?.projectResources || [];
+      const availableConfigs = projectResourceConfig || [];
+      
+      // Create a map of existing resources by title
+      const existingResourceMap = new Map(
+        existingResources.map(resource => [resource.title?.toLowerCase(), resource])
+      );
+      
+      // Combine all resources
+      const allResources = [
+        ...existingResources,
+        ...availableConfigs.filter(config => 
+          config.is_active && !existingResourceMap.has(config.title?.toLowerCase())
+        )
+      ];
 
-          const existingResource = project?.projectResources?.find(
-            (resource) => resource.id === configId
+      // Process each resource
+      allResources.forEach((resource) => {
+        const isExistingResource = 'url' in resource;
+        const resourceId = resource.id;
+        const resourceTitle = resource.title;
+        
+        const linkField = `file_link_${resourceId || resourceTitle}`;
+        const fileField = `file_upload_${resourceId || resourceTitle}`;
+        const blobKey = `file_blob_${resourceId}`;
+        
+        const matchingConfig = projectResourceConfig.find(
+          config => config.title?.toLowerCase() === resource.title?.toLowerCase()
+        );
+
+        const isPdfOrFileResource = resource.title?.toLowerCase() === "pdf" || 
+                                  matchingConfig?.resource_type?.type_name === "file";
+
+        // Handle URL resources
+        if (!isPdfOrFileResource) {
+          // For URL resources, send either the new URL from form data or keep the existing URL
+          const urlToSend = formData[linkField] || (isExistingResource ? resource.url : undefined);
+          if (urlToSend) {
+            formDataToSend.append(
+              "projectResources[]",
+              JSON.stringify({
+                title: resourceTitle,
+                url: urlToSend,
+                resource_type_id: 2,
+                ...(isExistingResource && { id: resourceId })
+              })
+            );
+          }
+        }
+
+        // Handle file uploads - either new files or existing blobs
+        const newFile = formData[fileField] as Blob | undefined;
+        const existingBlob = fileBlobs[blobKey];
+        
+        if (newFile || existingBlob) {
+          formDataToSend.append(
+            "projectResources[]",
+            JSON.stringify({
+              title: resourceTitle,
+              resource_type_id: 1,
+              ...(isExistingResource && { id: resourceId })
+            })
           );
 
-          // For resources with title "pdf", always treat as file upload
-          const isPdfResource = (existingResource?.title || fileConfig.title)?.toLowerCase() === "pdf";
-
-          // Handle URL resources
-          if (formData[linkField] && !isPdfResource) {
-            formDataToSend.append(
-              "projectResources[]",
-              JSON.stringify({
-                title: existingResource?.title || fileConfig.title,
-                url: formData[linkField],
-                resource_type_id: 2, // URL type
-                ...(existingResource?.id && { id: existingResource.id })
-              })
-            );
+          // Append either the new file or the existing blob
+          if (newFile) {
+            formDataToSend.append("files", newFile);
+          } else if (existingBlob) {
+            formDataToSend.append("files", existingBlob);
           }
-
-          // Handle file uploads
-          const selectedFiles = formData[fileField] as FileList | undefined;
-          if (selectedFiles && selectedFiles.length > 0) {
-            formDataToSend.append(
-              "projectResources[]",
-              JSON.stringify({
-                title: existingResource?.title || fileConfig.title,
-                resource_type_id: 1, // File type
-                ...(existingResource?.id && { id: existingResource.id })
-              })
-            );
-
-            Array.from(selectedFiles).forEach((file) => {
-              formDataToSend.append("files", file);
-            });
-          } else if (existingResource && !formData[linkField]) {
-            // Keep existing resource if no new file or URL is provided
-            formDataToSend.append(
-              "projectResources[]",
-              JSON.stringify({
-                id: existingResource.id,
-                title: existingResource.title,
-                url: existingResource.url,
-                resource_type_id: isPdfResource ? 1 : existingResource.resourceTypeId
-              })
-            );
-          }
-        });
-      }
+        }
+      });
 
       // Make the API request
       await axios.put(
@@ -629,6 +646,7 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
           headers: {
             Authorization:
               "Bearer Pl6sXUmjwzNtwcA4+rkBP8jTmRttcNwgJqp1Zn1a+qCRaYXdYdwgJ9mM5glzHQD2FOsLilpELbmVSF2nGZCOwTO6u5CTsVpyIGDguXoMobSApgEsO3avovqWYDAEuznY/Vu4XMvHDkFqyuY1dQfN+QdB04t89/1O/w1cDnyilFU=",
+            "Content-Type": "multipart/form-data",
           },
         }
       );
@@ -675,37 +693,25 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
             "advisor",
             "Advisor",
             true,
-            staffList.map((staff) => ({
-              value: staff.id,
-              label: `${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
-            }))
+            getStaffOptions(staffList)
           )}
           {renderMultiSelectField(
             "co_advisor",
             "Co-Advisor",
             false,
-            staffList.map((staff) => ({
-              value: staff.id,
-              label: `${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
-            }))
+            getStaffOptions(staffList)
           )}
           {renderMultiSelectField(
             "committee",
             "Committee Members",
             false,
-            staffList.map((staff) => ({
-              value: staff.id,
-              label: `${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
-            }))
+            getStaffOptions(staffList)
           )}
           {renderMultiSelectField(
             "external_committee",
             "External Committee Members",
             false,
-            staffList.map((staff) => ({
-              value: staff.id,
-              label: `${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
-            }))
+            getStaffOptions(staffList)
           )}
         </div>
 

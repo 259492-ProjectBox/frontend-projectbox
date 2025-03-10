@@ -15,6 +15,7 @@ import { getAcademicYears } from "@/utils/configprogram/getAcademicYears";
 import { getStudentsByProgram } from "@/utils/configprogram/getStudentsListByProgram";
 import { AcademicYear } from "@/models/AcademicYear";
 import { Student } from "@/models/Student";
+import Pagination from "@/components/Pagination";
 
 // Function to convert string to title case
 const toTitleCase = (str: string) => {
@@ -48,6 +49,10 @@ export default function ConfigProgram() {
   const [isLoadingStudents, setIsLoadingStudents] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
+  // Add pagination states
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 10; // Number of items to show per page
+
   useEffect(() => {
     const fetchOptions = async () => {
       if (!user) return;
@@ -80,7 +85,7 @@ export default function ConfigProgram() {
       setLoading(true);
       try {
         const data = await getConfigProgram(selectedMajor);
-        console.log("Data Config:", data);
+        // console.log("Data Config:", data);
 
         if (!Array.isArray(data)) {
           throw new Error("Unexpected response format");
@@ -265,6 +270,22 @@ export default function ConfigProgram() {
     );
   });
 
+  // Calculate pagination values
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredStudents.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
+
+  // Handle page change
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Reset to first page when search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
   // Show loading or error
   if (loading) return <Spinner />;
   if (error) {
@@ -379,8 +400,11 @@ export default function ConfigProgram() {
                   <h3 className="text-sm font-medium text-gray-700 mb-2">
                     Upload Student
                   </h3>
-                  <p className="text-sm text-gray-500 mb-3">
+                  <p className="text-sm text-gray-500 mb-2">
                     Upload a list of students to grant them permission to create projects for the current academic year and semester. This allows students to submit their own project details.
+                  </p>
+                  <p className="text-sm text-red-500 font-medium mb-3">
+                    ⚠️ Please ensure you upload students with the correct Academic Year and Semester. Incorrect academic period may result in students being unable to access the system.
                   </p>
                   <ExcelTemplateSection
                     title="Roster_Student_Template"
@@ -444,8 +468,11 @@ export default function ConfigProgram() {
                   <h3 className="text-sm font-medium text-gray-700 mb-2">
                     Upload Project
                   </h3>
-                  <p className="text-sm text-gray-500 mb-3">
+                  <p className="text-sm text-gray-500 mb-2">
                     Upload projects directly as staff. Use this option to create projects on behalf of students or to import existing/old projects into the system.
+                  </p>
+                  <p className="text-sm text-red-500 font-medium mb-3">
+                    ⚠️ Please verify that the Academic Year and Semester in your project list match the intended academic period. Incorrect values may cause projects to appear in the wrong term.
                   </p>
                   <ExcelTemplateSection
                     title="Roster_Project_Template"
@@ -606,8 +633,8 @@ export default function ConfigProgram() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredStudents.length > 0 ? (
-                      filteredStudents.map((student) => (
+                    {currentItems.length > 0 ? (
+                      currentItems.map((student) => (
                         <tr key={student.id}>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {student.student_id}
@@ -634,6 +661,13 @@ export default function ConfigProgram() {
                     )}
                   </tbody>
                 </table>
+                {filteredStudents.length > 0 && (
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                  />
+                )}
               </div>
             </div>
           </div>

@@ -16,12 +16,11 @@ export async function fetchPdfProjects(searchInput: string): Promise<Project[]> 
     );
 
     // Log the data to the console
-    console.log("PDF Search Response:", response.data);
+    // console.log("PDF Search Response:", response.data);
 
     return response.data;
   } catch (error) {
     console.error("Error fetching PDF search results:", error);
-    console.log("test");
     
     throw error;
   }

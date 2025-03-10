@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Project } from "@/models/Project";
 import ProjectComponent from "@/components/dashboard/ProjectComponent";
+import { useAuth } from "@/hooks/useAuth";
+import getAdvisorByEmail from "@/utils/advisorstats/getAdvisorByEmail";
+import { Advisor } from "@/models/Advisor";
 
 interface PriorityProjectComponentProps {
   projects: Project[];
@@ -10,27 +13,52 @@ const PriorityProjectComponent: React.FC<PriorityProjectComponentProps> = ({ pro
   const [searchInput, setSearchInput] = useState<string>("");
   const [selectedRole, setSelectedRole] = useState<string>("");
   const [filteredProjects, setFilteredProjects] = useState<Project[]>(projects);
+  const [advisor, setAdvisor] = useState<Advisor | null>(null);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const fetchAdvisor = async () => {
+      if (user?.cmuAccount) {
+        try {
+          const advisorData = await getAdvisorByEmail(user.cmuAccount);
+          setAdvisor(advisorData);
+        } catch (error) {
+          console.error("Error fetching advisor:", error);
+        }
+      }
+    };
+
+    fetchAdvisor();
+  }, [user?.cmuAccount]);
 
   useEffect(() => {
     const filtered = projects.filter((project) => {
       const searchLower = searchInput.toLowerCase();
-      return (
-        (project.titleEN?.toLowerCase().includes(searchLower) ||
-          project.titleTH?.toLowerCase().includes(searchLower) ||
-          project.abstractText?.toLowerCase().includes(searchLower) ||
-          project.academicYear.toString().includes(searchLower) ||
-          project.courseId.toString().includes(searchLower) ||
-          project.members.some((member) =>
-            `${member.firstName} ${member.lastName}`.toLowerCase().includes(searchLower)
-          ) ||
-          project.staffs.some((staff) =>
-            `${staff.firstNameEN} ${staff.lastNameEN}`.toLowerCase().includes(searchLower)
-          )) &&
-        (selectedRole === "" || project.staffs.some(staff => staff.projectRole.roleNameEN === selectedRole))
+      const matchesSearch = (
+        project.titleEN?.toLowerCase().includes(searchLower) ||
+        project.titleTH?.toLowerCase().includes(searchLower) ||
+        project.abstractText?.toLowerCase().includes(searchLower) ||
+        project.academicYear.toString().includes(searchLower) ||
+        project.courseId.toString().includes(searchLower) ||
+        project.members.some((member) =>
+          `${member.firstName} ${member.lastName}`.toLowerCase().includes(searchLower)
+        ) ||
+        project.staffs.some((staff) =>
+          `${staff.firstNameEN} ${staff.lastNameEN}`.toLowerCase().includes(searchLower)
+        )
       );
+
+      const matchesRole = selectedRole === "" || (
+        advisor && project.staffs.some(staff => 
+          staff.projectRole.roleNameEN === selectedRole && 
+          staff.id === advisor.id
+        )
+      );
+
+      return matchesSearch && matchesRole;
     });
     setFilteredProjects(filtered);
-  }, [searchInput, selectedRole, projects]);
+  }, [searchInput, selectedRole, projects, advisor]);
 
   const roles = ["Advisor", "Co Advisor", "Committee", "External Committee"];
 
@@ -40,7 +68,9 @@ const PriorityProjectComponent: React.FC<PriorityProjectComponentProps> = ({ pro
         {/* Header Section */}
         <div className="mb-6">
           <h1 className="text-2xl font-medium text-gray-900">Priority Projects</h1>
-          <p className="text-sm text-gray-600">Special view for priority users</p>
+          <p className="text-sm text-gray-600">
+            {advisor ? `Projects for ${advisor.first_name_en} ${advisor.last_name_en}` : 'Loading advisor information...'}
+          </p>
         </div>
 
         {/* Search and Filter Section */}

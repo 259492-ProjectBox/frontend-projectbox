@@ -160,7 +160,7 @@ const ProjectComponent = ({ project }: { project: Project }) => {
                 items={project.staffs
                   .filter((staff) => ["Advisor", "Co Advisor", "Committee", "External Committee"].includes(staff.projectRole.roleNameEN))
                   .map((staff) => ({
-                    name: `${staff.prefixEN || ""} ${staff.firstNameTH || "No First Name"} ${staff.lastNameTH || "No Last Name"}`,
+                    name: `${staff.prefixEN || ""} ${staff.firstNameTH || "No First Name"} ${staff.lastNameTH || "No Last Name"} / ${staff.firstNameEN || "No First Name"} ${staff.lastNameEN || "No Last Name"}`,
                     role: staff.projectRole.roleNameEN,
                   }))}
                 title="Professor"

@@ -7,12 +7,11 @@ import Spinner from "@/components/Spinner"; // Import the Spinner component
 import Link from "next/link"; // Import Link for navigation
 import getAllProgram from "@/utils/getAllProgram";
 import { AllProgram } from "@/models/AllPrograms";
-import getAllEmployees, { getAllEmployeesNew } from "@/utils/advisorstats/getAllEmployee"; // Import the getAllEmployees function
+import { getAllEmployeesNew } from "@/utils/advisorstats/getAllEmployee"; // Import the getAllEmployees function
 import Avatar from "@/components/Avatar";
 import Pagination from "@/components/Pagination"; // Import Pagination component
 
 export default function AdvisorStatsPage() {
-  const [advisors, setAdvisors] = useState<Advisor[]>([]); // Default to empty array
   const [filteredAdvisors, setFilteredAdvisors] = useState<Advisor[]>([]); // Default to empty array
   const [searchTerm, setSearchTerm] = useState<string>(""); // Search term state
   const [loading, setLoading] = useState<boolean>(true);
@@ -41,7 +40,7 @@ export default function AdvisorStatsPage() {
         if (selectedMajor === -1) {
           newMap = await getAllEmployeesNew(); // Fetch all employees if "All Majors" is selected
           data = Array.from(newMap.values()).flat(); // Flatten the map values into an array
-          console.log("newMap", newMap);
+          // console.log("newMap", newMap);
           setMapData(newMap);
           setFilteredAdvisors(data); // Initialize filtered data with newMap data
         } else if (selectedMajor === 0) {
@@ -52,7 +51,6 @@ export default function AdvisorStatsPage() {
           setFilteredAdvisors(data); // Initialize filtered data with fetched data
         }
 
-        setAdvisors(data);
       } catch (error) {
         console.error("Error fetching advisor data:", error);
       } finally {
@@ -126,6 +124,13 @@ export default function AdvisorStatsPage() {
 
           {/* Controls Section */}
           <div className="p-6 border-b border-gray-100 space-y-4 sm:space-y-0 sm:flex sm:items-center sm:space-x-4">
+            {/* Advisor Count */}
+            <div className="bg-blue-50 px-4 py-2 rounded-lg">
+              <p className="text-sm text-gray-700">
+                Total Advisors: <span className="text-blue-600 font-medium">{filteredAdvisors?.length || 0}</span>
+              </p>
+            </div>
+
             {/* Major Selector */}
             <div className="flex-1 min-w-[200px]">
               <select
@@ -191,7 +196,7 @@ export default function AdvisorStatsPage() {
             ) : (
               <>
                 <div className="overflow-x-auto">
-                    <p>{filteredAdvisors?.length}</p>
+                    {/* <p>{filteredAdvisors?.length}</p> */}
                   <table className="w-full">
                     {/* count the advisor */}
                     <thead>
@@ -225,8 +230,8 @@ export default function AdvisorStatsPage() {
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                             {advisor.email}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600" title={getProgramAbbreviations(mapData, majorList)}>
-                            {getProgramAbbreviations(mapData, majorList)}
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {majorList.find(program => program.id === advisor.program_id)?.abbreviation || 'N/A'}
                           </td>
                         </tr>
                       ))}
