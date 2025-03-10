@@ -1,16 +1,43 @@
 // components/FlowbiteNavbar.tsx
 "use client";
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import HamburgerIcon from "@/public/Svg/HamburgerIcon";
 import Image from "next/image";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { useRouter } from "next/navigation";
 
 export default function FlowbiteNavbar({
   toggleSidebar,
 }: {
   toggleSidebar: () => void;
 }) {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
+  // Handle click outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleNavigateToDashboard = () => {
+    router.push('/dashboard');
+  };
 
   return (
     <nav className="fixed top-0 z-50 w-full bg-white border-b border-gray-200">
@@ -25,18 +52,21 @@ export default function FlowbiteNavbar({
               <span className="sr-only">Open sidebar</span>
               <HamburgerIcon />
             </button>
-            <a href="#" className="flex items-center ms-2 md:me-24">
+            <button 
+              onClick={handleNavigateToDashboard}
+              className="flex items-center ms-2 md:me-24 hover:opacity-80 transition-opacity"
+            >
               <Image
                 src="/IconProjectBox/BlueBox.png"
                 alt="CMU Logo"
                 width={30}
                 height={30}
                 className="mr-2"
-                />
+              />
               <span className="self-center text-xl font-semibold whitespace-nowrap">
                 CMU ENG PROJECT
               </span>
-            </a>
+            </button>
           </div>
           <div className="flex items-center">
             <div className="flex items-center justify-end ms-3">
@@ -49,42 +79,31 @@ export default function FlowbiteNavbar({
                   <p className="text-gray-600">{user?.studentId}</p>
                 </div>
               </div>
-              {/* Profile Icon Section (Optional, uncomment if needed) */}
-              {/* <div className="ml-4">
-                <button
-                  type="button"
-                  className="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300"
-                  aria-expanded="false"
-                  data-dropdown-toggle="dropdown-user"
-                >
-                  <span className="sr-only">Open user menu</span>
-                  <Image
-                    className="w-8 h-8 rounded-full bg-white" // Added bg-white class
-                    src="/boy.png"
-                    alt={""}
-                    width={24} // Specify width (in px)
-                    height={24} // Specify height (in px)
-                  />
-                </button>
-              </div> */}
-              <div className="ml-4">
+              <div className="ml-4 relative" ref={dropdownRef}>
                 <button
                   type="button"
                   className="flex text-sm bg-black rounded-full focus:ring-4 focus:ring-gray-300 border-2 border-black"
-                  aria-expanded="false"
-                  data-dropdown-toggle="dropdown-user"
+                  onClick={toggleDropdown}
                 >
                   <span className="sr-only">Open user menu</span>
                   {/* User Initials */}
                   <div className="w-8 h-8 flex items-center justify-center bg-white text-gray-800 font-bold rounded-full">
-                    {/* Replace 'A' with the first 2  character of the user's name */}
                     {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
-                    {/* {user?.firstName?.charAt(0 )} */}
-
                   </div>
                 </button>
-            </div>
-
+                {/* Dropdown Menu */}
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-100">
+                    <button
+                      onClick={signOut}
+                      className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    >
+                      <LogoutIcon className="w-4 h-4 mr-2" />
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
