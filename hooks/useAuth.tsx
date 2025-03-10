@@ -36,9 +36,10 @@ export function useAuth() {
 	const signOut = async () => {
 		try {
 			await axios.post("/api/signOut").then((response) => {
-				console.log("SignOut Response",response.data);
 				if(response.data.ok) {
+						console.log("SignOutx",SignOut);
 					if (SignOut) { 
+						console.log("SignOut",SignOut);
 						router.push(SignOut);
 					}
 				 }else{
