@@ -74,6 +74,7 @@ FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
+
 # if you want env to attach to the image
 # COPY .env ./
 # Uncomment the following line in case you want to disable telemetry during runtime.
