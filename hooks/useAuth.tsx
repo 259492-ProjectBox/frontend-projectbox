@@ -6,7 +6,7 @@ import axios from "axios";
 import { FetchUserInfoResult } from "@/types/UserInfo";
 
 export function useAuth() {
-	const SignOut = process.env.CMU_ENTRAID_LOGOUT_URL;
+	const SignOut = process.env.NEXT_PUBLIC_CMU_ENTRAID_LOGOUT_URL;
 	const [authState, setAuthState] = useState<FetchUserInfoResult>({
 		user: null,
 		isLoading: true,
@@ -38,10 +38,8 @@ export function useAuth() {
 			await axios.post("/api/signOut").then((response) => {
 				console.log("SignOut Response",response.data);
 				if(response.data.ok) {
-					
 					if (SignOut) { 
-						window.location.href = SignOut;
-						// router.push(SignOut);
+						router.push(SignOut);
 					}
 				 }else{
 					 router.push("/dashboard");
@@ -50,7 +48,6 @@ export function useAuth() {
 
 			);
 			setAuthState({ user: null, isLoading: false, error: null });
-			router.push("/");
 		} catch (error) {
 			console.error("Sign-out error:", error);
 			setAuthState((prev) => ({
