@@ -23,6 +23,7 @@ interface SearchFields {
 const SearchPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [searchMode, setSearchMode] = useState<string>("quick");
+  const [hasSearched, setHasSearched] = useState<boolean>(false);
   const [searchFields, setSearchFields] = useState<SearchFields>({
     courseNo: null,
     projectTitle: null,
@@ -69,7 +70,8 @@ const SearchPage: React.FC = () => {
       alert("Please enter a search term.");
       return;
     }
-    setLoading(true); // Set loading to true when search starts
+    setLoading(true);
+    setHasSearched(true);
     if (searchMode === "quick") {
       try {
         const searchFields = [];
@@ -113,7 +115,8 @@ const SearchPage: React.FC = () => {
       alert("Please fill in at least one search field.");
       return;
     }
-    setLoading(true); // Set loading to true when search starts
+    setLoading(true);
+    setHasSearched(true);
     try {
       const results = await detailSearchProjects({ searchFields });
       setFilteredRecords(results);
@@ -122,7 +125,7 @@ const SearchPage: React.FC = () => {
       console.error("Error fetching advanced search results:", error);
       setFilteredRecords([]);
     } finally {
-      setLoading(false); // Set loading to false when search ends
+      setLoading(false);
     }
   };
 
@@ -131,7 +134,8 @@ const SearchPage: React.FC = () => {
       alert("Please enter a search term.");
       return;
     }
-    setLoading(true); // Set loading to true when search starts
+    setLoading(true);
+    setHasSearched(true);
     try {
       const results = await fetchPdfProjects(searchTerm);
       setFilteredRecords(results);
@@ -140,7 +144,7 @@ const SearchPage: React.FC = () => {
       console.error("Error fetching PDF search results:", error);
       setFilteredRecords([]);
     } finally {
-      setLoading(false); // Set loading to false when search ends
+      setLoading(false);
     }
   };
 
@@ -154,19 +158,6 @@ const SearchPage: React.FC = () => {
     currentPage * recordsPerPage
   );
 
-  const getSearchModeStyle = () => {
-    switch (searchMode) {
-      case "quick":
-        return "bg-blue-200";
-      case "detail":
-        return "bg-green-200";
-      case "pdf":
-        return "bg-yellow-200";
-      default:
-        return "";
-    }
-  };
-
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       if (searchMode === "quick") {
@@ -178,6 +169,11 @@ const SearchPage: React.FC = () => {
       }
     }
   };
+
+  // Reset hasSearched when changing search mode
+  useEffect(() => {
+    setHasSearched(false);
+  }, [searchMode]);
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-gray-50">
@@ -478,30 +474,33 @@ const SearchPage: React.FC = () => {
         )}
 
         {/* SEARCH RESULTS */}
-        <div className="bg-white rounded-lg shadow p-4 mt-4 w-full max-w-5xl"> {/* Increased max-width */}
-          <h2 className="text-lg font-semibold mb-4">Search Results</h2>
-          {loading ? (
-            <Spinner /> // Show spinner when loading
-          ) : filteredRecords.length > 0 ? (
-            <>
-              <ul>
-                {paginatedRecords.map((record) => (
-                  <li key={record.id}>
-                    <ProjectComponent project={record} />
-                  </li>
-                ))}
-              </ul>
-              <Pagination
+        {hasSearched && (
+          <div className="bg-white rounded-lg shadow p-4 mt-4 w-full max-w-5xl">
+            <h2 className="text-lg font-semibold mb-4">Search Results</h2>
+            {loading ? (
+              <Spinner />
+            ) : filteredRecords.length > 0 ? (
+              <>
+                <ul>
+                  {paginatedRecords.map((record) => (
+                    <li key={record.id}>
+                      <ProjectComponent project={record} />
+                    </li>
+                  ))}
+                </ul>
+                <Pagination
                   currentPage={currentPage}
                   totalPages={Math.ceil(filteredRecords.length / recordsPerPage)}
-                  onPageChange={handlePageChange}             />
-            </>
-          ) : (
-            <p className="text-sm text-gray-500">
-              {searchTerm ? "No records found." : "Enter a search term to see results."}
-            </p>
-          )}
-        </div>
+                  onPageChange={handlePageChange}
+                />
+              </>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500 text-lg">No Result</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
