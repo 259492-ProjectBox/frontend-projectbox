@@ -6,6 +6,7 @@ export async function POST() {
 	const cookieStore = cookies();
 	cookieStore.delete("cmuToken");
 
+	const SignOut = process.env.CMU_ENTRAID_LOGOUT_URL;
 	// Return a JSON response indicating success
-	return NextResponse.json({ ok: true });
+	return NextResponse.json({ ok: true , signOut: SignOut });
 }
