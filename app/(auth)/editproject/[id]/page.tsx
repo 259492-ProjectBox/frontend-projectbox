@@ -213,28 +213,6 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
     setFormData((prevData) => ({ ...prevData, [field]: selectedOptions }));
   };
 
-  // Function to get filtered options for each role
-  const getFilteredOptions = (role: string) => {
-    const selectedIds = new Set<number>();
-    ["advisor", "co_advisor", "committee", "external_committee"].forEach((key) => {
-      if (key !== role && formData[key]) {
-        (formData[key] as { value: number; label: string }[]).forEach((item) => {
-          selectedIds.add(item.value);
-        });
-      }
-    });
-
-    return staffList
-      .filter((staff) => !selectedIds.has(staff.id))
-      .map((staff) => {
-        const programAbbr = programs.find(p => p.id === staff.program_id)?.abbreviation || staff.program_id;
-        return {
-          value: staff.id,
-          label: `${programAbbr} / ${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
-        };
-      });
-  };
-
   const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
     fieldName: string
@@ -345,7 +323,7 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
             field
           )
         }
-        options={getFilteredOptions(field)}
+        options={optionsList}
         getOptionLabel={(e) => e.label}
         getOptionValue={(e) => e.value.toString()}
         className="w-full"
@@ -715,25 +693,25 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
             "advisor",
             "Advisor",
             true,
-            getFilteredOptions("advisor")
+            getStaffOptions(staffList)
           )}
           {renderMultiSelectField(
             "co_advisor",
             "Co-Advisor",
             false,
-            getFilteredOptions("co_advisor")
+            getStaffOptions(staffList)
           )}
           {renderMultiSelectField(
             "committee",
             "Committee Members",
             false,
-            getFilteredOptions("committee")
+            getStaffOptions(staffList)
           )}
           {renderMultiSelectField(
             "external_committee",
             "External Committee Members",
             false,
-            getFilteredOptions("external_committee")
+            getStaffOptions(staffList)
           )}
         </div>
 
