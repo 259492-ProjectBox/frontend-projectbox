@@ -4,7 +4,8 @@ import { serverGetCookie } from "../utils/helpFunction";
 import ImageCarousel from "@/components/dashboard/ImageCarousel";
 
 export default function Home() {
-  const cmuURL = process.env.NEXT_PUBLIC_CMU_ENTRAID_URL as string;
+  // const cmuURL = process.env.NEXT_PUBLIC_CMU_ENTRAID_URL as string;
+  const cmuURL = process.env.CMU_ENTRAID_URL as string;
   const token = serverGetCookie();
 
   if (token) redirect("/dashboard");
