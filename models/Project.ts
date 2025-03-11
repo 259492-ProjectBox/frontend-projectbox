@@ -80,7 +80,7 @@ export interface Project {
   course: Course;
   staffs: Employee[];
   members: Member[];
-  projectResources: ProjectResource[];
+  projectResources: ProjectResource[] | null;
   createdAt: string;
   updated_at?: string | null;
 }

@@ -92,6 +92,9 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
   const [fileErrors, setFileErrors] = useState<{ [key: string]: string }>({});
   const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB in bytes
 
+  console.log("Project:", project);
+  console.log("FormData:", formData);
+  
   useEffect(() => {
     const loadProject = async () => {
       try {
@@ -99,21 +102,23 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
         setProject(projectData);
         
         // Fetch file blobs for existing resources
-        const blobPromises = projectData.projectResources
-          .filter(resource => resource.resourceType?.id === 1) // Only file type resources
-          .map(async (resource) => {
-            if (resource.url) {
-              try {
-                const response = await fetch(resource.url);
-                const blob = await response.blob();
-                return { id: resource.id, blob };
-              } catch (error) {
-                console.error(`Error fetching blob for resource ${resource.id}:`, error);
+        const blobPromises = projectData?.projectResources
+          ? projectData.projectResources
+              .filter(resource => resource.resourceType?.id === 1) // Only file type resources
+              .map(async (resource) => {
+                if (resource.url) {
+                  try {
+                    const response = await fetch(resource.url);
+                    const blob = await response.blob();
+                    return { id: resource.id, blob };
+                  } catch (error) {
+                    console.error(`Error fetching blob for resource ${resource.id}:`, error);
+                    return null;
+                  }
+                }
                 return null;
-              }
-            }
-            return null;
-          });
+              })
+          : [];
 
         const blobs = await Promise.all(blobPromises);
         const blobMap = blobs.reduce((acc, curr) => {
@@ -163,14 +168,15 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
             })),
           ...blobMap,
         };
-
+  
         // Add existing URLs to form data
-        projectData.projectResources.forEach(resource => {
+        projectData.projectResources?.forEach(resource => {
           if (resource.resourceType?.id === 2 && resource.url) {
             initialFormData[`file_link_${resource.id || resource.title}` as keyof FormData] = resource.url;
           }
         });
-
+  
+        console.log("Initial Form Data:", initialFormData); // Debug log
         setFormData(initialFormData);
 
         // Always fetch resource configs for the program
@@ -672,7 +678,7 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
         <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
           <h6 className="text-lg font-bold mb-4">Project Details</h6>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            {renderFields(["courseNo", "section", "semester", "academicYear"])}
+          {renderFields(["courseNo", "section", "semester", "academicYear"])}
           </div>
           {renderFields(["title_en", "title_th"])}
           {renderFields(["abstract_text"])}
