@@ -66,8 +66,6 @@ useEffect(() => {
   }
 }, [hasPermission, router]);
 
-
-
   const labels: Record<string, string> = {
     course_id: "Course",
     section_id: "Section",
