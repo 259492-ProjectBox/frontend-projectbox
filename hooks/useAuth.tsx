@@ -46,7 +46,6 @@ export function useAuth() {
 				 }else{
 					 router.push("/dashboard");
 				 }
-				 router.push("/");
 				}  
 
 			);
