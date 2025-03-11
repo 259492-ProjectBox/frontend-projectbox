@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios, { AxiosError } from "axios";
 import { SignInResponse } from "@/app/api/signIn/route";
+import { useAuth } from "./useAuth";
+import { fetchUserInfo } from "@/utils/fetchUserInfo";
 
 interface OAuthCallbackState {
   isLoading: boolean;
@@ -10,6 +12,7 @@ interface OAuthCallbackState {
 }
 
 export function useOAuthCallback() {
+  const {setAuthState} = useAuth()
   const router = useRouter();
   const searchParams = useSearchParams();
   const code = searchParams ? searchParams.get("code") : null;
@@ -39,6 +42,8 @@ export function useOAuthCallback() {
         });
 
         if (response.data.ok) {
+          const user = await fetchUserInfo()
+          setAuthState(user)
           router.push("/dashboard");
         }
       } catch (error) {

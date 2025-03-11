@@ -1,11 +1,18 @@
 // utils/fetchUserInfo.ts
+'use server'
 import axios, { AxiosError } from "axios";
 import { WhoAmIResponse } from "../dtos/WhoAmIResponse";
 import { FetchUserInfoResult, UserInfo } from "../types/UserInfo";
+import { serverGetCookie } from "./helpFunction";
 
 export async function fetchUserInfo(): Promise<FetchUserInfoResult> {
+  const token = serverGetCookie();
   try {
-    const response = await axios.get<WhoAmIResponse>("/api/whoAmI");
+    const response = await axios.get<WhoAmIResponse>("http://localhost:3000/api/whoAmI", {
+      headers: {
+        Cookie: `cmuToken=${token}`,
+      },
+    });
 
     if (response.data.ok) {
       const userInfo: UserInfo = {
