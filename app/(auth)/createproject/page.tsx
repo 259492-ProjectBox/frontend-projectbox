@@ -21,6 +21,7 @@ import type { ProjectRole } from "@/models/ProjectRoles" // Import the ProjectRo
 import type { ProjectResourceConfig } from "@/models/ProjectResourceConfig"
 import getAllProgram from "@/utils/getAllProgram"
 import type { AllProgram } from "@/models/AllPrograms"
+import { createProjectCheckPermission } from "@/utils/dashboard/createProjectCheckPermission"
 
 // Types
 
@@ -31,7 +32,6 @@ interface FormConfig {
 interface FormData {
   [key: string]: string | string[] | { url: string }[] | { value: number; label: string }[] | FileList | undefined
 }
-
 const CreateProject: React.FC = () => {
   const [formConfig, setFormConfig] = useState<FormConfig>({})
   const [formData, setFormData] = useState<FormData>({})
@@ -45,9 +45,28 @@ const CreateProject: React.FC = () => {
   const [programs, setPrograms] = useState<AllProgram[]>([])
   const [fileErrors, setFileErrors] = useState<{ [key: string]: string }>({})
   const MAX_FILE_SIZE = 25 * 1024 * 1024 // 25MB in bytes
+  
+  const { user, isLoading } = useAuth();
+const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+const router = useRouter();
+const studentID = user?.studentId;
+useEffect(() => {
+  if (!isLoading && studentID !== undefined) {
+    const checkPermission = async () => {
+      const permission = await createProjectCheckPermission(studentID);
+      setHasPermission(permission);
+    };
+    checkPermission();
+  }
+}, [studentID, isLoading]); // ✅ Only depend on specific values, not entire `user` object
 
-  const { user } = useAuth() // Get user from useAuth
-  const router = useRouter() // Initialize useRouter
+useEffect(() => {
+  if (hasPermission === false) {
+    router.push("/dashboard");
+  }
+}, [hasPermission, router]);
+
+
 
   const labels: Record<string, string> = {
     course_id: "Course",
