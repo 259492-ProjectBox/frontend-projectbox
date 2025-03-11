@@ -51,17 +51,22 @@ const ConfigSubmission: React.FC = () => {
     };
 
     fetchOptions();
-  }, [user?.isAdmin , user , selectedMajor]);
+  }, [user]);
 
-  const fetchData = async () => {
-    try {
-      if (selectedMajor === 0) return setTableData([]);
-      const data = await getProjectResourceConfig(selectedMajor);
-      setTableData(data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (selectedMajor === 0) return setTableData([]);
+        const data = await getProjectResourceConfig(selectedMajor);
+        console.log("selectedMajor:", selectedMajor);
+        setTableData(data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, [selectedMajor]);
 
   useEffect(() => {
     const fetchConfig = async () => {
@@ -93,8 +98,13 @@ const ConfigSubmission: React.FC = () => {
     };
 
     fetchConfig();
-    fetchData();
   }, [selectedMajor]);
+
+  const handleMajorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newMajor = Number(e.target.value);
+    setSelectedMajor(newMajor);
+    console.log("New selectedMajor:", newMajor);
+  };
 
   const handleToggleChange = (fieldName: string) => {
     setFormData((prevData) => ({
@@ -218,7 +228,7 @@ const ConfigSubmission: React.FC = () => {
       await createProjectResource(iconFile, data);
       alert("Project resource created successfully!");
       closeModal();
-      fetchData();
+      window.location.reload(); // Force refresh the page
     } catch (error) {
       console.log(error);
       alert("Failed to create project resource. Please try again.");
@@ -251,7 +261,7 @@ const ConfigSubmission: React.FC = () => {
         await updateResourceStatus(editIconFile, updatedResource);
         alert("Resource updated successfully!");
         closeEditModal();
-        fetchData();
+        // fetchData();
       } catch (error) {
         console.log(error);
         alert("Failed to update resource. Please try again.");
@@ -277,7 +287,7 @@ const ConfigSubmission: React.FC = () => {
             <select
               id="majorSelect"
               value={selectedMajor}
-              onChange={(e) => setSelectedMajor(Number(e.target.value))}
+              onChange={handleMajorChange}
               className="mt-1.5 w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg
                        focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
             >
