@@ -65,7 +65,7 @@ const ProjectComponent = ({ project }: { project: Project }) => {
         </div>
 
         {/* Resource Icons */}
-        {user && project.projectResources?.length > 0 && (
+        {user && (project.projectResources?.length ?? 0) > 0 && (
           <div className="flex flex-wrap gap-2 mb-3">
             {project.projectResources?.map((resource) => {
               // Find matching resource config

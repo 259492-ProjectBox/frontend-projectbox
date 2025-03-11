@@ -183,7 +183,7 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
           {user && (
             <div className="px-6 py-4">
               <h3 className="text-sm font-semibold text-gray-800 mb-3">Project Resources</h3>
-              {project.projectResources?.length > 0 ? (
+              {project.projectResources && project.projectResources.length > 0 ? (
                 <div className="space-y-3">
                   {project.projectResources.map((resource) => {
                     // Find matching resource config
