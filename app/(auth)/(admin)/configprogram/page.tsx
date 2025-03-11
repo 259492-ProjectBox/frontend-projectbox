@@ -42,8 +42,10 @@ export default function ConfigProgram() {
   const [options, setOptions] = useState<AllProgram[]>([]);
 
   const [academicYears, setAcademicYears] = useState<AcademicYear[]>([]);
-  const [selectedSearchAcademicYear, setSelectedSearchAcademicYear] = useState<string>("");
-  const [selectedSearchSemester, setSelectedSearchSemester] = useState<string>("1");
+  const [selectedSearchAcademicYear, setSelectedSearchAcademicYear] =
+    useState<string>("");
+  const [selectedSearchSemester, setSelectedSearchSemester] =
+    useState<string>("1");
   const [studentListData, setStudentListData] = useState<Student[]>([]);
   const [isLoadingStudents, setIsLoadingStudents] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -53,7 +55,9 @@ export default function ConfigProgram() {
   const itemsPerPage = 10; // Number of items to show per page
 
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [confirmModalContent, setConfirmModalContent] = useState<"student" | "project">("student");
+  const [confirmModalContent, setConfirmModalContent] = useState<
+    "student" | "project"
+  >("student");
 
   useEffect(() => {
     const fetchOptions = async () => {
@@ -246,7 +250,11 @@ export default function ConfigProgram() {
   };
 
   const handleFindStudents = async () => {
-    if (!selectedMajor || !selectedSearchAcademicYear || !selectedSearchSemester) {
+    if (
+      !selectedMajor ||
+      !selectedSearchAcademicYear ||
+      !selectedSearchSemester
+    ) {
       alert("Please select all required fields");
       return;
     }
@@ -282,7 +290,10 @@ export default function ConfigProgram() {
   // Calculate pagination values
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredStudents.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = filteredStudents.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
   const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
 
   // Handle page change
@@ -311,7 +322,10 @@ export default function ConfigProgram() {
         {/* Program Selector */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
           <div className="p-5">
-            <label htmlFor="programSelect" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="programSelect"
+              className="block text-sm font-medium text-gray-700"
+            >
               Select Program
             </label>
             <select
@@ -337,37 +351,64 @@ export default function ConfigProgram() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {configData.length > 0 ? (
                 configData.map((item: ConfigProgramSetting, index) => (
-                  <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden p-4">
+                  <div
+                    key={index}
+                    className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden p-4"
+                  >
                     <h2 className="text-sm font-medium text-gray-700">
                       {toTitleCase(item.config_name)}
                     </h2>
 
                     {item.config_name === "semester" ? (
                       isEditMode ? (
-                        <select
-                          value={semester}
-                          onChange={(e) => setSemester(e.target.value)}
-                          className="mt-1.5 w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg
+                        <>
+                          <select
+                            value={semester}
+                            onChange={(e) => setSemester(e.target.value)}
+                            className="mt-1.5 w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg
                                    focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
-                        >
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3 (Summer)</option>
-                        </select>
+                          >
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3 (Summer)</option>
+                          </select>
+                          <p className="mt-1 text-xs text-gray-500">
+                            Select the current semester.
+                          </p>
+                        </>
                       ) : (
-                        <p className="mt-1 text-sm text-gray-600">{semester}</p>
+                        <>
+                          <p className="mt-1 text-sm text-gray-600">
+                            {semester}
+                          </p>
+                          <p className="mt-1 text-xs text-gray-500">
+                            Current semester.
+                          </p>
+                        </>
                       )
                     ) : item.config_name === "academic year" ? (
                       isEditMode ? (
-                        <input
-                          type="text"
-                          value={academicYear}
-                          onChange={(e) => setAcademicYear(e.target.value)}
-                          className="mt-1.5 w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg
+                        <>
+                          <input
+                            type="text"
+                            value={academicYear}
+                            onChange={(e) => setAcademicYear(e.target.value)}
+                            className="mt-1.5 w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg
                                    focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
-                        />
+                          />
+                          <p className="mt-1 text-xs text-gray-500">
+                            Enter the current academic year.
+                          </p>
+                        </>
                       ) : (
-                        <p className="mt-1 text-sm text-gray-600">{academicYear}</p>
+                        <>
+                          <p className="mt-1 text-sm text-gray-600">
+                            {academicYear}
+                          </p>
+                          <p className="mt-1 text-xs text-gray-500">
+                            Current academic year.
+                          </p>
+                        </>
                       )
                     ) : (
                       <p className="mt-1 text-sm text-gray-600">{item.value}</p>
@@ -382,23 +423,51 @@ export default function ConfigProgram() {
             </div>
 
             {/* Edit/Save Buttons */}
-            <div className="flex gap-3">
-              <button
-                onClick={() => setIsEditMode((prev) => !prev)}
-                className="px-4 py-2 text-sm font-medium text-white bg-primary_button rounded-lg
-                         hover:bg-button_hover transition-colors duration-200"
-              >
-                {isEditMode ? "Cancel" : "Edit"}
-              </button>
-              {isEditMode && (
-                <button
-                  onClick={handleSave}
-                  className="px-4 py-2 text-sm font-medium text-white bg-primary_button rounded-lg
-                           hover:bg-button_hover transition-colors duration-200"
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center text-yellow-600 bg-yellow-100 border border-yellow-400 p-3 rounded-lg">
+                <svg
+                  className="w-5 h-5 mr-2"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
                 >
-                  Save
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <span>
+  Don&apos;t forget to change the academic year and semester to the present.
+</span>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setIsEditMode((prev) => !prev)}
+                  className={`px-4 py-2 text-sm font-medium text-white rounded-lg
+        ${
+          isEditMode
+            ? "bg-red-600 hover:bg-red-700"
+            : "bg-primary_button hover:bg-button_hover"
+        }
+        transition-colors duration-200`}
+                >
+                  {isEditMode ? "Cancel" : "Edit"}
                 </button>
-              )}
+
+                {isEditMode && (
+                  <button
+                    onClick={handleSave}
+                    className="px-4 py-2 text-sm font-medium text-white bg-primary_button rounded-lg
+                 hover:bg-button_hover transition-colors duration-200"
+                  >
+                    Save
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Upload Sections */}
@@ -410,10 +479,14 @@ export default function ConfigProgram() {
                     Upload Student
                   </h3>
                   <p className="text-sm text-gray-500 mb-2">
-                    Upload a list of students to grant them permission to create projects for the current academic year and semester. This allows students to submit their own project details.
+                    Upload a list of students to grant them permission to create
+                    projects for the current academic year and semester. This
+                    allows students to submit their own project details.
                   </p>
                   <p className="text-sm text-red-500 font-medium mb-3">
-                    ⚠️ Please ensure you upload students with the correct Academic Year and Semester. Incorrect academic period may result in students being unable to access the system.
+                    ⚠️ Please ensure you upload students with the correct
+                    Academic Year and Semester. Incorrect academic period may
+                    result in students being unable to access the system.
                   </p>
                   <ExcelTemplateSection
                     title="Roster_Student_Template"
@@ -444,7 +517,8 @@ export default function ConfigProgram() {
                         />
                       </svg>
                       <p className="mb-2 text-sm text-gray-500">
-                        <span className="font-medium">Click to upload</span> or drag and drop
+                        <span className="font-medium">Click to upload</span> or
+                        drag and drop
                       </p>
                       <p className="text-xs text-gray-400">
                         .xlsx file only (MAX. 800 KB)
@@ -459,7 +533,9 @@ export default function ConfigProgram() {
                     />
                   </label>
                   {studentFile && (
-                    <p className="mt-2 text-sm text-gray-500">Selected: {studentFile.name}</p>
+                    <p className="mt-2 text-sm text-gray-500">
+                      Selected: {studentFile.name}
+                    </p>
                   )}
                   <button
                     onClick={handleSaveStudentUpload}
@@ -478,10 +554,14 @@ export default function ConfigProgram() {
                     Upload Project
                   </h3>
                   <p className="text-sm text-gray-500 mb-2">
-                    Upload projects directly as staff. Use this option to create projects on behalf of students or to import existing/old projects into the system.
+                    Upload projects directly as staff. Use this option to create
+                    projects on behalf of students or to import existing/old
+                    projects into the system.
                   </p>
                   <p className="text-sm text-red-500 font-medium mb-3">
-                    ⚠️ Please verify that the Academic Year and Semester in your project list match the intended academic period. Incorrect values may cause projects to appear in the wrong term.
+                    ⚠️ Please verify that the Academic Year and Semester in your
+                    project list match the intended academic period. Incorrect
+                    values may cause projects to appear in the wrong term.
                   </p>
                   <ExcelTemplateSection
                     title="Roster_Project_Template"
@@ -512,7 +592,8 @@ export default function ConfigProgram() {
                         />
                       </svg>
                       <p className="mb-2 text-sm text-gray-500">
-                        <span className="font-medium">Click to upload</span> or drag and drop
+                        <span className="font-medium">Click to upload</span> or
+                        drag and drop
                       </p>
                       <p className="text-xs text-gray-400">
                         .xlsx file only (MAX. 800 KB)
@@ -527,7 +608,9 @@ export default function ConfigProgram() {
                     />
                   </label>
                   {projectFile && (
-                    <p className="mt-2 text-sm text-gray-500">Selected: {projectFile.name}</p>
+                    <p className="mt-2 text-sm text-gray-500">
+                      Selected: {projectFile.name}
+                    </p>
                   )}
                   <button
                     onClick={handleSaveProjectUpload}
@@ -545,7 +628,7 @@ export default function ConfigProgram() {
               <h3 className="text-sm font-medium text-gray-700 mb-4">
                 Student List
               </h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -553,7 +636,9 @@ export default function ConfigProgram() {
                   </label>
                   <select
                     value={selectedSearchAcademicYear}
-                    onChange={(e) => setSelectedSearchAcademicYear(e.target.value)}
+                    onChange={(e) =>
+                      setSelectedSearchAcademicYear(e.target.value)
+                    }
                     className="w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg
                              focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
                   >
@@ -661,7 +746,10 @@ export default function ConfigProgram() {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500">
+                        <td
+                          colSpan={4}
+                          className="px-6 py-4 text-center text-sm text-gray-500"
+                        >
                           {studentListData.length === 0
                             ? "No students found"
                             : "No matching students found"}
@@ -687,17 +775,23 @@ export default function ConfigProgram() {
       {isConfirmModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50 animate-in fade-in duration-200">
           <div className="bg-white rounded-xl shadow-lg w-full max-w-md mx-4 p-6 animate-in zoom-in-95 duration-200">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Confirm Upload</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              Confirm Upload
+            </h2>
             <div className="text-sm text-gray-600 mb-4 space-y-2">
               <p>Are you sure you want to upload the file:</p>
               <p className="font-medium pl-2">
-                {confirmModalContent === "student" ? studentFile?.name : projectFile?.name}
+                {confirmModalContent === "student"
+                  ? studentFile?.name
+                  : projectFile?.name}
               </p>
               <p>
-                with Academic Year: <span className="font-medium text-red-600">{academicYear}</span>
+                with Academic Year:{" "}
+                <span className="font-medium text-red-600">{academicYear}</span>
               </p>
               <p>
-                and Semester: <span className="font-medium text-red-600">{semester}</span>
+                and Semester:{" "}
+                <span className="font-medium text-red-600">{semester}</span>
               </p>
             </div>
             <div className="flex justify-end gap-3 mt-6">
@@ -724,7 +818,9 @@ export default function ConfigProgram() {
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 backdrop-blur-sm z-50">
           <div className="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 p-6">
-            <h2 className="text-lg font-medium text-gray-800 mb-4">Add Asset</h2>
+            <h2 className="text-lg font-medium text-gray-800 mb-4">
+              Add Asset
+            </h2>
             <div className="flex justify-end">
               <button
                 className="px-4 py-2 text-sm font-medium text-white bg-primary_button rounded-lg
