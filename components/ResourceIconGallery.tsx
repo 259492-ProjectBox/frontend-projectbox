@@ -18,7 +18,7 @@ const icons: IconInfo[] = [
   { name: 'File', path: '/ResourceIcon/File .svg' },
   { name: 'Poster', path: '/ResourceIcon/Poster.svg' },
   { name: 'SketchUp', path: '/ResourceIcon/SketchUp.svg' },
-  { name: 'PDF', path: '/ResourceIcon/PDF.svg' },
+  { name: 'PDF', path: '/ResourceIcon/Pdf.svg' },
   { name: 'URL', path: '/ResourceIcon/Url.svg' },
   { name: 'Picture', path: '/ResourceIcon/Picture.svg' },
   { name: 'PowerPoint', path: '/ResourceIcon/PowerPoint.svg' },
