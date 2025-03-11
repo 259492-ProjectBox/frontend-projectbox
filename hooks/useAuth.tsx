@@ -32,21 +32,21 @@ export function useAuth() {
 	
 	// Function to sign out the user
 	const signOut = async () => {
-		// const SignOut = process.env.CMU_ENTRAID_LOGOUT_URL;
 		try {
 			await axios.post("/api/signOut").then((response) => {
 				if(response.data.ok) {
 					const SignOut = response.data.signOut;
-					console.log("SignOut",SignOut);
 					
 					if (SignOut) { 
 						// window.location.href = SignOut;
 						setAuthState({ user: null, isLoading: false, error: null });
+
 						router.push(SignOut);
 					}
 				 }else{
 					 router.push("/dashboard");
 				 }
+				 router.push("/");
 				}  
 
 			);
