@@ -209,6 +209,28 @@ const CreateProject: React.FC = () => {
   };
   
 
+// Function to get filtered options for each role
+const getFilteredOptions = (role: string) => {
+  const selectedIds = new Set<number>();
+  ["advisor", "co_advisor", "committee", "external_committee"].forEach((key) => {
+    if (key !== role && formData[key]) {
+      (formData[key] as { value: number; label: string }[]).forEach((item) => {
+        selectedIds.add(item.value);
+      });
+    }
+  });
+
+  return staffList
+    .filter((staff) => !selectedIds.has(staff.id))
+    .map((staff) => {
+      const programAbbr = programs.find(p => p.id === staff.program_id)?.abbreviation || staff.program_id;
+      return {
+        value: staff.id,
+        label: `${programAbbr} / ${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
+      };
+    });
+};
+
   const renderInputField = (
     field: string,
     label: string,
@@ -292,16 +314,16 @@ const CreateProject: React.FC = () => {
         <Select
           isMulti
           name={field}
-          value={(formData[field] as { value: number; label: string }[]) || []} // Ensure proper type assertion
+          value={(formData[field] as { value: number; label: string }[]) || []}
           onChange={(selectedOptions) =>
             handleMultiSelectChange(
               selectedOptions as { value: number; label: string }[],
               field
             )
           }
-          options={optionsList}
-          getOptionLabel={(e) => e.label} // Ensure the correct label is displayed
-          getOptionValue={(e) => e.value.toString()} // Convert value to string if needed
+          options={getFilteredOptions(field)}
+          getOptionLabel={(e) => e.label}
+          getOptionValue={(e) => e.value.toString()}
           className="w-full"
         />
       </div>
@@ -561,25 +583,25 @@ const CreateProject: React.FC = () => {
             "advisor",
             "Advisor",
             true,
-            getStaffOptions(staffList)
+            getFilteredOptions("advisor")
           )}
           {renderMultiSelectField(
             "co_advisor",
             "Co-Advisor",
             false,
-            getStaffOptions(staffList)
+            getFilteredOptions("co_advisor")
           )}
           {renderMultiSelectField(
             "committee",
             "Committee Members",
             false,
-            getStaffOptions(staffList)
+            getFilteredOptions("committee")
           )}
           {renderMultiSelectField(
             "external_committee",
             "External Committee Members",
             false,
-            getStaffOptions(staffList)
+            getFilteredOptions("external_committee")
           )}
         </div>
         <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
