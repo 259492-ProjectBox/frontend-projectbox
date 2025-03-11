@@ -23,22 +23,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const router = useRouter();
 
-  // Function to fetch the user info and set the auth state
-  const fetchAuthUser = async () => {
-    setAuthState((prev) => ({ ...prev, isLoading: true }));
-    const response = await fetchUserInfo();
-    
-    if ("errorMessage" in response) {
-      setAuthState({
-        user: null,
-        isLoading: false,
-        error: response.error,
-      });
-    } else {
-      setAuthState({ user: response.user, isLoading: false, error: null });
-    }
-  };
-  
+  useEffect(() => {
+    const fetchUser = async () => {
+      const user = await fetchUserInfo();
+      setAuthState(user);
+    };
+    fetchUser();
+  }, []);
+
+
   // Function to sign out the user
   const signOut = async () => {
     try {
