@@ -10,7 +10,6 @@ import { updateConfigProgram } from "@/utils/configprogram/putConfigProgram";
 import { uploadStudentList } from "@/utils/configprogram/uploadstudentlist";
 import { uploadCreateProject } from "@/utils/configprogram/uploadcreateproject";
 import ExcelTemplateSection from "@/components/ExcelTemplateSection";
-import axios from "axios";
 import { getAcademicYears } from "@/utils/configprogram/getAcademicYears";
 import { getStudentsByProgram } from "@/utils/configprogram/getStudentsListByProgram";
 import { AcademicYear } from "@/models/AcademicYear";
@@ -52,6 +51,9 @@ export default function ConfigProgram() {
   // Add pagination states
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 10; // Number of items to show per page
+
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [confirmModalContent, setConfirmModalContent] = useState<"student" | "project">("student");
 
   useEffect(() => {
     const fetchOptions = async () => {
@@ -198,15 +200,8 @@ export default function ConfigProgram() {
   // Handler for saving the uploaded student file
   const handleSaveStudentUpload = async () => {
     if (studentFile) {
-      try {
-        const response = await uploadStudentList(studentFile, selectedMajor);
-        console.log("Student file uploaded successfully:", response);
-        alert("Student file uploaded successfully!");
-        setStudentFile(null); // Clear the file input
-      } catch (error) {
-        console.error("Error uploading student file:", error);
-        alert("Failed to upload student file.");
-      }
+      setConfirmModalContent("student");
+      setIsConfirmModalOpen(true);
     } else {
       console.log("No student file selected for upload.");
       alert("No student file selected for upload.");
@@ -216,23 +211,31 @@ export default function ConfigProgram() {
   // Handler for saving the uploaded project file
   const handleSaveProjectUpload = async () => {
     if (projectFile) {
-      try {
+      setConfirmModalContent("project");
+      setIsConfirmModalOpen(true);
+    } else {
+      console.log("No project file selected for upload.");
+      alert("No project file selected for upload.");
+    }
+  };
+
+  const handleConfirmUpload = async () => {
+    setIsConfirmModalOpen(false);
+    try {
+      if (confirmModalContent === "student" && studentFile) {
+        const response = await uploadStudentList(studentFile, selectedMajor);
+        console.log("Student file uploaded successfully:", response);
+        alert("Student file uploaded successfully!");
+        setStudentFile(null); // Clear the file input
+      } else if (confirmModalContent === "project" && projectFile) {
         const response = await uploadCreateProject(projectFile, selectedMajor);
         console.log("Project file uploaded successfully:", response);
         alert("Project file uploaded successfully!");
         setProjectFile(null); // Clear the file input
-      } catch (error) {
-        if (axios.isAxiosError(error) && error.response) {
-          console.error("Error uploading project file:", error.response.data);
-          alert("Failed to upload project file: " + error.response.data.error);
-        } else {
-          console.error("Error uploading project file:", error);
-          alert("Failed to upload project file.");
-        }
       }
-    } else {
-      console.log("No project file selected for upload.");
-      alert("No project file selected for upload.");
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      alert("Failed to upload file.");
     }
   };
 
@@ -673,6 +676,43 @@ export default function ConfigProgram() {
           </div>
         )}
       </div>
+
+      {/* Confirm Modal */}
+      {isConfirmModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50 animate-in fade-in duration-200">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-md mx-4 p-6 animate-in zoom-in-95 duration-200">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Confirm Upload</h2>
+            <div className="text-sm text-gray-600 mb-4 space-y-2">
+              <p>Are you sure you want to upload the file:</p>
+              <p className="font-medium pl-2">
+                {confirmModalContent === "student" ? studentFile?.name : projectFile?.name}
+              </p>
+              <p>
+                with Academic Year: <span className="font-medium text-red-600">{academicYear}</span>
+              </p>
+              <p>
+                and Semester: <span className="font-medium text-red-600">{semester}</span>
+              </p>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg
+                         hover:bg-gray-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                onClick={() => setIsConfirmModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg
+                         hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onClick={handleConfirmUpload}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal */}
       {isModalOpen && (
