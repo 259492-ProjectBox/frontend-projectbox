@@ -18,6 +18,7 @@ import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceC
 import EditIcon from "@mui/icons-material/Edit"
 import getAllProgram from "@/utils/getAllProgram"
 import type { AllProgram } from "@/models/AllPrograms"
+import { useAuth } from "@/hooks/useAuth"
 
 interface EditProjectPageProps {
   params: {
@@ -89,15 +90,21 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
   const [fileBlobs, setFileBlobs] = useState<{ [key: string]: Blob }>({})
   const [fileErrors, setFileErrors] = useState<{ [key: string]: string }>({})
   const MAX_FILE_SIZE = 25 * 1024 * 1024 // 25MB in bytes
-
-  console.log("Project:", project)
-  console.log("FormData:", formData)
+  const [isDisabled, setIsDisabled] = useState(true); // Add state for isDisabled
+  const user = useAuth();
 
   useEffect(() => {
     const loadProject = async () => {
       try {
         const projectData = await getProjectById(Number.parseInt(id)) // Fetch project by ID
         setProject(projectData)
+
+        // Check if the idAdmin has the same program ID as the project
+        if (user.user?.isAdmin?.includes(projectData.program.id)) {
+          setIsDisabled(false);
+        } else {
+          setIsDisabled(true);
+        }
 
         // Fetch file blobs for existing resources
         const blobPromises = projectData?.projectResources
@@ -204,7 +211,7 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
     }
 
     loadProject()
-  }, [id])
+  }, [id, user.user?.isAdmin])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -327,6 +334,7 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
           getOptionLabel={(e) => e.label}
           getOptionValue={(e) => e.value.toString()}
           className="w-full"
+          isDisabled={isDisabled} // Set isDisabled based on the state
         />
       </div>
     )
