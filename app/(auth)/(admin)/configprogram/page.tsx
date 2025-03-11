@@ -129,6 +129,12 @@ export default function ConfigProgram() {
 
   // Handler for saving changes in edit mode
   const handleSave = async () => {
+    // Validate academic year
+    if (!/^\d+$/.test(academicYear) || parseInt(academicYear) <= 0) {
+      alert("Academic year must be a positive number.");
+      return;
+    }
+
     try {
       const academicYearConfig = configData.find(
         (item) => item.config_name === "academic year"
