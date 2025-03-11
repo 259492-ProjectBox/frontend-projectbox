@@ -48,6 +48,7 @@ export default function ConfigAdvisorPage() {
 
   const [currentPage, setCurrentPage] = useState<number>(1); // Current page state
   const itemsPerPage = 10; // Items per page
+  const [filter, setFilter] = useState<string>(""); // State for filter input
 
   useEffect(() => {
     const fetchOptions = async () => {
@@ -228,13 +229,18 @@ export default function ConfigAdvisorPage() {
     window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top
   };
 
+  // Filter advisors based on filter input
+  const filteredAdvisors = (advisors || []).filter((advisor) =>
+    `${advisor.prefix_en} ${advisor.first_name_en} ${advisor.last_name_en} ${advisor.email}`
+      .toLowerCase()
+      .includes(filter.toLowerCase())
+  );
+
   // Calculate the current page's advisors
-  const currentAdvisors = advisors
-    ? advisors.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-      )
-    : [];
+  const currentAdvisors = filteredAdvisors.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   // Display loading or error states
   if (loading) return <Spinner />;
@@ -300,6 +306,14 @@ export default function ConfigAdvisorPage() {
                 </button>
               </div>
             </div>
+
+            <input
+              type="text"
+              placeholder="Filter by name or email"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="mb-4 w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
+            />
 
             {/* Table of Advisors */}
             {loading ? (
