@@ -82,7 +82,7 @@ useEffect(() => {
     upload_section: "Upload Section",
   }
 
-  const requiredFields: string[] = ["course_id", "title_en", "title_th", "student", "advisor", "upload_section"]
+  const requiredFields: string[] = ["course_id", "title_en", "title_th", "student", "advisor"]
 
   // Fetch data on mount
   useEffect(() => {
@@ -103,10 +103,17 @@ useEffect(() => {
           setFormConfig(activeFields)
 
           const projectResourceConfigs = await getProjectResourceConfig(data.program_id) // Use program ID from student data
+          if (projectResourceConfigs && projectResourceConfigs.length > 0) {
           setFormConfig((prevConfig) => ({
-            ...prevConfig,
-            upload_section: projectResourceConfigs,
+              ...prevConfig,
+              upload_section: projectResourceConfigs,
           }))
+          } else {
+            setFormConfig((prevConfig) => ({
+              ...prevConfig,
+              upload_section: [], // Handle null or empty array case
+            }))
+          }
 
           const employees = await getAllEmployees()
           const allPrograms = await getAllProgram()
