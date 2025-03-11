@@ -385,8 +385,9 @@ export default function ConfigProgram() {
             <div className="flex gap-3">
               <button
                 onClick={() => setIsEditMode((prev) => !prev)}
-                className="px-4 py-2 text-sm font-medium text-white bg-primary_button rounded-lg
-                         hover:bg-button_hover transition-colors duration-200"
+                className={`px-4 py-2 text-sm font-medium text-white rounded-lg
+    ${isEditMode ? "bg-red-600 hover:bg-red-700" : "bg-primary_button hover:bg-button_hover"}
+    transition-colors duration-200`}
               >
                 {isEditMode ? "Cancel" : "Edit"}
               </button>
