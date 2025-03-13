@@ -36,6 +36,13 @@ export default function FlowbiteNavbar({
     };
   }, []);
 
+  // Auto-select the only option if there is only one
+  useEffect(() => {
+    if (options.length === 1) {
+      setSelectedMajor(options[0].id);
+    }
+  }, [options, setSelectedMajor]);
+
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
@@ -86,6 +93,7 @@ export default function FlowbiteNavbar({
                   value={selectedMajor}
                   onChange={handleMajorChange}
                   className="px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
+                  disabled={options.length === 2}
                 >
                   {options.map((option) => (
                     <option key={option.id} value={option.id}>
