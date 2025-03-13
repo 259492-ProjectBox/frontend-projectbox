@@ -1,474 +1,387 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import Spinner from "@/components/Spinner";
-import { ConfigProgramSetting } from "@/models/ConfigProgram";
-import { getConfigProgram } from "@/utils/configprogram/configProgram";
-import { AllProgram } from "@/models/AllPrograms";
-import { getProgramOptions } from "@/utils/programHelpers";
-import { useAuth } from "@/hooks/useAuth";
-import { updateConfigProgram } from "@/utils/configprogram/putConfigProgram";
-import { uploadStudentList } from "@/utils/configprogram/uploadstudentlist";
-import { uploadCreateProject } from "@/utils/configprogram/uploadcreateproject";
-import ExcelTemplateSection from "@/components/ExcelTemplateSection";
-import { getAcademicYears } from "@/utils/configprogram/getAcademicYears";
-import { getStudentsByProgram } from "@/utils/configprogram/getStudentsListByProgram";
-import { AcademicYear } from "@/models/AcademicYear";
-import { Student } from "@/models/Student";
-import Pagination from "@/components/Pagination";
+"use client"
+import type React from "react"
+import { useEffect, useState } from "react"
+import NoProgramSelected from "@/components/NoProgramSelected"
+import Spinner from "@/components/Spinner"
+import type { ConfigProgramSetting } from "@/models/ConfigProgram"
+import { getConfigProgram } from "@/utils/configprogram/configProgram"
+import { updateConfigProgram } from "@/utils/configprogram/putConfigProgram"
+import { uploadStudentList } from "@/utils/configprogram/uploadstudentlist"
+import { uploadCreateProject } from "@/utils/configprogram/uploadcreateproject"
+import { getAcademicYears } from "@/utils/configprogram/getAcademicYears"
+import { getStudentsByProgram } from "@/utils/configprogram/getStudentsListByProgram"
+import type { AcademicYear } from "@/models/AcademicYear"
+import type { Student } from "@/models/Student"
+import { useProgram } from "@/context/ProgramContext"
+import ExcelTemplateSection from "@/components/ExcelTemplateSection"
+import Pagination from "@/components/Pagination"
 
 // Function to convert string to title case
 const toTitleCase = (str: string) => {
-  return str.replace(/\b\w/g, (char) => char.toUpperCase());
-};
+  return str.replace(/\b\w/g, (char) => char.toUpperCase())
+}
 
 export default function ConfigProgram() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
+  const { selectedMajor } = useProgram()
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isEditMode, setIsEditMode] = useState(false)
 
   // Local states for semester & academic year
-  const [semester, setSemester] = useState<string>("");
-  const [academicYear, setAcademicYear] = useState<string>("");
+  const [semester, setSemester] = useState<string>("")
+  const [academicYear, setAcademicYear] = useState<string>("")
 
   // Program data
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   // File Upload states - separate for student and project
-  const [studentFile, setStudentFile] = useState<File | null>(null);
-  const [projectFile, setProjectFile] = useState<File | null>(null);
+  const [studentFile, setStudentFile] = useState<File | null>(null)
+  const [projectFile, setProjectFile] = useState<File | null>(null)
 
-  const { user } = useAuth();
-  const [selectedMajor, setSelectedMajor] = useState<number>(0);
-  const [options, setOptions] = useState<AllProgram[]>([]);
-
-  const [academicYears, setAcademicYears] = useState<AcademicYear[]>([]);
-  const [selectedSearchAcademicYear, setSelectedSearchAcademicYear] =
-    useState<string>("");
-  const [selectedSearchSemester, setSelectedSearchSemester] =
-    useState<string>("1");
-  const [studentListData, setStudentListData] = useState<Student[]>([]);
-  const [isLoadingStudents, setIsLoadingStudents] = useState(false);
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [academicYears, setAcademicYears] = useState<AcademicYear[]>([])
+  const [selectedSearchAcademicYear, setSelectedSearchAcademicYear] = useState<string>("")
+  const [selectedSearchSemester, setSelectedSearchSemester] = useState<string>("1")
+  const [studentListData, setStudentListData] = useState<Student[]>([])
+  const [isLoadingStudents, setIsLoadingStudents] = useState(false)
+  const [searchQuery, setSearchQuery] = useState<string>("")
 
   // Add pagination states
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage = 10; // Number of items to show per page
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const itemsPerPage = 10 // Number of items to show per page
 
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [confirmModalContent, setConfirmModalContent] = useState<
-    "student" | "project"
-  >("student");
-
-  useEffect(() => {
-    const fetchOptions = async () => {
-      if (!user) return;
-      setLoading(true);
-      try {
-        const programOptions = await getProgramOptions(user.isAdmin);
-        setOptions(programOptions);
-
-        // Ensure selectedMajor is in options; otherwise, reset to default (0)
-        if (!programOptions.some((option) => option.id === selectedMajor)) {
-          setSelectedMajor(0);
-        }
-      } catch (err) {
-        console.error("Error fetching program options:", err);
-        setError("Failed to load program options.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOptions();
-  }, [user, selectedMajor]); // Re-fetch when `user` or `selectedMajor` changes
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
+  const [confirmModalContent, setConfirmModalContent] = useState<"student" | "project">("student")
 
   // Fetch configuration data for selected program
-  const [configData, setConfigData] = useState<ConfigProgramSetting[]>([]);
+  const [configData, setConfigData] = useState<ConfigProgramSetting[]>([])
   useEffect(() => {
-    if (selectedMajor === 0) return; // Skip if no program is selected
+    if (selectedMajor === 0) {
+      setLoading(false)
+      return // Skip if no program is selected
+    }
 
     const loadData = async () => {
-      setLoading(true);
+      setLoading(true)
       try {
-        const data = await getConfigProgram(selectedMajor);
+        const data = await getConfigProgram(selectedMajor)
         // console.log("Data Config:", data);
 
         if (!Array.isArray(data)) {
-          throw new Error("Unexpected response format");
+          throw new Error("Unexpected response format")
         }
-        setConfigData(data);
+        setConfigData(data)
 
         // Set semester and academic year from fetched data
-        const semesterConfig = data.find(
-          (item) => item.config_name === "semester"
-        );
-        const academicYearConfig = data.find(
-          (item) => item.config_name === "academic year"
-        );
-        if (semesterConfig) setSemester(semesterConfig.value);
-        if (academicYearConfig) setAcademicYear(academicYearConfig.value);
+        const semesterConfig = data.find((item) => item.config_name === "semester")
+        const academicYearConfig = data.find((item) => item.config_name === "academic year")
+        if (semesterConfig) setSemester(semesterConfig.value)
+        if (academicYearConfig) setAcademicYear(academicYearConfig.value)
       } catch (err) {
-        console.error("Error fetching config:", err);
-        setError("Failed to load configurations.");
+        console.error("Error fetching config:", err)
+        setError("Failed to load configurations.")
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    loadData();
-  }, [selectedMajor]);
+    loadData()
+  }, [selectedMajor])
 
   useEffect(() => {
     const fetchAcademicYears = async () => {
       try {
-        const years = await getAcademicYears();
-        setAcademicYears(years);
+        const years = await getAcademicYears()
+        setAcademicYears(years)
       } catch (error) {
-        console.error("Error fetching academic years:", error);
+        console.error("Error fetching academic years:", error)
       }
-    };
+    }
 
-    fetchAcademicYears();
-  }, []);
+    fetchAcademicYears()
+  }, [])
 
   // Handler for saving changes in edit mode
   const handleSave = async () => {
     // Validate academic year
-    if (!/^\d+$/.test(academicYear) || parseInt(academicYear) <= 0) {
-      alert("Academic year must be a positive number.");
-      return;
+    if (!/^\d+$/.test(academicYear) || Number.parseInt(academicYear) <= 0) {
+      alert("Academic year must be a positive number.")
+      return
     }
 
     try {
-      const academicYearConfig = configData.find(
-        (item) => item.config_name === "academic year"
-      );
-      const semesterConfig = configData.find(
-        (item) => item.config_name === "semester"
-      );
+      const academicYearConfig = configData.find((item) => item.config_name === "academic year")
+      const semesterConfig = configData.find((item) => item.config_name === "semester")
 
       if (academicYearConfig) {
         await updateConfigProgram({
           ...academicYearConfig,
           value: academicYear,
-        });
+        })
       }
 
       if (semesterConfig) {
         await updateConfigProgram({
           ...semesterConfig,
           value: semester,
-        });
+        })
       }
 
       // console.log("Saved values - Academic Year:", academicYear, "Semester:", semester);
-      alert("Update successful!");
-      setIsEditMode(false); // Turn off edit mode
+      alert("Update successful!")
+      setIsEditMode(false) // Turn off edit mode
     } catch (error) {
-      console.error("Error saving config:", error);
-      setError("Failed to save configurations.");
-      alert("Update failed!");
+      console.error("Error saving config:", error)
+      setError("Failed to save configurations.")
+      alert("Update failed!")
     }
-  };
+  }
 
   // Handler for student file upload
   const handleStudentFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const selectedFile = e.target.files[0];
+      const selectedFile = e.target.files[0]
       const allowedTypes = [
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         "application/vnd.ms-excel",
-      ];
+      ]
 
       if (!allowedTypes.includes(selectedFile.type)) {
-        alert("Please upload an Excel file.");
-        return;
+        alert("Please upload an Excel file.")
+        return
       }
 
-      setStudentFile(selectedFile);
+      setStudentFile(selectedFile)
     }
-  };
+  }
 
   // Handler for project file upload
   const handleProjectFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const selectedFile = e.target.files[0];
+      const selectedFile = e.target.files[0]
       const allowedTypes = [
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         "application/vnd.ms-excel",
-      ];
+      ]
 
       if (!allowedTypes.includes(selectedFile.type)) {
-        alert("Please upload an Excel file.");
-        return;
+        alert("Please upload an Excel file.")
+        return
       }
 
-      setProjectFile(selectedFile);
+      setProjectFile(selectedFile)
     }
-  };
+  }
 
   // Handler for saving the uploaded student file
   const handleSaveStudentUpload = async () => {
     if (studentFile) {
-      setConfirmModalContent("student");
-      setIsConfirmModalOpen(true);
+      setConfirmModalContent("student")
+      setIsConfirmModalOpen(true)
     } else {
-      console.log("No student file selected for upload.");
-      alert("No student file selected for upload.");
+      console.log("No student file selected for upload.")
+      alert("No student file selected for upload.")
     }
-  };
+  }
 
   // Handler for saving the uploaded project file
   const handleSaveProjectUpload = async () => {
     if (projectFile) {
-      setConfirmModalContent("project");
-      setIsConfirmModalOpen(true);
+      setConfirmModalContent("project")
+      setIsConfirmModalOpen(true)
     } else {
-      console.log("No project file selected for upload.");
-      alert("No project file selected for upload.");
+      console.log("No project file selected for upload.")
+      alert("No project file selected for upload.")
     }
-  };
+  }
 
   const handleConfirmUpload = async () => {
-    setIsConfirmModalOpen(false);
+    setIsConfirmModalOpen(false)
     try {
       if (confirmModalContent === "student" && studentFile) {
-        const response = await uploadStudentList(studentFile, selectedMajor);
-        console.log("Student file uploaded successfully:", response);
-        alert("Student file uploaded successfully!");
-        setStudentFile(null); // Clear the file input
+        const response = await uploadStudentList(studentFile, selectedMajor)
+        console.log("Student file uploaded successfully:", response)
+        alert("Student file uploaded successfully!")
+        setStudentFile(null) // Clear the file input
       } else if (confirmModalContent === "project" && projectFile) {
-        const response = await uploadCreateProject(projectFile, selectedMajor);
-        console.log("Project file uploaded successfully:", response);
-        alert("Project file uploaded successfully!");
-        setProjectFile(null); // Clear the file input
+        const response = await uploadCreateProject(projectFile, selectedMajor)
+        console.log("Project file uploaded successfully:", response)
+        alert("Project file uploaded successfully!")
+        setProjectFile(null) // Clear the file input
       }
     } catch (error) {
-      console.error("Error uploading file:", error);
-      alert("Failed to upload file.");
+      console.error("Error uploading file:", error)
+      alert("Failed to upload file.")
     }
-  };
+  }
 
   const handleFindStudents = async () => {
-    if (
-      !selectedMajor ||
-      !selectedSearchAcademicYear ||
-      !selectedSearchSemester
-    ) {
-      alert("Please select all required fields");
-      return;
+    if (!selectedMajor || !selectedSearchAcademicYear || !selectedSearchSemester) {
+      alert("Please select all required fields")
+      return
     }
 
-    setIsLoadingStudents(true);
+    setIsLoadingStudents(true)
     try {
       const students = await getStudentsByProgram(
         selectedMajor,
-        parseInt(selectedSearchAcademicYear),
-        parseInt(selectedSearchSemester)
-      );
-      setStudentListData(students);
+        Number.parseInt(selectedSearchAcademicYear),
+        Number.parseInt(selectedSearchSemester),
+      )
+      setStudentListData(students)
     } catch (error) {
-      console.error("Error fetching students:", error);
-      alert("Failed to fetch students");
+      console.error("Error fetching students:", error)
+      alert("Failed to fetch students")
     } finally {
-      setIsLoadingStudents(false);
+      setIsLoadingStudents(false)
     }
-  };
+  }
 
   // Add this new function to filter students
   const filteredStudents = studentListData.filter((student) => {
-    const query = searchQuery.toLowerCase();
+    const query = searchQuery.toLowerCase()
     return (
       student.student_id.toLowerCase().includes(query) ||
       student.first_name.toLowerCase().includes(query) ||
       student.last_name.toLowerCase().includes(query) ||
       // student.email.toLowerCase().includes(query) ||
-      student.sec_lab.toLowerCase().includes(query)
-    );
-  });
+      student.sec_lab
+        .toLowerCase()
+        .includes(query)
+    )
+  })
 
   // Calculate pagination values
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredStudents.slice(
-    indexOfFirstItem,
-    indexOfLastItem
-  );
-  const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage
+  const currentItems = filteredStudents.slice(indexOfFirstItem, indexOfLastItem)
+  const totalPages = Math.ceil(filteredStudents.length / itemsPerPage)
 
   // Handle page change
   const handlePageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
-  };
+    setCurrentPage(pageNumber)
+  }
 
   // Reset to first page when search query changes
   useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery]);
+    setCurrentPage(1)
+  }, [searchQuery])
 
   // Show loading or error
-  if (loading) return <Spinner />;
+  if (loading) return <Spinner />
   if (error) {
     return (
       <div className="min-h-screen p-4 bg-gray-100 flex items-center justify-center">
         <p className="text-red-600">{error}</p>
       </div>
-    );
+    )
+  }
+
+  // If no program is selected, show the NoProgramSelected component
+  if (selectedMajor === 0) {
+    return <NoProgramSelected />
   }
 
   return (
     <div className="min-h-screen bg-gray-50/50 py-8">
       <div className="max-w-5xl mx-auto px-4">
-        {/* Program Selector */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
-          <div className="p-5">
-            <label
-              htmlFor="programSelect"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Select Program
-            </label>
-            <select
-              id="programSelect"
-              value={selectedMajor}
-              onChange={(e) => setSelectedMajor(Number(e.target.value))}
-              className="mt-1.5 w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg
-                       focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
-            >
-              {options.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.program_name_en}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+        <div className="space-y-4">
+          {/* Config Data Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {configData.length > 0 ? (
+              configData.map((item: ConfigProgramSetting, index) => (
+                <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden p-4">
+                  <h2 className="text-sm font-medium text-gray-700">{toTitleCase(item.config_name)}</h2>
 
-        {/* Hide content if no program is selected */}
-        {selectedMajor !== 0 && (
-          <div className="space-y-4">
-            {/* Config Data Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {configData.length > 0 ? (
-                configData.map((item: ConfigProgramSetting, index) => (
-                  <div
-                    key={index}
-                    className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden p-4"
-                  >
-                    <h2 className="text-sm font-medium text-gray-700">
-                      {toTitleCase(item.config_name)}
-                    </h2>
-
-                    {item.config_name === "semester" ? (
-                      isEditMode ? (
-                        <>
-                          <select
-                            value={semester}
-                            onChange={(e) => setSemester(e.target.value)}
-                            className="mt-1.5 w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg
-                                   focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
-                          >
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3 (Summer)</option>
-                          </select>
-                          <p className="mt-1 text-xs text-gray-500">
-                            Select the current semester.
-                          </p>
-                        </>
-                      ) : (
-                        <>
-                          <p className="mt-1 text-sm text-gray-600">
-                            {semester}
-                          </p>
-                          <p className="mt-1 text-xs text-gray-500">
-                            Current semester.
-                          </p>
-                        </>
-                      )
-                    ) : item.config_name === "academic year" ? (
-                      isEditMode ? (
-                        <>
-                          <input
-                            type="text"
-                            value={academicYear}
-                            onChange={(e) => setAcademicYear(e.target.value)}
-                            className="mt-1.5 w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg
-                                   focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
-                          />
-                          <p className="mt-1 text-xs text-gray-500">
-                            Enter the current academic year.
-                          </p>
-                        </>
-                      ) : (
-                        <>
-                          <p className="mt-1 text-sm text-gray-600">
-                            {academicYear}
-                          </p>
-                          <p className="mt-1 text-xs text-gray-500">
-                            Current academic year.
-                          </p>
-                        </>
-                      )
+                  {item.config_name === "semester" ? (
+                    isEditMode ? (
+                      <>
+                        <select
+                          value={semester}
+                          onChange={(e) => setSemester(e.target.value)}
+                          className="mt-1.5 w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg
+                                 focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
+                        >
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3 (Summer)</option>
+                        </select>
+                        <p className="mt-1 text-xs text-gray-500">Select the current semester.</p>
+                      </>
                     ) : (
-                      <p className="mt-1 text-sm text-gray-600">{item.value}</p>
-                    )}
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-gray-500">
-                  No configuration data found for this program.
-                </p>
+                      <>
+                        <p className="mt-1 text-sm text-gray-600">{semester}</p>
+                        <p className="mt-1 text-xs text-gray-500">Current semester.</p>
+                      </>
+                    )
+                  ) : item.config_name === "academic year" ? (
+                    isEditMode ? (
+                      <>
+                        <input
+                          type="text"
+                          value={academicYear}
+                          onChange={(e) => setAcademicYear(e.target.value)}
+                          className="mt-1.5 w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg
+                                 focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
+                        />
+                        <p className="mt-1 text-xs text-gray-500">Enter the current academic year.</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="mt-1 text-sm text-gray-600">{academicYear}</p>
+                        <p className="mt-1 text-xs text-gray-500">Current academic year.</p>
+                      </>
+                    )
+                  ) : (
+                    <p className="mt-1 text-sm text-gray-600">{item.value}</p>
+                  )}
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-gray-500">No configuration data found for this program.</p>
+            )}
+          </div>
+
+          {/* Edit/Save Buttons */}
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center text-yellow-600 bg-yellow-100 border border-yellow-400 p-3 rounded-lg">
+              <svg
+                className="w-5 h-5 mr-2"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span>Don&apos;t forget to change the academic year and semester to the present.</span>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setIsEditMode((prev) => !prev)}
+                className={`px-4 py-2 text-sm font-medium text-white rounded-lg
+                ${isEditMode ? "bg-red-600 hover:bg-red-700" : "bg-primary_button hover:bg-button_hover"}
+                transition-colors duration-200`}
+              >
+                {isEditMode ? "Cancel" : "Edit"}
+              </button>
+
+              {isEditMode && (
+                <button
+                  onClick={handleSave}
+                  className="px-4 py-2 text-sm font-medium text-white bg-primary_button rounded-lg
+                 hover:bg-button_hover transition-colors duration-200"
+                >
+                  Save
+                </button>
               )}
             </div>
-
-            {/* Edit/Save Buttons */}
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center text-yellow-600 bg-yellow-100 border border-yellow-400 p-3 rounded-lg">
-                <svg
-                  className="w-5 h-5 mr-2"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <span>
-  Don&apos;t forget to change the academic year and semester to the present.
-</span>
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setIsEditMode((prev) => !prev)}
-                  className={`px-4 py-2 text-sm font-medium text-white rounded-lg
-        ${
-          isEditMode
-            ? "bg-red-600 hover:bg-red-700"
-            : "bg-primary_button hover:bg-button_hover"
-        }
-        transition-colors duration-200`}
-                >
-                  {isEditMode ? "Cancel" : "Edit"}
-                </button>
-
-                {isEditMode && (
-                  <button
-                    onClick={handleSave}
-                    className="px-4 py-2 text-sm font-medium text-white bg-primary_button rounded-lg
-                 hover:bg-button_hover transition-colors duration-200"
-                  >
-                    Save
-                  </button>
-                )}
-              </div>
-            </div>
+          </div>
 
             {/* Upload Sections */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -768,7 +681,6 @@ export default function ConfigProgram() {
               </div>
             </div>
           </div>
-        )}
       </div>
 
       {/* Confirm Modal */}

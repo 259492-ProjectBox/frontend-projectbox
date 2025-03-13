@@ -1,99 +1,114 @@
-"use client";
+"use client"
 
-import React, { useState, useEffect } from "react";
-import getEmployeeByMajorId from "@/utils/advisorstats/getEmployeebyProgramId";
-import { Advisor } from "@/models/Advisor"; // Import the Advisor interface
-import Spinner from "@/components/Spinner"; // Import the Spinner component
-import Link from "next/link"; // Import Link for navigation
-import getAllProgram from "@/utils/getAllProgram";
-import { AllProgram } from "@/models/AllPrograms";
-import { getAllEmployeesNew } from "@/utils/advisorstats/getAllEmployee"; // Import the getAllEmployees function
-import Avatar from "@/components/Avatar";
-import Pagination from "@/components/Pagination"; // Import Pagination component
+import type React from "react"
+import { useState, useEffect } from "react"
+import getEmployeeByMajorId from "@/utils/advisorstats/getEmployeebyProgramId"
+import type { Advisor } from "@/models/Advisor" // Import the Advisor interface
+import Spinner from "@/components/Spinner" // Import the Spinner component
+import Link from "next/link" // Import Link for navigation
+import getAllProgram from "@/utils/getAllProgram"
+import type { AllProgram } from "@/models/AllPrograms"
+import { getAllEmployeesNew } from "@/utils/advisorstats/getAllEmployee" // Import the getAllEmployees function
+import Avatar from "@/components/Avatar"
+import Pagination from "@/components/Pagination" // Import Pagination component
 
 export default function AdvisorStatsPage() {
-  const [filteredAdvisors, setFilteredAdvisors] = useState<Advisor[]>([]); // Default to empty array
-  const [searchTerm, setSearchTerm] = useState<string>(""); // Search term state
-  const [loading, setLoading] = useState<boolean>(true);
-  const [majorList, setMajorList] = useState<AllProgram[]>([]); // Store major list
-  const [selectedMajor, setSelectedMajor] = useState<number>(0); // Default to 0 for "Select Major"
-  const [currentPage, setCurrentPage] = useState<number>(1); // Current page state
-  const itemsPerPage = 10; // Items per page
-  const [mapData, setMapData] = useState<Map<string, Advisor[]>>(new Map<string, Advisor[]>());
+  const [filteredAdvisors, setFilteredAdvisors] = useState<Advisor[]>([]) // Default to empty array
+  const [searchTerm, setSearchTerm] = useState<string>("") // Search term state
+  const [loading, setLoading] = useState<boolean>(true)
+  const [majorList, setMajorList] = useState<AllProgram[]>([]) // Store major list
+  const [selectedMajor, setSelectedMajor] = useState<number>(0) // Default to 0 for "Select Major"
+  const [currentPage, setCurrentPage] = useState<number>(1) // Current page state
+  const itemsPerPage = 10 // Items per page
+  const [mapData, setMapData] = useState<Map<string, Advisor[]>>(new Map<string, Advisor[]>())
 
   useEffect(() => {
-    const query = new URLSearchParams(window.location.search);
-    const major = query.get("major");
+    const query = new URLSearchParams(window.location.search)
+    const major = query.get("major")
     if (major) {
-      setSelectedMajor(Number(major));
+      setSelectedMajor(Number(major))
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const programData = await getAllProgram(); // Fetch all programs
-        setMajorList(programData);
+        const programData = await getAllProgram() // Fetch all programs
+        setMajorList(programData)
 
-        let data: Advisor[];
-        let newMap = new Map<string, Advisor[]>();
+        let data: Advisor[]
         if (selectedMajor === -1) {
-          newMap = await getAllEmployeesNew(); // Fetch all employees if "All Majors" is selected
-          data = Array.from(newMap.values()).flat(); // Flatten the map values into an array
-          // console.log("newMap", newMap);
-          setMapData(newMap);
-          setFilteredAdvisors(data); // Initialize filtered data with newMap data
+          const newMap = await getAllEmployeesNew() // Fetch all employees if "All Majors" is selected
+          data = Array.from(newMap.values()).flat() // Flatten the map values into an array
+          setMapData(newMap)
+          setFilteredAdvisors(data) // Initialize filtered data with newMap data
         } else if (selectedMajor === 0) {
-          data = [];
-          setFilteredAdvisors(data); // Initialize filtered data with empty array
+          data = []
+          setFilteredAdvisors(data) // Initialize filtered data with empty array
         } else {
-          data = await getEmployeeByMajorId(selectedMajor); // Fetch employees by major
-          setFilteredAdvisors(data); // Initialize filtered data with fetched data
+          data = await getEmployeeByMajorId(selectedMajor) // Fetch employees by major
+          setFilteredAdvisors(data) // Initialize filtered data with fetched data
+
+          // Reset search term when changing programs
+          setSearchTerm("")
         }
-
       } catch (error) {
-        console.error("Error fetching advisor data:", error);
+        console.error("Error fetching advisor data:", error)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchData();
-  }, [selectedMajor]); // Run fetchData when selectedMajor changes
+    fetchData()
+  }, [selectedMajor]) // Run fetchData when selectedMajor changes
 
   // Filter advisors based on search term
   useEffect(() => {
-    if (mapData && mapData.size > 0) {
-      const lowerCaseSearchTerm = searchTerm.toLowerCase();
+    const lowerCaseSearchTerm = searchTerm.toLowerCase()
+
+    if (selectedMajor === -1 && mapData && mapData.size > 0) {
+      // When "All" is selected, filter from mapData
       const filtered = Array.from(mapData.values())
         .flat()
         .filter(
           (advisor) =>
             advisor.first_name_en.toLowerCase().includes(lowerCaseSearchTerm) ||
             advisor.last_name_en.toLowerCase().includes(lowerCaseSearchTerm) ||
-            advisor.email.toLowerCase().includes(lowerCaseSearchTerm)
-        );
-      setFilteredAdvisors(filtered);
+            advisor.email.toLowerCase().includes(lowerCaseSearchTerm) ||
+            advisor.first_name_th.toLowerCase().includes(lowerCaseSearchTerm) ||
+            advisor.last_name_th.toLowerCase().includes(lowerCaseSearchTerm),
+        )
+      setFilteredAdvisors(filtered)
+    } else if (selectedMajor !== 0 && selectedMajor !== -1) {
+      // When a specific program is selected, filter from the original data
+      getEmployeeByMajorId(selectedMajor).then((data) => {
+        const filtered = data.filter(
+          (advisor) =>
+            advisor.first_name_en.toLowerCase().includes(lowerCaseSearchTerm) ||
+            advisor.last_name_en.toLowerCase().includes(lowerCaseSearchTerm) ||
+            advisor.email.toLowerCase().includes(lowerCaseSearchTerm) ||
+            advisor.first_name_th.toLowerCase().includes(lowerCaseSearchTerm) ||
+            advisor.last_name_th.toLowerCase().includes(lowerCaseSearchTerm),
+        )
+        setFilteredAdvisors(filtered)
+      })
     }
-  }, [searchTerm, mapData]);
+  }, [searchTerm, mapData, selectedMajor])
 
   const handleMajorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedMajor(Number(event.target.value)); // Set selected major
-  };
+    setSelectedMajor(Number(event.target.value)) // Set selected major
+  }
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page); // Set current page
-    window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top
-  };
+    setCurrentPage(page) // Set current page
+    window.scrollTo({ top: 0, behavior: "smooth" }) // Scroll to top
+  }
 
   // Calculate the current page's advisors
   const currentAdvisors = filteredAdvisors
-    ? filteredAdvisors.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-      )
-    : [];
-  
+    ? filteredAdvisors.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+    : []
+
   return (
     <div className="min-h-screen bg-gray-50/50 py-8">
       <div className="max-w-6xl mx-auto px-4">
@@ -122,10 +137,10 @@ export default function AdvisorStatsPage() {
                          focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
               >
                 <option value={0}>Select Major</option>
-                <option value={-1}>All Majors</option>
+                <option value={-1}>All</option>
                 {majorList.map((program) => (
                   <option key={program.id} value={program.id} className="text-wrap w-full ">
-                    {'(' + program.abbreviation + ') ' + program.program_name_en}
+                    {"(" + program.abbreviation + ") " + program.program_name_en}
                   </option>
                 ))}
               </select>
@@ -177,14 +192,20 @@ export default function AdvisorStatsPage() {
             ) : (
               <>
                 <div className="overflow-x-auto">
-                    {/* <p>{filteredAdvisors?.length}</p> */}
+                  {/* <p>{filteredAdvisors?.length}</p> */}
                   <table className="w-full">
                     {/* count the advisor */}
                     <thead>
                       <tr className="border-b border-gray-100">
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Program</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Name
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Email
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Program
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -192,10 +213,7 @@ export default function AdvisorStatsPage() {
                         <tr key={advisor.id} className="hover:bg-gray-50/50 transition-colors">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
-                              <Avatar
-                                name={`${advisor.first_name_en} ${advisor.last_name_en}`}
-                                size="sm"
-                              />
+                              <Avatar name={`${advisor.first_name_en} ${advisor.last_name_en}`} size="sm" />
                               <div className="ml-3">
                                 <Link href={`/advisorprofile/${advisor.email}`}>
                                   <div className="text-sm font-medium text-primary-DEFAULT hover:text-primary-dark transition-colors">
@@ -208,11 +226,9 @@ export default function AdvisorStatsPage() {
                               </div>
                             </div>
                           </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{advisor.email}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                            {advisor.email}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                            {majorList.find(program => program.id === advisor.program_id)?.abbreviation || 'N/A'}
+                            {majorList.find((program) => program.id === advisor.program_id)?.abbreviation || "N/A"}
                           </td>
                         </tr>
                       ))}
@@ -232,5 +248,6 @@ export default function AdvisorStatsPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }
+
