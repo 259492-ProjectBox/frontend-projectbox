@@ -71,7 +71,9 @@ export default function AdvisorStatsPage() {
           (advisor) =>
             advisor.first_name_en.toLowerCase().includes(lowerCaseSearchTerm) ||
             advisor.last_name_en.toLowerCase().includes(lowerCaseSearchTerm) ||
-            advisor.email.toLowerCase().includes(lowerCaseSearchTerm)
+            advisor.email.toLowerCase().includes(lowerCaseSearchTerm) ||
+            advisor.first_name_th.toLowerCase().includes(lowerCaseSearchTerm) || // Add Thai first name filter
+            advisor.last_name_th.toLowerCase().includes(lowerCaseSearchTerm)    // Add Thai last name filter
         );
       setFilteredAdvisors(filtered);
     }
