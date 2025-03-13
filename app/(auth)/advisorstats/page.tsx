@@ -122,7 +122,7 @@ export default function AdvisorStatsPage() {
                          focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
               >
                 <option value={0}>Select Major</option>
-                <option value={-1}>All Majors</option>
+                <option value={-1}>All</option>
                 {majorList.map((program) => (
                   <option key={program.id} value={program.id} className="text-wrap w-full ">
                     {'(' + program.abbreviation + ') ' + program.program_name_en}
