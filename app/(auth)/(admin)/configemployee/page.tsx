@@ -246,15 +246,13 @@ export default function ConfigAdvisorPage() {
           <div className="flex gap-3">
             <button
               onClick={() => handleOpenModal()}
-              className="px-4 py-2 bg-primary_button text-white text-sm font-medium rounded-lg
-                       hover:bg-button_hover transition-colors duration-200"
+              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
             >
               Add Staff
             </button>
             <button
               onClick={() => setIsUploadModalOpen(true)}
-              className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg
-                       hover:bg-green-700 transition-colors duration-200"
+              className="text-green-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-green-500 dark:text-green-500 dark:hover:text-white dark:hover:bg-green-600 dark:focus:ring-green-800"
             >
               Import Excel
             </button>
