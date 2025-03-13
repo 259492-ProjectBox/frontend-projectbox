@@ -232,7 +232,7 @@ const SearchPage: React.FC = () => {
             }}
             className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors duration-200 ${
               searchMode === "quick"
-                ? "bg-[#4285F4] text-white"
+                ? "bg-[#BBE3F1] text-black"
                 : "text-gray-600 hover:bg-gray-50"
             }`}
           >
@@ -258,7 +258,7 @@ const SearchPage: React.FC = () => {
             }}
             className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors duration-200 ${
               searchMode === "detail"
-                ? "bg-[#34A853] text-white"
+                ? "bg-[#9AE79C] text-black"
                 : "text-gray-600 hover:bg-gray-50"
             }`}
           >
@@ -275,7 +275,7 @@ const SearchPage: React.FC = () => {
             }}
             className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors duration-200 ${
               searchMode === "pdf"
-                ? "bg-[#F7B928] text-white"
+                ? "bg-[#FEF38B] text-black"
                 : "text-gray-600 hover:bg-gray-50"
             }`}
           >
