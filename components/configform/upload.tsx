@@ -1,95 +1,92 @@
-import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig";
-import updateResourceStatus from "@/utils/configform/updateProjectResourceConfig";
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import Image from "next/image";
-import { ProjectResourceConfig } from "@/models/ProjectResourceConfig";
+"use client"
+
+import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig"
+import updateResourceStatus from "@/utils/configform/updateProjectResourceConfig"
+import type React from "react"
+import { useState, useEffect } from "react"
+import axios from "axios"
+import Image from "next/image"
+import type { ProjectResourceConfig } from "@/models/ProjectResourceConfig"
+import { apiConfig } from "@/config/apiConfig"
 
 // API controller for creating a project resource
 const createProjectResource = async (data: {
-  icon_name: string;
-  is_active: boolean;
-  program_id: number;
-  resource_type_id: number;
-  title: string;
+  icon_name: string
+  is_active: boolean
+  program_id: number
+  resource_type_id: number
+  title: string
 }) => {
-  const API_URL =
-    "https://project-service.kunmhing.me/api/v1/projectResourceConfigs";
   try {
-    const response = await axios.put(API_URL, data, {
+    const response = await axios.put(apiConfig.ProjectService.ProjectResourceConfigsV1, data, {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-    });
-    return response.data;
+    })
+    return response.data
   } catch (error) {
-    console.error("Error creating project resource:", error);
-    throw error;
+    console.error("Error creating project resource:", error)
+    throw error
   }
-};
+}
 
 const UploadResourceSection: React.FC = () => {
   // const [formData, setFormData] = useState<Record<string, boolean>>({});
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [tableData, setTableData] = useState<ProjectResourceConfig[]>([]); // Replace with ProjectResourceConfig[]
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const [tableData, setTableData] = useState<ProjectResourceConfig[]>([]) // Replace with ProjectResourceConfig[]
   // State to hold fetched table data
 
-  const [iconName, setIconName] = useState(""); // State for icon name
-  const [resourceTypeId, setResourceTypeId] = useState(1); // Set to 1 by default for File resource type
-  const [title, setTitle] = useState(""); // State for title
+  const [iconName, setIconName] = useState("") // State for icon name
+  const [resourceTypeId, setResourceTypeId] = useState(1) // Set to 1 by default for File resource type
+  const [title, setTitle] = useState("") // State for title
 
   // Fetch data using the controller
   const fetchData = async () => {
     try {
-      const data = await getProjectResourceConfig(1); 
-      setTableData(data); // Set table data from API response
+      const data = await getProjectResourceConfig(1)
+      setTableData(data) // Set table data from API response
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Error fetching data:", error)
     }
-  };
+  }
 
   useEffect(() => {
-    fetchData(); // Fetch data when the component is mounted
-  }, []);
+    fetchData() // Fetch data when the component is mounted
+  }, [])
 
   const handleToggleChange = async (item: ProjectResourceConfig) => {
-    const updatedStatus = !item.is_active;
-  
+    const updatedStatus = !item.is_active
+
     const updatedData: ProjectResourceConfig = {
       ...item,
       is_active: updatedStatus,
-    };
-  
-    try {
-      await updateResourceStatus(null, updatedData); // Pass null for iconFile
-      setTableData((prevData) =>
-        prevData.map((dataItem) =>
-          dataItem.id === item.id
-            ? { ...dataItem, is_active: updatedStatus }
-            : dataItem
-        )
-      );
-    } catch (error) {
-      console.error("Error updating resource status:", error);
     }
-  };
-  
+
+    try {
+      await updateResourceStatus(null, updatedData) // Pass null for iconFile
+      setTableData((prevData) =>
+        prevData.map((dataItem) => (dataItem.id === item.id ? { ...dataItem, is_active: updatedStatus } : dataItem)),
+      )
+    } catch (error) {
+      console.error("Error updating resource status:", error)
+    }
+  }
 
   const openModal = () => {
-    setIsModalOpen(true);
-  };
+    setIsModalOpen(true)
+  }
 
   const closeModal = () => {
-    setIsModalOpen(false);
-  };
+    setIsModalOpen(false)
+  }
 
   const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]; // Get the first selected file
+    const file = e.target.files?.[0] // Get the first selected file
     if (file) {
-      setIconName(file.name); // Extract file name and set it to state
+      setIconName(file.name) // Extract file name and set it to state
     }
-  };
+  }
 
   const handleSubmit = async () => {
     const data = {
@@ -98,27 +95,24 @@ const UploadResourceSection: React.FC = () => {
       program_id: 2, // Assuming program ID 2
       resource_type_id: resourceTypeId,
       title: title,
-    };
+    }
 
     try {
-      await createProjectResource(data); // Send data to the API
-      alert("Project resource created successfully!");
-      closeModal(); // Close the modal after successful creation
-      fetchData(); // Refresh table data after creation
+      await createProjectResource(data) // Send data to the API
+      alert("Project resource created successfully!")
+      closeModal() // Close the modal after successful creation
+      fetchData() // Refresh table data after creation
     } catch (error) {
-      console.log(error);
-      alert("Failed to create project resource. Please try again.");
+      console.log(error)
+      alert("Failed to create project resource. Please try again.")
     }
-  };
+  }
 
   return (
     <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
       <div className="flex justify-between items-center mb-4">
         <h6 className="text-lg font-bold">Upload Resource Section</h6>
-        <button
-          onClick={openModal}
-          className="bg-primary_button text-white py-1 px-3 rounded hover:bg-button_hover"
-        >
+        <button onClick={openModal} className="bg-primary_button text-white py-1 px-3 rounded hover:bg-button_hover">
           Add Upload Type
         </button>
       </div>
@@ -175,14 +169,8 @@ const UploadResourceSection: React.FC = () => {
 
             {/* Section 1: Icon Upload */}
             <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2">
-                Upload Icon
-              </label>
-              <input
-                type="file"
-                className="w-full p-2 border border-gray-300 rounded"
-                onChange={handleIconChange}
-              />
+              <label className="block text-sm font-semibold mb-2">Upload Icon</label>
+              <input type="file" className="w-full p-2 border border-gray-300 rounded" onChange={handleIconChange} />
             </div>
 
             {/* Section 2: Title Input */}
@@ -199,9 +187,7 @@ const UploadResourceSection: React.FC = () => {
 
             {/* Section 3: Upload Type */}
             <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2">
-                Upload Type
-              </label>
+              <label className="block text-sm font-semibold mb-2">Upload Type</label>
               <select
                 className="w-full p-2 border border-gray-300 rounded"
                 value={resourceTypeId}
@@ -214,16 +200,10 @@ const UploadResourceSection: React.FC = () => {
 
             {/* Modal buttons */}
             <div className="flex justify-end">
-              <button
-                onClick={closeModal}
-                className="bg-gray-300 text-black px-4 py-2 rounded mr-2 hover:bg-gray-400"
-              >
+              <button onClick={closeModal} className="bg-gray-300 text-black px-4 py-2 rounded mr-2 hover:bg-gray-400">
                 Cancel
               </button>
-              <button
-                onClick={handleSubmit}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-              >
+              <button onClick={handleSubmit} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
                 Submit
               </button>
             </div>
@@ -231,7 +211,8 @@ const UploadResourceSection: React.FC = () => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default UploadResourceSection;
+export default UploadResourceSection
+

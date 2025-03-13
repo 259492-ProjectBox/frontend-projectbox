@@ -1,27 +1,27 @@
+'use server'
 // src/utils/apiController.ts
-import { ProjectResourceConfig } from "@/models/ProjectResourceConfig";
-import axios from "axios";
+import type { ProjectResourceConfig } from "@/models/ProjectResourceConfig"
+import axios from "axios"
+import { apiConfig } from "@/config/apiConfig"
 
-export const getProjectResourceConfig = async (programId: number) : Promise<ProjectResourceConfig[]> => {
+export const getProjectResourceConfig = async (programId: number): Promise<ProjectResourceConfig[]> => {
   try {
-    const response = await axios.get(
-      `https://project-service.kunmhing.me/api/v1/projectResourceConfigs/program/${programId}`,
-      {
-        headers: {
-          accept: "application/json",
-        },
-      }
-    );
+    const response = await axios.get(apiConfig.ProjectService.ProjectResourceConfigsByProgramV1(programId), {
+      headers: {
+        accept: "application/json",
+      },
+    })
     // console.log("getProjectResourceConfig", response.data);
 
     // Ensure the response data is valid
     if (response.data) {
-      return response.data;
+      return response.data
     } else {
-      throw new Error("Invalid response data");
+      throw new Error("Invalid response data")
     }
   } catch (error) {
-    console.error("Error fetching data:", error);
-    throw error; // Rethrow error to handle it in the component
+    console.error("Error fetching data:", error)
+    throw error // Rethrow error to handle it in the component
   }
-};
+}
+

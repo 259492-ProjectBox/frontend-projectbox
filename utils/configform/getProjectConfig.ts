@@ -1,15 +1,19 @@
+'use server'
+import { apiConfig } from "@/config/apiConfig"
+
 const getProjectConfig = async (majorId: number): Promise<any[]> => {
   try {
-    const response = await fetch(`https://project-service.kunmhing.me/api/v1/projectConfigs/program/${majorId}`);
+    const response = await fetch(apiConfig.ProjectService.ProjectConfigsByProgram(majorId))
     if (!response.ok) {
-      throw new Error(`Failed to fetch project config: ${response.statusText}`);
+      throw new Error(`Failed to fetch project config: ${response.statusText}`)
     }
     // console.log("ProjectConfig:",response)
-    return await response.json();
+    return await response.json()
   } catch (error) {
-    console.error('Error fetching project config:', error);
-    throw error;
+    console.error("Error fetching project config:", error)
+    throw error
   }
-};
+}
 
-export default getProjectConfig;
+export default getProjectConfig
+

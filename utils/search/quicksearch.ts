@@ -1,31 +1,31 @@
-import axios from "axios";
-import { Project } from '../../models/Project';
+'use server'
+import axios from "axios"
+import type { Project } from "../../models/Project"
+import { apiConfig } from "@/config/apiConfig"
 
 interface QuickSearchPayload {
-  searchInput: string;
-  fields: string[];
+  searchInput: string
+  fields: string[]
 }
 
 const quickSearchProjects = async ({ searchInput, fields }: QuickSearchPayload): Promise<Project[]> => {
   try {
-    const response = await axios.get(
-      `https://search-service.kunmhing.me/api/v1/projects/all-fields`,
-      {
-        params: {
-          fields: fields.join(","),
-          searchInput
-        },
-        headers: {
-          "accept": "*/*",
-        },
-      }
-    );
-    
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching projects:", error);
-    throw error;
-  }
-};
+    const response = await axios.get(apiConfig.SearchService.ProjectAllFields, {
+      params: {
+        fields: fields.join(","),
+        searchInput,
+      },
+      headers: {
+        accept: "*/*",
+      },
+    })
 
-export default quickSearchProjects;
+    return response.data
+  } catch (error) {
+    console.error("Error fetching projects:", error)
+    throw error
+  }
+}
+
+export default quickSearchProjects
+
