@@ -1,11 +1,12 @@
-// components/FlowbiteNavbar.tsx
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import type React from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import HamburgerIcon from "@/public/Svg/HamburgerIcon";
 import Image from "next/image";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { useRouter } from "next/navigation";
+import { useProgram } from "@/context/ProgramContext";
 
 export default function FlowbiteNavbar({
   toggleSidebar,
@@ -13,6 +14,7 @@ export default function FlowbiteNavbar({
   toggleSidebar: () => void;
 }) {
   const { user, signOut } = useAuth();
+  const { selectedMajor, setSelectedMajor, options } = useProgram();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -20,7 +22,10 @@ export default function FlowbiteNavbar({
   // Handle click outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsDropdownOpen(false);
       }
     }
@@ -31,12 +36,24 @@ export default function FlowbiteNavbar({
     };
   }, []);
 
+  // Auto-select the only option if there is only one
+  useEffect(() => {
+    if (options.length === 1) {
+      setSelectedMajor(options[0].id);
+    }
+  }, [options, setSelectedMajor]);
+
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
   const handleNavigateToDashboard = () => {
-    router.push('/dashboard');
+    router.push("/dashboard");
+  };
+
+  const handleMajorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newMajor = Number(e.target.value);
+    setSelectedMajor(newMajor);
   };
 
   return (
@@ -52,7 +69,7 @@ export default function FlowbiteNavbar({
               <span className="sr-only">Open sidebar</span>
               <HamburgerIcon />
             </button>
-            <button 
+            <button
               onClick={handleNavigateToDashboard}
               className="flex items-center ms-2 md:me-24 hover:opacity-80 transition-opacity"
             >
@@ -69,6 +86,24 @@ export default function FlowbiteNavbar({
             </button>
           </div>
           <div className="flex items-center">
+            {/* Program Selection Dropdown */}
+            {Array.isArray(user?.isAdmin) && user.isAdmin.length > 0 && (
+              <div className="mr-4">
+                <select
+                  value={selectedMajor}
+                  onChange={handleMajorChange}
+                  className="px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
+                  disabled={options.length === 2}
+                >
+                  {options.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.program_name_en}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <div className="flex items-center justify-end ms-3">
               <div className="text-sm text-right">
                 {/* User Details */}
@@ -88,7 +123,8 @@ export default function FlowbiteNavbar({
                   <span className="sr-only">Open user menu</span>
                   {/* User Initials */}
                   <div className="w-8 h-8 flex items-center justify-center bg-white text-gray-800 font-bold rounded-full">
-                    {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
+                    {user?.firstName?.charAt(0)}
+                    {user?.lastName?.charAt(0)}
                   </div>
                 </button>
                 {/* Dropdown Menu */}

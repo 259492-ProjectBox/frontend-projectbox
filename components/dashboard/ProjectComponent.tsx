@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { obfuscateId } from "@/utils/encodePath";
 import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig";
 import { ProjectResourceConfig } from "@/models/ProjectResourceConfig";
+import { StyledText } from "../StyleText";
 
 const ProjectComponent = ({ project }: { project: Project }) => {
   const { user } = useAuth();
@@ -54,18 +55,27 @@ const ProjectComponent = ({ project }: { project: Project }) => {
 
         {/* Project Title */}
         <div className="mb-3">
-          <h3 className="text-xs text-gray-500">
+          <h3 className="mb-2 text-xs text-gray-800 bg-gray-100 inline-block px-2.5 py-0.5 rounded-md border border-gray-500">
             Project No: {project.projectNo || "No Data"}
           </h3>
-          <h4 className="text-base font-medium text-gray-900 hover:text-blue-600">
+          <h4 className="text-base font-medium text-gray-1000 hover:text-blue-600">
             <Link href={`/projectdetail/${obfuscateId(project.id)}`}>
-              {project.titleTH || "No Title"} — {project.titleEN || "No Title"}
+              {project.titleTH || "No Title"}
+            </Link>
+          </h4>
+          <h4 className="text-base font-medium text-gray-600 hover:text-blue-600">
+            <Link href={`/projectdetail/${obfuscateId(project.id)}`}>
+              {project.titleEN || "No Title"}
             </Link>
           </h4>
         </div>
+        <div className="bg-gray-200 p-3 rounded-md">
+        
+        <StyledText text={project.highlightedContents}/>
+        </div>
 
         {/* Resource Icons */}
-        {user && project.projectResources?.length > 0 && (isMember || isProjectProgramAdmin) && (
+        {user && (project.projectResources?.length ?? 0) > 0 && (
           <div className="flex flex-wrap gap-2 mb-3">
             {project.projectResources?.map((resource) => {
               // Find matching resource config
@@ -154,16 +164,21 @@ const ProjectComponent = ({ project }: { project: Project }) => {
               title="Members"
             />
           </div>
-          {project.staffs.some((staff) => ["Advisor", "Co Advisor", "Committee", "External Committee"].includes(staff.projectRole.roleNameEN)) && (
+          {project.staffs.some((staff) => ["Advisor", "Co Advisor"].includes(staff.projectRole.roleNameEN)) && (
             <div className="bg-gray-50 p-3 rounded-md">
               <LimitedList
                 items={project.staffs
-                  .filter((staff) => ["Advisor", "Co Advisor", "Committee", "External Committee"].includes(staff.projectRole.roleNameEN))
+                  .filter((staff) => ["Advisor", "Co Advisor"].includes(staff.projectRole.roleNameEN) || ["Committee", "External Committee"].includes(staff.projectRole.roleNameEN))
+                  .sort((a, b) => {
+                    if (a.projectRole.roleNameEN === "Advisor") return -1;
+                    if (b.projectRole.roleNameEN === "Advisor") return 1;
+                    return 0;
+                  })
                   .map((staff) => ({
                     name: `${staff.prefixEN || ""} ${staff.firstNameTH || "No First Name"} ${staff.lastNameTH || "No Last Name"} / ${staff.firstNameEN || "No First Name"} ${staff.lastNameEN || "No Last Name"}`,
-                    role: staff.projectRole.roleNameEN,
+                    role: ["Advisor", "Co Advisor"].includes(staff.projectRole.roleNameEN) ? staff.projectRole.roleNameEN : "",
                   }))}
-                title="Professor"
+                title="Committee"
               />
             </div>
           )}

@@ -76,11 +76,12 @@ export interface Project {
   sectionId: string;
   programId: number;
   program: Program;
-  courseId: number;
-  course: Course;
+  highlightedContents: string | null;
+  // courseId: number;
+  // course: Course;
   staffs: Employee[];
   members: Member[];
-  projectResources: ProjectResource[];
+  projectResources: ProjectResource[] | null;
   createdAt: string;
   updated_at?: string | null;
 }

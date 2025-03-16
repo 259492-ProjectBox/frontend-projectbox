@@ -9,6 +9,8 @@ import Pagination from "@/components/Pagination"; // Import Pagination component
 import { AllProgram } from "@/models/AllPrograms";
 import getAllProgram from "@/utils/getAllProgram";
 import { fetchPdfProjects } from "@/utils/pdfSearchApi"; // Import fetchPdfProjects
+import { getAcademicYears } from "@/utils/configprogram/getAcademicYears"; // Import getAcademicYears
+import { AcademicYear } from "@/models/AcademicYear"; // Import AcademicYear
 
 interface SearchFields {
   courseNo: string | null;
@@ -44,6 +46,7 @@ const SearchPage: React.FC = () => {
     student: true,
     advisor: true
   });
+  const [academicYears, setAcademicYears] = useState<AcademicYear[]>([]); // State for academic years
 
   useEffect(() => {
     const fetchPrograms = async () => {
@@ -56,6 +59,19 @@ const SearchPage: React.FC = () => {
     };
 
     fetchPrograms();
+  }, []);
+
+  useEffect(() => {
+    const fetchAcademicYears = async () => {
+      try {
+        const years = await getAcademicYears();
+        setAcademicYears(years);
+      } catch (error) {
+        console.error("Error fetching academic years:", error);
+      }
+    };
+
+    fetchAcademicYears();
   }, []);
 
   const toggleSearchField = (field: keyof typeof searchableFields) => {
@@ -216,7 +232,7 @@ const SearchPage: React.FC = () => {
             }}
             className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors duration-200 ${
               searchMode === "quick"
-                ? "bg-[#4285F4] text-white"
+                ? "bg-[#BBE3F1] text-black"
                 : "text-gray-600 hover:bg-gray-50"
             }`}
           >
@@ -242,7 +258,7 @@ const SearchPage: React.FC = () => {
             }}
             className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors duration-200 ${
               searchMode === "detail"
-                ? "bg-[#34A853] text-white"
+                ? "bg-[#9AE79C] text-black"
                 : "text-gray-600 hover:bg-gray-50"
             }`}
           >
@@ -259,7 +275,7 @@ const SearchPage: React.FC = () => {
             }}
             className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors duration-200 ${
               searchMode === "pdf"
-                ? "bg-[#F7B928] text-white"
+                ? "bg-[#FEF38B] text-black"
                 : "text-gray-600 hover:bg-gray-50"
             }`}
           >
@@ -303,9 +319,17 @@ const SearchPage: React.FC = () => {
                 },
                 {
                   label: "Academic Year",
-                  placeholder: "e.g. 2568",
+                  placeholder: "Select Academic Year",
                   value: searchFields.academicYear,
                   key: "academicYear",
+                  type: "dropdown",
+                  options: [
+                    { value: "", label: "Select Academic Year" },
+                    ...academicYears.map((year) => ({
+                      value: year.year_be,
+                      label: year.year_be,
+                    })),
+                  ],
                 },
                 {
                   label: "Semester",

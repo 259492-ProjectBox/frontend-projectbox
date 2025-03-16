@@ -1,10 +1,24 @@
 // utils/fetchUserInfo.ts
+'use client'
 import axios, { AxiosError } from "axios";
 import { WhoAmIResponse } from "../dtos/WhoAmIResponse";
 import { FetchUserInfoResult, UserInfo } from "../types/UserInfo";
 
+
 export async function fetchUserInfo(): Promise<FetchUserInfoResult> {
   try {
+    const {data} = await axios.get<{
+      token: string | null;
+    }>("/api/getToken")
+
+    if (!data.token) {
+      return {
+        user: null,
+        error: "Invalid token",
+        isLoading: false,
+      };
+    }
+
     const response = await axios.get<WhoAmIResponse>("/api/whoAmI");
 
     if (response.data.ok) {
@@ -31,6 +45,8 @@ export async function fetchUserInfo(): Promise<FetchUserInfoResult> {
       };
     }
   } catch (error) {
+    console.log("Error", error);
+    
     const axiosError = error as AxiosError<WhoAmIResponse>;
     let errorMessage = "Unknown error occurred. Please try again later";
 
