@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { obfuscateId } from "@/utils/encodePath";
 import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig";
 import { ProjectResourceConfig } from "@/models/ProjectResourceConfig";
+import { StyledText } from "../StyleText";
 
 const ProjectComponent = ({ project }: { project: Project }) => {
   const { user } = useAuth();
@@ -67,6 +68,10 @@ const ProjectComponent = ({ project }: { project: Project }) => {
               {project.titleEN || "No Title"}
             </Link>
           </h4>
+        </div>
+        <div className="bg-gray-200 p-3 rounded-md">
+        
+        <StyledText text={project.highlightedContents}/>
         </div>
 
         {/* Resource Icons */}

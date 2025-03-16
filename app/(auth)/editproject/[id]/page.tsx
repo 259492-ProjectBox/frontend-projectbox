@@ -143,7 +143,7 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
           title_th: projectData.titleTH,
           abstract_text: projectData.abstractText,
           academicYear: projectData.academicYear?.toString(),
-          courseNo: projectData.course?.courseNo,
+          // courseNo: projectData.course?.courseNo,
           section: projectData.sectionId,
           semester: projectData.semester?.toString(),
           student: projectData.members.map((member) => ({
@@ -524,7 +524,7 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
         academic_year: Number.parseInt(formData.academicYear as string, 10),
         semester: Number.parseInt(formData.semester as string, 10),
         section_id: formData.section,
-        course_id: project?.course?.id,
+        // course_id: project?.course?.id,
         program_id: project?.program?.id,
         staffs: [
           // Map advisor with role_id 1

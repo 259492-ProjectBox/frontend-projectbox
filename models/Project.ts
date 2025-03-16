@@ -76,8 +76,9 @@ export interface Project {
   sectionId: string;
   programId: number;
   program: Program;
-  courseId: number;
-  course: Course;
+  highlightedContents: string | null;
+  // courseId: number;
+  // course: Course;
   staffs: Employee[];
   members: Member[];
   projectResources: ProjectResource[] | null;
