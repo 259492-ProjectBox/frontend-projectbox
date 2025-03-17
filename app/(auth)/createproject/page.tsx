@@ -189,38 +189,73 @@ useEffect(() => {
     setFormData((prevData) => ({ ...prevData, [name]: value }))
   }
 
+  // const handleMultiSelectChange = (selectedOptions: { value: number; label: string }[], field: string) => {
+  //   setFormData((prevData) => {
+  //     const newData = { ...prevData, [field]: selectedOptions }
+
+  //     // Only apply validation for advisor roles, not for students
+  //     if (field === "student") {
+  //       return newData
+  //     }
+
+  //     // If this is an advisor role, check for duplicates in other roles
+  //     const advisorRoles = ["advisor", "co_advisor", "committee", "external_committee"]
+  //     const selectedValues = new Set(selectedOptions.map((option) => option.value))
+
+  //     // For each advisor role that's not the current field
+  //     advisorRoles.forEach((role) => {
+  //       if (role !== field) {
+  //         const currentRoleSelections = (newData[role] as { value: number; label: string }[]) || []
+
+  //         // Filter out any options that are now selected in the current field
+  //         const filteredSelections = currentRoleSelections.filter((option) => !selectedValues.has(option.value))
+
+  //         // Update the data if we removed any duplicates
+  //         if (filteredSelections.length !== currentRoleSelections.length) {
+  //           newData[role] = filteredSelections
+  //         }
+  //       }
+  //     })
+
+  //     return newData
+  //   })
+  // }
   const handleMultiSelectChange = (selectedOptions: { value: number; label: string }[], field: string) => {
     setFormData((prevData) => {
-      const newData = { ...prevData, [field]: selectedOptions }
-
-      // Only apply validation for advisor roles, not for students
-      if (field === "student") {
-        return newData
+      const newData = { ...prevData, [field]: selectedOptions };
+  
+      // Only apply validation for advisor roles, not for students or keywords
+      if (field === "student" || field === "keywords") {
+        return newData;
       }
-
+  
       // If this is an advisor role, check for duplicates in other roles
-      const advisorRoles = ["advisor", "co_advisor", "committee", "external_committee"]
-      const selectedValues = new Set(selectedOptions.map((option) => option.value))
-
+      const advisorRoles = ["advisor", "co_advisor", "committee", "external_committee"];
+      const selectedValues = new Set(selectedOptions.map((option) => option.value));
+  
       // For each advisor role that's not the current field
       advisorRoles.forEach((role) => {
         if (role !== field) {
-          const currentRoleSelections = (newData[role] as { value: number; label: string }[]) || []
-
+          const currentRoleSelections = (newData[role] as { value: number; label: string }[]) || [];
+  
           // Filter out any options that are now selected in the current field
-          const filteredSelections = currentRoleSelections.filter((option) => !selectedValues.has(option.value))
-
+          const filteredSelections = currentRoleSelections.filter((option) => !selectedValues.has(option.value));
+  
           // Update the data if we removed any duplicates
           if (filteredSelections.length !== currentRoleSelections.length) {
-            newData[role] = filteredSelections
+            newData[role] = filteredSelections;
           }
         }
-      })
-
-      return newData
-    })
-  }
-
+      });
+  
+      return newData;
+    });
+  
+    // Update the selectedKeyword state for the keywords field
+    if (field === "keywords") {
+      setSelectedKeyword(selectedOptions.map((option) => option.value));
+    }
+  };
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
     const { files } = e.target
     if (files && files.length > 0) {
@@ -297,44 +332,103 @@ useEffect(() => {
       return null
     })
 
+  // const renderMultiSelectField = (
+  //   field: string,
+  //   label: string,
+  //   isRequired: boolean,
+  //   optionsList: { value: number; label: string }[],
+  // ) => {
+  //   if (!formConfig[field]) return null
+
+  //   // Only apply filtering for advisor roles, not for students
+  //   let filteredOptions = optionsList
+
+  //   if (field !== "student") {
+  //     // Get all selected staff across all advisor roles
+  //     const selectedAdvisors = (formData.advisor as { value: number; label: string }[]) || []
+  //     const selectedCoAdvisors = (formData.co_advisor as { value: number; label: string }[]) || []
+  //     const selectedCommittee = (formData.committee as { value: number; label: string }[]) || []
+  //     const selectedExternalCommittee = (formData.external_committee as { value: number; label: string }[]) || []
+
+  //     // Create a set of all selected staff IDs except for the current field
+  //     const selectedStaffIds = new Set<number>()
+
+  //     if (field !== "advisor") {
+  //       selectedAdvisors.forEach((item) => selectedStaffIds.add(item.value))
+  //     }
+  //     if (field !== "co_advisor") {
+  //       selectedCoAdvisors.forEach((item) => selectedStaffIds.add(item.value))
+  //     }
+  //     if (field !== "committee") {
+  //       selectedCommittee.forEach((item) => selectedStaffIds.add(item.value))
+  //     }
+  //     if (field !== "external_committee") {
+  //       selectedExternalCommittee.forEach((item) => selectedStaffIds.add(item.value))
+  //     }
+
+  //     // Filter out options that are already selected in other roles
+  //     filteredOptions = optionsList.filter((option) => !selectedStaffIds.has(option.value))
+  //   }
+
+  //   return (
+  //     <div className="mb-4">
+  //       <label className="block mb-1 text-sm font-medium text-gray-700">
+  //         {label} {isRequired && <span className="text-red-500 ml-1">*</span>}
+  //       </label>
+  //       <Select
+  //         isMulti
+  //         name={field}
+  //         value={(formData[field] as { value: number; label: string }[]) || []}
+  //         onChange={(selectedOptions) =>
+  //           handleMultiSelectChange(selectedOptions as { value: number; label: string }[], field)
+  //         }
+  //         options={filteredOptions}
+  //         getOptionLabel={(e) => e.label}
+  //         getOptionValue={(e) => e.value.toString()}
+  //         className="w-full"
+  //       />
+  //     </div>
+  //   )
+  // }
+
   const renderMultiSelectField = (
     field: string,
     label: string,
     isRequired: boolean,
     optionsList: { value: number; label: string }[],
   ) => {
-    if (!formConfig[field]) return null
-
-    // Only apply filtering for advisor roles, not for students
-    let filteredOptions = optionsList
-
-    if (field !== "student") {
+    if (!formConfig[field]) return null;
+  
+    // Only apply filtering for advisor roles, not for students or keywords
+    let filteredOptions = optionsList;
+  
+    if (field !== "student" && field !== "keywords") {
       // Get all selected staff across all advisor roles
-      const selectedAdvisors = (formData.advisor as { value: number; label: string }[]) || []
-      const selectedCoAdvisors = (formData.co_advisor as { value: number; label: string }[]) || []
-      const selectedCommittee = (formData.committee as { value: number; label: string }[]) || []
-      const selectedExternalCommittee = (formData.external_committee as { value: number; label: string }[]) || []
-
+      const selectedAdvisors = (formData.advisor as { value: number; label: string }[]) || [];
+      const selectedCoAdvisors = (formData.co_advisor as { value: number; label: string }[]) || [];
+      const selectedCommittee = (formData.committee as { value: number; label: string }[]) || [];
+      const selectedExternalCommittee = (formData.external_committee as { value: number; label: string }[]) || [];
+  
       // Create a set of all selected staff IDs except for the current field
-      const selectedStaffIds = new Set<number>()
-
+      const selectedStaffIds = new Set<number>();
+  
       if (field !== "advisor") {
-        selectedAdvisors.forEach((item) => selectedStaffIds.add(item.value))
+        selectedAdvisors.forEach((item) => selectedStaffIds.add(item.value));
       }
       if (field !== "co_advisor") {
-        selectedCoAdvisors.forEach((item) => selectedStaffIds.add(item.value))
+        selectedCoAdvisors.forEach((item) => selectedStaffIds.add(item.value));
       }
       if (field !== "committee") {
-        selectedCommittee.forEach((item) => selectedStaffIds.add(item.value))
+        selectedCommittee.forEach((item) => selectedStaffIds.add(item.value));
       }
       if (field !== "external_committee") {
-        selectedExternalCommittee.forEach((item) => selectedStaffIds.add(item.value))
+        selectedExternalCommittee.forEach((item) => selectedStaffIds.add(item.value));
       }
-
+  
       // Filter out options that are already selected in other roles
-      filteredOptions = optionsList.filter((option) => !selectedStaffIds.has(option.value))
+      filteredOptions = optionsList.filter((option) => !selectedStaffIds.has(option.value));
     }
-
+  
     return (
       <div className="mb-4">
         <label className="block mb-1 text-sm font-medium text-gray-700">
@@ -353,9 +447,8 @@ useEffect(() => {
           className="w-full"
         />
       </div>
-    )
-  }
-
+    );
+  };
   const renderFileUploadSections = () => {
     const fileConfigs = formConfig["upload_section"] as ProjectResourceConfig[] | undefined
 
@@ -430,38 +523,38 @@ useEffect(() => {
   }
 
   const handleSubmit = async () => {
-    if (isSubmitting) return;
-  
+    if (isSubmitting) return
+
     // Check required fields
     const missingFields = requiredFields.filter((field) => {
       if (field === "advisor" || field === "student") {
-        return !formData[field] || (formData[field] as { value: number; label: string }[]).length === 0;
+        return !formData[field] || (formData[field] as { value: number; label: string }[]).length === 0
       }
       if (field === "upload_section") {
-        const fileConfigs = formConfig["upload_section"] as ProjectResourceConfig[] | undefined;
-        if (!fileConfigs) return true;
-  
+        const fileConfigs = formConfig["upload_section"] as ProjectResourceConfig[] | undefined
+        if (!fileConfigs) return true
+
         // Check if at least one file or URL is provided for active configs
         return !fileConfigs.some((config) => {
-          if (!config.is_active) return true;
-          const linkField = `file_link_${config.id}`;
-          const fileField = `file_upload_${config.id}`;
-          return formData[linkField] || (formData[fileField] as FileList)?.length > 0;
-        });
+          if (!config.is_active) return true
+          const linkField = `file_link_${config.id}`
+          const fileField = `file_upload_${config.id}`
+          return formData[linkField] || (formData[fileField] as FileList)?.length > 0
+        })
       }
-      return !formData[field] || (formData[field] as string).trim() === "";
-    });
-  
+      return !formData[field] || (formData[field] as string).trim() === ""
+    })
+
     if (missingFields.length > 0) {
-      const missingFieldLabels = missingFields.map((field) => labels[field]).join(", ");
-      alert(`Please fill in all required fields: ${missingFieldLabels}`);
-      return;
+      const missingFieldLabels = missingFields.map((field) => labels[field]).join(", ")
+      alert(`Please fill in all required fields: ${missingFieldLabels}`)
+      return
     }
-  
-    setIsSubmitting(true);
+
+    setIsSubmitting(true)
     try {
-      const formDataToSend = new FormData();
-  
+      const formDataToSend = new FormData()
+
       const projectData = {
         title_th: formData.title_th,
         title_en: formData.title_en,
@@ -470,9 +563,7 @@ useEffect(() => {
         semester: Number.parseInt(formData.semester as string, 10),
         section_id: formData.section_id,
         program_id: data?.program_id,
-        keywords: (formData.keywords as { value: number; label: string }[]).map((keyword) => ({
-          id: keyword.value,
-        })), // Format keywords correctly
+        keywords: selectedKeyword ? selectedKeyword.map(id => ({ id })) : [], // Ensure keywords are correctly populated
         // course_id: data?.course_id,
         staffs: [
           ...(formData.advisor
@@ -504,21 +595,21 @@ useEffect(() => {
         members: (formData.student as { value: number; label: string }[]).map((student) => ({
           id: student.value,
         })),
-      };
-  
+      }
+
       // 3. Append the JSON-serialized project object.
-      formDataToSend.append("project", JSON.stringify(projectData));
-  
+      formDataToSend.append("project", JSON.stringify(projectData))
+
       // 4. For each ProjectResourceConfig, decide if we have a URL or a file upload.
-      const fileConfigs = formConfig["upload_section"] as ProjectResourceConfig[] | undefined;
+      const fileConfigs = formConfig["upload_section"] as ProjectResourceConfig[] | undefined
       if (fileConfigs) {
         fileConfigs.forEach((fileConfig) => {
-          if (!fileConfig.is_active) return; // skip if inactive
-  
+          if (!fileConfig.is_active) return // skip if inactive
+
           // If the user entered a link (URL-based resource)
-          const linkField = `file_link_${fileConfig.id}`;
-          const fileField = `file_upload_${fileConfig.id}`;
-  
+          const linkField = `file_link_${fileConfig.id}`
+          const fileField = `file_upload_${fileConfig.id}`
+
           // If there's a text link, append it as a resource
           if (formData[linkField]) {
             formDataToSend.append(
@@ -526,42 +617,43 @@ useEffect(() => {
               JSON.stringify({
                 title: fileConfig.title,
                 url: formData[linkField],
-              })
-            );
+              }),
+            )
           }
-  
+
           // If the user selected files, append them
-          const selectedFiles = formData[fileField] as FileList | undefined;
+          const selectedFiles = formData[fileField] as FileList | undefined
           if (selectedFiles && selectedFiles.length > 0) {
             // First, append the resource metadata (e.g., just the title)
             formDataToSend.append(
               "projectResources[]",
               JSON.stringify({
                 title: fileConfig.title,
-              })
-            );
-  
+              }),
+            )
+
             // Then, each file in the FileList must be appended as a separate form-data part
             Array.from(selectedFiles).forEach((file) => {
-              formDataToSend.append("files", file, file.name);
-            });
+              formDataToSend.append("files", file, file.name)
+            })
           }
-        });
+        })
       }
-  
+
       // 5. Send the formData using axios
       // await axios.post("https://project-service.kunmhing.me/api/v1/projects", formDataToSend)
-      await PostProject(formDataToSend);
-  
-      alert("Form submitted successfully!");
-      router.push("/dashboard"); // Redirect to dashboard page
+      await PostProject(formDataToSend)
+
+      alert("Form submitted successfully!")
+      router.push("/dashboard") // Redirect to dashboard page
     } catch (error) {
-      console.error("Error submitting form:", error);
-      alert("Failed to submit the form.");
+      console.error("Error submitting form:", error)
+      alert("Failed to submit the form.")
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
+
   if (loading) return <Spinner />
 
   return (
