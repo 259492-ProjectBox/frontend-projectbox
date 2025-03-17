@@ -464,7 +464,7 @@ useEffect(() => {
         semester: Number.parseInt(formData.semester as string, 10),
         section_id: formData.section_id,
         program_id: data?.program_id,
-        course_id: data?.course_id,
+        // course_id: data?.course_id,
         staffs: [
           ...(formData.advisor
             ? (formData.advisor as { value: number; label: string }[]).map((advisor) => ({
