@@ -1,27 +1,22 @@
-// utils/pdfSearchApi.ts
-
-import axios from "axios";
-import { Project } from "@/models/SearchContenetPdf";
+'use server'
+import type { Project } from "@/models/Project"
+import axios from "axios"
+import { apiConfig } from "@/config/apiConfig"
 
 export async function fetchPdfProjects(searchInput: string): Promise<Project[]> {
   try {
-    const response = await axios.get<Project[]>(
-      `https://search-service.kunmhing.me/api/v1/projects/content`,
-      {
-        // Pass the search input as a query parameter
-        params: {
-          searchInput: searchInput,
-        }
-      }
-    );
+    const response = await axios.get<Project[]>(apiConfig.SearchService.ProjectContent, {
+      params: {
+        searchInput: searchInput,
+      },
+    })
 
-    // Log the data to the console
     // console.log("PDF Search Response:", response.data);
 
-    return response.data;
+    return response.data
   } catch (error) {
-    console.error("Error fetching PDF search results:", error);
-    
-    throw error;
+    console.error("Error fetching PDF search results:", error)
+    throw error
   }
 }
+

@@ -1,21 +1,22 @@
-import axios from "axios";
-import { Advisor } from "@/models/Advisor"; // Assuming this matches the response structure
+'use server'
+
+import axios from "axios"
+import type { Advisor } from "@/models/Advisor"
+import { apiConfig } from "@/config/apiConfig"
 
 const getEmployeeById = async (employeeId: string): Promise<Advisor> => {
   try {
-    const response = await axios.get(
-      `https://project-service.kunmhing.me/api/v1/staffs/${employeeId}`,
-      {
-        headers: {
-          Accept: "application/json",
-        },
-      }
-    );
-    return response.data; // Adjust this to match the exact API response structure if needed
+    const response = await axios.get(apiConfig.ProjectService.StaffById(employeeId), {
+      headers: {
+        Accept: "application/json",
+      },
+    })
+    return response.data
   } catch (error) {
-    console.error("Error in getEmployeeById:", error);
-    throw new Error("Failed to fetch employee data");
+    console.error("Error in getEmployeeById:", error)
+    throw new Error("Failed to fetch employee data")
   }
-};
+}
 
-export default getEmployeeById;
+export default getEmployeeById
+

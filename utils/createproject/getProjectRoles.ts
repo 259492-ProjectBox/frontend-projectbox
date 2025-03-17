@@ -1,18 +1,19 @@
-import axios from 'axios';
-import { ProjectRole } from '../../models/ProjectRoles';
-
-const API_URL = 'https://project-service.kunmhing.me/api/v1/projectRoles/program/1';
+'use server'
+import axios from "axios"
+import type { ProjectRole } from "../../models/ProjectRoles"
+import { apiConfig } from "@/config/apiConfig"
 
 export const getProjectRoles = async (): Promise<ProjectRole[]> => {
   try {
-    const response = await axios.get(API_URL, {
+    const response = await axios.get(apiConfig.ProjectService.ProjectRolesByProgram(1), {
       headers: {
-        'accept': 'application/json'
-      }
-    });
-    return response.data;
+        accept: "application/json",
+      },
+    })
+    return response.data
   } catch (error) {
-    console.error('Error fetching project roles:', error);
-    throw error;
+    console.error("Error fetching project roles:", error)
+    throw error
   }
-};
+}
+

@@ -1,21 +1,21 @@
-import axios from "axios";
-import { Advisor } from "@/models/Advisor"; // Assuming this matches the response structure
+'use server'
+
+import axios from "axios"
+import type { Advisor } from "@/models/Advisor"
+import { apiConfig } from "@/config/apiConfig"
 
 const getAdvisorByEmail = async (employeeEmail: string): Promise<Advisor> => {
   try {
-    const response = await axios.get(
-      `https://project-service.kunmhing.me/api/v1/staffs/email/${employeeEmail}`,
-      {
-        headers: {
-          Accept: "application/json",
-        },
-      }
-    );
-    return response.data; 
+    
+    const response = await axios.get(apiConfig.ProjectService.StaffByEmail(employeeEmail))
+    // console.log("response.data", response.data);
+    
+    return response.data
   } catch (error) {
-    console.error("Error in getAdvisorByEmail:", error);
-    throw new Error("Failed to fetch employee data");
+    console.error("Error in getAdvisorByEmail:", error)
+    throw new Error("Failed to fetch employee data")
   }
-};
+}
 
-export default getAdvisorByEmail;
+export default getAdvisorByEmail
+

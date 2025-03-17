@@ -8,9 +8,14 @@ import Spinner from "@/components/Spinner"; // Import Spinner component
 import Pagination from "@/components/Pagination"; // Import Pagination component
 import { AllProgram } from "@/models/AllPrograms";
 import getAllProgram from "@/utils/getAllProgram";
-import { fetchPdfProjects } from "@/utils/pdfSearchApi"; // Import fetchPdfProjects
+import { fetchPdfProjects } from "@/utils/search/pdfSearchApi"; // Import fetchPdfProjects
 import { getAcademicYears } from "@/utils/configprogram/getAcademicYears"; // Import getAcademicYears
 import { AcademicYear } from "@/models/AcademicYear"; // Import AcademicYear
+import keywordSearchProjects, { KeywordSearchFields } from "@/utils/search/keywordSearch"; // Import keywordSearchProjects
+import { Keyword } from "@/dtos/Keyword";
+import getAllKeyWord from "@/utils/keywords/getAllKeyWord";
+import { Autocomplete, TextField } from "@mui/material";
+import { getProgramNameById } from "@/utils/programHelpers";
 
 interface SearchFields {
   courseNo: string | null;
@@ -48,6 +53,8 @@ const SearchPage: React.FC = () => {
   });
   const [academicYears, setAcademicYears] = useState<AcademicYear[]>([]); // State for academic years
 
+  const [keywords ,setKeywords] = useState<Keyword[]>();
+  const [selectedKeyword, setSelectedKeyword] = useState<KeywordSearchFields>({keyword_id: 0});
   useEffect(() => {
     const fetchPrograms = async () => {
       try {
@@ -59,6 +66,7 @@ const SearchPage: React.FC = () => {
     };
 
     fetchPrograms();
+    loadKeywords();
   }, []);
 
   useEffect(() => {
@@ -74,6 +82,15 @@ const SearchPage: React.FC = () => {
     fetchAcademicYears();
   }, []);
 
+  const loadKeywords = async () => {
+    try {
+      
+      const keywords = await getAllKeyWord();
+      setKeywords(keywords);
+    } catch (error) {
+      console.error("Error fetching keywords:", error);
+    }
+  }
   const toggleSearchField = (field: keyof typeof searchableFields) => {
     setSearchableFields(prev => ({
       ...prev,
@@ -164,6 +181,25 @@ const SearchPage: React.FC = () => {
     }
   };
 
+  const handleKeywordSearch = async () => {
+    if (selectedKeyword.keyword_id === 0) {
+      alert("Please select a keyword.");
+      return;
+    }
+    setLoading(true);
+    setHasSearched(true);
+    try {
+      const results = await keywordSearchProjects({ searchFields: selectedKeyword });
+      setFilteredRecords(results);
+    } catch (error) {
+      console.error("Error fetching keyword search results:", error);
+      setFilteredRecords([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top
@@ -182,6 +218,9 @@ const SearchPage: React.FC = () => {
         handleDetailSearch();
       } else if (searchMode === "pdf") {
         handleSearchPDF(); // Add this line
+      } else if (searchMode === "keyword") {
+        loadKeywords();
+        handleKeywordSearch();
       }
     }
   };
@@ -201,7 +240,7 @@ const SearchPage: React.FC = () => {
             id="searchMode" 
             value={searchMode}
             onChange={(e) => {
-              setSearchMode(e.target.value as "quick" | "detail" | "pdf");
+              setSearchMode(e.target.value as "quick" | "detail" | "pdf" | "keyword");
               setSearchTerm("");
               setSearchFields({
                 courseNo: "",
@@ -219,6 +258,7 @@ const SearchPage: React.FC = () => {
             <option value="quick">Quick Search</option>
             <option value="detail">Advanced Search</option>
             <option value="pdf">PDF Search</option>
+            <option value="keyword">Keyword Search</option>
           </select>
         </div>
 
@@ -283,6 +323,30 @@ const SearchPage: React.FC = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
             </svg>
             <span>PDF Search</span>
+          </button>
+          <button
+            onClick={() => {
+              setSearchMode("keyword");
+              setSearchTerm("");
+              setFilteredRecords([]);
+            }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors duration-200 ${
+              searchMode === "keyword"
+                ? "bg-[#f5c462] text-black"
+                : "text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 key-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+</svg>
+
+            <style jsx>{`
+              .key-icon {
+                stroke: #000; /* Change the color to black */
+                transform: rotate(90deg); /* Rotate the icon to make it look like a key */
+              }
+            `}</style>
+            <span>Keyword Search</span>
           </button>
         </div>
       </div>
@@ -438,6 +502,65 @@ const SearchPage: React.FC = () => {
               </div>
             </div>
           </div>
+        ) : searchMode === "keyword" ? (
+          // KEYWORD SEARCH
+          <div>
+      <div className="flex items-center mb-2">
+      <Autocomplete
+      className="flex-grow"
+        options={(keywords ?? []).sort((a, b) => -b.keyword.localeCompare(a.keyword))}
+        groupBy={(option) => {
+          const programName = getProgramNameById(option.program_id, programOptions);
+          return programName ? programName : option.program_id.toString();
+        }}
+        getOptionLabel={(option) => option.keyword}
+        sx={{
+          width: 300,
+          "& .MuiInputBase-root": { height: 36 }, // Adjust input height
+          "& .MuiOutlinedInput-root": { padding: "4px" }, // Reduce padding inside input
+        }}
+        slotProps={
+          {
+            listbox: { sx: { maxHeight: "200px",  "& .MuiAutocomplete-option": { padding: "4px 8px", fontSize: "14px" },} },
+          }
+        }
+  
+        onChange={(_event, value) => setSelectedKeyword({ keyword_id: value?.id ?? 0 })}
+        renderGroup={(params) => (
+          <div key={params.key}>
+            <div
+              style={{
+                backgroundColor: "#f0f0f0",
+                fontWeight: "bold",
+                padding: "6px 10px",
+                fontSize: "14px",
+              }}
+            >
+              {params.group}
+            </div>
+            {params.children}
+          </div>
+        )}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            placeholder="Enter keyword..."
+            className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-button_focus text-sm"
+          />
+        )}
+        />
+
+        <button
+          onClick={handleKeywordSearch}
+          className="bg-primary_button text-white py-2 px-4 rounded-r-md hover:bg-button_hover focus:outline-none focus:bg-button_focus text-sm"
+        >
+          Search
+        </button>
+      </div>
+      <div className="text-sm text-gray-600 mb-3 px-2">
+        <p>Search projects by keyword. Results will show projects containing your search terms in their keywords.</p>
+      </div>
+    </div>
         ) : (
           // QUICK SEARCH
           <div>
@@ -447,7 +570,8 @@ const SearchPage: React.FC = () => {
                 placeholder="Enter search term..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={handleKeyPress}
+                // onKeyPress={handleKeyPress}
+                onKeyDown={handleKeyPress} // Change this line
                 className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-button_focus text-sm"
               />
               <button

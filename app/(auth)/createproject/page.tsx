@@ -14,7 +14,6 @@ import { getStudentInfo } from "@/utils/createproject/getStudentInfo" // Import 
 import { getStudentsByProgram } from "@/utils/createproject/getStudentsByProgram"
 import type { Student } from "@/models/Student" // Import the new Student type
 import type { ConfigProgramSetting } from "@/models/ConfigProgram"
-import axios from "axios" // Import axios for making API requests
 import { useRouter } from "next/navigation" // Import useRouter from next/navigation
 import { getProjectRoles } from "@/utils/createproject/getProjectRoles" // Import the getProjectRoles function
 import type { ProjectRole } from "@/models/ProjectRoles" // Import the ProjectRole type
@@ -22,6 +21,7 @@ import type { ProjectResourceConfig } from "@/models/ProjectResourceConfig"
 import getAllProgram from "@/utils/getAllProgram"
 import type { AllProgram } from "@/models/AllPrograms"
 import { createProjectCheckPermission } from "@/utils/dashboard/createProjectCheckPermission"
+import { PostProject } from "@/app/actions/project-services"
 
 // Types
 
@@ -541,13 +541,8 @@ useEffect(() => {
       }
 
       // 5. Send the formData using axios
-      await axios.post("https://project-service.kunmhing.me/api/v1/projects", formDataToSend, {
-        headers: {
-          // Authorization:
-          //   "Bearer Pl6sXUmjwzNtwcA4+rkBP8jTmRttcNwgJqp1Zn1a+qCRaYXdYdwgJ9mM5glzHQD2FOsLilpELbmVSF2nGZCOwTO6u5CTsVpyIGDguXoMobSApgEsO3avovqWYDAEuznY/Vu4XMvHDkFqyuY1dQfN+QdB04t89/1O/w1cDnyilFU=",
-          "Content-Type": "multipart/form-data",
-        },
-      })
+      // await axios.post("https://project-service.kunmhing.me/api/v1/projects", formDataToSend)
+      await PostProject(formDataToSend)
 
       alert("Form submitted successfully!")
       router.push("/dashboard") // Redirect to dashboard page

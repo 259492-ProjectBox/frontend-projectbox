@@ -1,3 +1,4 @@
+'use server'
 // utils/eventcalendar/getEventsByMajorId.ts
 import axios from "axios";
 import { Event } from "@/models/Event";

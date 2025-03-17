@@ -39,7 +39,7 @@ const ProjectComponent = ({ project }: { project: Project }) => {
   }, [project.program?.id]);
 
   return (
-    <div className="relative mb-4 border border-gray-100 rounded-md bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
+    <div className="relative mb-4  rounded-md bg-white shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-300">
       <div className="p-4">
         {/* Edit Button - Top Right */}
         {(isMember || isProjectProgramAdmin) && (
@@ -69,7 +69,7 @@ const ProjectComponent = ({ project }: { project: Project }) => {
             </Link>
           </h4>
         </div>
-        <div className="bg-gray-200 p-3 rounded-md">
+        <div className="bg-gray-100 p-3 rounded-md text-sm font-medium">
         
         <StyledText text={project.highlightedContents}/>
         </div>
@@ -185,7 +185,7 @@ const ProjectComponent = ({ project }: { project: Project }) => {
         </div>
 
         {/* Project Description */}
-        <div className="w-full bg-gray-50 p-3 rounded-md">
+        <div className="w-full bg-gray-50 p-3 rounded-md">  
           <LimitedText text={project.abstractText || "No Description"} />
         </div>
       </div>
