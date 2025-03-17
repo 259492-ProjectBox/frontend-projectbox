@@ -6,8 +6,9 @@ import { apiConfig } from "@/config/apiConfig"
 
 const getAdvisorByEmail = async (employeeEmail: string): Promise<Advisor> => {
   try {
+    
     const response = await axios.get(apiConfig.ProjectService.StaffByEmail(employeeEmail))
-    console.log("response.data", response.data);
+    // console.log("response.data", response.data);
     
     return response.data
   } catch (error) {

@@ -53,7 +53,7 @@ export default function AdvisorStatsPage() {
           setSearchTerm("")
         }
       } catch (error) {
-        console.error("Error fetching advisor data:", error)
+        console.error("Error fetching advisor data: 2", error)
       } finally {
         setLoading(false)
       }

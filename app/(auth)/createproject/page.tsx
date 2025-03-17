@@ -14,7 +14,6 @@ import { getStudentInfo } from "@/utils/createproject/getStudentInfo" // Import 
 import { getStudentsByProgram } from "@/utils/createproject/getStudentsByProgram"
 import type { Student } from "@/models/Student" // Import the new Student type
 import type { ConfigProgramSetting } from "@/models/ConfigProgram"
-import axios from "axios" // Import axios for making API requests
 import { useRouter } from "next/navigation" // Import useRouter from next/navigation
 import { getProjectRoles } from "@/utils/createproject/getProjectRoles" // Import the getProjectRoles function
 import type { ProjectRole } from "@/models/ProjectRoles" // Import the ProjectRole type

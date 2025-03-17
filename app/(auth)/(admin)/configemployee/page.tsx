@@ -57,7 +57,7 @@ export default function ConfigAdvisorPage() {
       const data: Advisor[] = await getEmployeeByProgramId(selectedMajor);
       setAdvisors(data);
     } catch (err) {
-      console.error("Error fetching advisors:", err);
+      console.error("Error fetching advisors: 1", err);
       setError("Failed to load advisors.");
     } finally {
       setLoading(false);

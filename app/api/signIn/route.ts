@@ -61,10 +61,10 @@ export async function POST(req: Request) {
 
 	// make it send to AuthService that is in localhost 3002 
 	// and get the response from there
-	if (typeof process.env.AUTHSERVICE_URL !== "string") {
+	if (typeof process.env.AUTH_SERVICE_URL !== "string") {
 		throw new Error("Please assign AUTHSERVICE_URL in .env!");
 	}
-	const tokenResponse = await axiosInstance.post(process.env.AUTHSERVICE_URL + "/api/signin", {
+	const tokenResponse = await axiosInstance.post(process.env.AUTH_SERVICE_URL + "/api/signin", {
 		authorizationCode: authorizationCode
 	});
 	

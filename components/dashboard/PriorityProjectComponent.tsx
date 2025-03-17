@@ -26,9 +26,10 @@ const PriorityProjectComponent: React.FC<PriorityProjectComponentProps> = ({ pro
       if (user?.cmuAccount) {
         try {
           const advisorData = await getAdvisorByEmail(user.cmuAccount)
+          
           setAdvisor(advisorData)
         } catch (error) {
-          console.error("Error fetching advisor:", error)
+          console.error("Error fetching advisor: 3", error)
         }
       }
     }

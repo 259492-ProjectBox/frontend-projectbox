@@ -1,11 +1,16 @@
 // Centralized API configuration
 
-const PROJECT_SERVICE_URL = "https://project-service.kunmhing.me";
-const SEARCH_SERVICE_URL = "https://search-service.kunmhing.me";
-const AUTH_SERVICE_URL = "https://auth-service.kunmhing.me";
+// const PROJECT_SERVICE_URL = "https://project-service.kunmhing.me" ;
+// const SEARCH_SERVICE_URL = "https://search-service.kunmhing.me";
+// const AUTH_SERVICE_URL = "https://auth-service.kunmhing.me";
+
+const PROJECT_SERVICE_URL = process.env.PROJECT_SERVICE_URL  ;
+const SEARCH_SERVICE_URL = process.env.SEARCH_SERVICE_URL;
+const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL ;
 
 export const apiConfig = {
     // Project Service
+    
     ProjectService: {
       // Programs
       Programs: `${PROJECT_SERVICE_URL}/api/v1/programs`,
