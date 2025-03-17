@@ -1,5 +1,5 @@
 'use server'
-import type { Student } from "../../models/Student"
+import type { Student } from "../../../models/Student"
 import { apiConfig } from "@/config/apiConfig"
 
 export const getStudentInfo = async (studentId: string): Promise<Student | null> => {

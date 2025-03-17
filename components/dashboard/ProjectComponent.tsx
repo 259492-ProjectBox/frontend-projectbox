@@ -7,7 +7,7 @@ import Link from "next/link";
 import { LimitedList, LimitedText } from "@/components/dashboard/LimitedComponents";
 import { useAuth } from "@/hooks/useAuth";
 import { obfuscateId } from "@/utils/encodePath";
-import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig";
+import { getProjectResourceConfig } from "@/app/api/configform/getProjectResourceConfig";
 import { ProjectResourceConfig } from "@/models/ProjectResourceConfig";
 import { StyledText } from "../StyleText";
 

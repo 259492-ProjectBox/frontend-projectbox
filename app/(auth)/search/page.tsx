@@ -1,19 +1,19 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import quickSearchProjects from "@/utils/search/quicksearch";
-import detailSearchProjects from "@/utils/search/detailSearch"; // Import detailSearchProjects
+import quickSearchProjects from "@/app/api/search/quicksearch";
+import detailSearchProjects from "@/app/api/search/detailSearch"; // Import detailSearchProjects
 import { Project } from "@/models/Project";
 import ProjectComponent from "@/components/dashboard/ProjectComponent";
 import Spinner from "@/components/Spinner"; // Import Spinner component
 import Pagination from "@/components/Pagination"; // Import Pagination component
 import { AllProgram } from "@/models/AllPrograms";
 import getAllProgram from "@/utils/getAllProgram";
-import { fetchPdfProjects } from "@/utils/search/pdfSearchApi"; // Import fetchPdfProjects
-import { getAcademicYears } from "@/utils/configprogram/getAcademicYears"; // Import getAcademicYears
+import { fetchPdfProjects } from "@/app/api/search/pdfSearchApi"; // Import fetchPdfProjects
+import { getAcademicYears } from "@/app/api/configprogram/getAcademicYears"; // Import getAcademicYears
 import { AcademicYear } from "@/models/AcademicYear"; // Import AcademicYear
-import keywordSearchProjects, { KeywordSearchFields } from "@/utils/search/keywordSearch"; // Import keywordSearchProjects
+import keywordSearchProjects, { KeywordSearchFields } from "@/app/api/search/keywordSearch"; // Import keywordSearchProjects
 import { Keyword } from "@/dtos/Keyword";
-import getAllKeyWord from "@/utils/keywords/getAllKeyWord";
+import getAllKeyWord from "@/app/api/keywords/getAllKeyWord";
 import { Autocomplete, TextField } from "@mui/material";
 import { getProgramNameById } from "@/utils/programHelpers";
 

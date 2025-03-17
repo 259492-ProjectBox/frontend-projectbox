@@ -9,8 +9,8 @@ import ProjectComponent from "@/components/dashboard/ProjectComponent" // Import
 import Pagination from "@/components/Pagination" // Import Pagination component
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew"
 import Avatar from "@/components/Avatar"
-import getAdvisorByEmail from "@/utils/advisorstats/getAdvisorByEmail"
-import getProjectsByAdvisorEmail from "@/utils/advisorstats/getProjectByAdvisorEmail"
+import getAdvisorByEmail from "@/app/api/advisorstats/getAdvisorByEmail"
+import getProjectsByAdvisorEmail from "@/app/api/advisorstats/getProjectByAdvisorEmail"
 
 export default function AdvisorProfilePage() {
   const params = useParams()

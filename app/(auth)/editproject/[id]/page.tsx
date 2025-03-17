@@ -4,21 +4,22 @@ import type React from "react"
 import { useEffect, useState } from "react"
 import Spinner from "@/components/Spinner"
 import type { Project } from "@/models/Project"
-import getProjectById from "@/utils/projects/getProjectById"
+import getProjectById from "@/app/api/projects/getProjectById"
 import type { ProjectResourceConfig } from "@/models/ProjectResourceConfig" // Import ProjectResourceConfig type
 import Select from "react-select"
 import Image from "next/image"
 import axios from "axios" // Import axios for making API requests
 import { useRouter } from "next/navigation" // Import useRouter from next/navigation
-import getAllEmployees from "@/utils/advisorstats/getAllEmployee"
+import getAllEmployees from "@/app/api/advisorstats/getAllEmployee"
 import type { Advisor } from "@/models/Advisor"
-import { getStudentsByProgram } from "@/utils/createproject/getStudentsByProgram"
+import { getStudentsByProgram } from "@/app/api/createproject/getStudentsByProgram"
 import type { Student } from "@/models/Student" // Import the Student type
-import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig" // Import getProjectResourceConfig
+import { getProjectResourceConfig } from "@/app/api/configform/getProjectResourceConfig" // Import getProjectResourceConfig
 import EditIcon from "@mui/icons-material/Edit"
 import getAllProgram from "@/utils/getAllProgram"
 import type { AllProgram } from "@/models/AllPrograms"
 import { useAuth } from "@/hooks/useAuth"
+import updateProject from "@/app/api/projects/updateproject"
 
 interface EditProjectPageProps {
   params: {
@@ -184,7 +185,6 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
           }
         })
 
-        console.log("Initial Form Data:", initialFormData) // Debug log
         setFormData(initialFormData)
 
         // Always fetch resource configs for the program
@@ -640,14 +640,15 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
       })
 
       // Make the API request
-      await axios.put(`https://project-service.kunmhing.me/api/v1/projects`, formDataToSend, {
-        headers: {
-          Authorization:
-            "Bearer Pl6sXUmjwzNtwcA4+rkBP8jTmRttcNwgJqp1Zn1a+qCRaYXdYdwgJ9mM5glzHQD2FOsLilpELbmVSF2nGZCOwTO6u5CTsVpyIGDguXoMobSApgEsO3avovqWYDAEuznY/Vu4XMvHDkFqyuY1dQfN+QdB04t89/1O/w1cDnyilFU=",
-          "Content-Type": "multipart/form-data",
-        },
-      })
+      // await axios.put(`https://project-service.kunmhing.me/api/v1/projects`, formDataToSend, {
+      //   headers: {
+      //     Authorization:
+      //       "Bearer Pl6sXUmjwzNtwcA4+rkBP8jTmRttcNwgJqp1Zn1a+qCRaYXdYdwgJ9mM5glzHQD2FOsLilpELbmVSF2nGZCOwTO6u5CTsVpyIGDguXoMobSApgEsO3avovqWYDAEuznY/Vu4XMvHDkFqyuY1dQfN+QdB04t89/1O/w1cDnyilFU=",
+      //     "Content-Type": "multipart/form-data",
+      //   },
+      // })
 
+      await updateProject(formDataToSend) // Call the updateProject function with the form data
       alert("Form submitted successfully!")
       router.push("/dashboard") // Redirect to dashboard page
     } catch (error) {

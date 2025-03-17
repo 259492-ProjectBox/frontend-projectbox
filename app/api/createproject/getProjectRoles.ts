@@ -1,6 +1,6 @@
 'use server'
 import axios from "axios"
-import type { ProjectRole } from "../../models/ProjectRoles"
+import type { ProjectRole } from "../../../models/ProjectRoles"
 import { apiConfig } from "@/config/apiConfig"
 
 export const getProjectRoles = async (): Promise<ProjectRole[]> => {

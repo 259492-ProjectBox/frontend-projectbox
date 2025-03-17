@@ -53,6 +53,8 @@ export const apiConfig = {
       // Project Roles
       ProjectRolesByProgram: (id: number) => `${PROJECT_SERVICE_URL}/api/v1/projectRoles/program/${id}`,
   
+      //Project 
+      Projects: `${PROJECT_SERVICE_URL}/api/v1/projects`,
       // Uploads
       UploadStudentEnrollment: (id: number) =>
         `${PROJECT_SERVICE_URL}/api/v1/uploads/program/${id}/student-enrollment`,
@@ -67,6 +69,7 @@ export const apiConfig = {
       // create project
       CreateProject: `${PROJECT_SERVICE_URL}/api/v1/projects`,
       GetAllKeyWord: `${PROJECT_SERVICE_URL}/api/v1/keywords/all`,
+      GetKeywordByProgramID : (id: number) => `${PROJECT_SERVICE_URL}/api/v1/keywords?program_id=${id}`,
     },
   
     // Search Service

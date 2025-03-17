@@ -8,7 +8,7 @@
     fetchEvents,
     updateEvent,
     deleteEvent,
-  } from "@/utils/calendar/calendar";
+  } from "@/app/api/calendar/calendar";
   import EventTable from "@/components/EventTable";
   import Modal from "@/components/Modal";
   import EventForm from "@/components/EventForm";

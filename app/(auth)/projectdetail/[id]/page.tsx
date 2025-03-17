@@ -3,11 +3,11 @@
 import React, { useEffect, useState } from "react";
 import Spinner from "@/components/Spinner";
 import { Project } from "@/models/Project";
-import getProjectById from "@/utils/projects/getProjectById";
+import getProjectById from "@/app/api/projects/getProjectById";
 import Image from "next/image";
 import { deobfuscateId} from "@/utils/encodePath";
 import Avatar from "@/components/Avatar";
-import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig";
+import { getProjectResourceConfig } from "@/app/api/configform/getProjectResourceConfig";
 import { ProjectResourceConfig } from "@/models/ProjectResourceConfig";
 import { useAuth } from "@/hooks/useAuth";
 
