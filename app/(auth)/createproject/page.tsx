@@ -332,66 +332,7 @@ useEffect(() => {
       return null
     })
 
-  // const renderMultiSelectField = (
-  //   field: string,
-  //   label: string,
-  //   isRequired: boolean,
-  //   optionsList: { value: number; label: string }[],
-  // ) => {
-  //   if (!formConfig[field]) return null
-
-  //   // Only apply filtering for advisor roles, not for students
-  //   let filteredOptions = optionsList
-
-  //   if (field !== "student") {
-  //     // Get all selected staff across all advisor roles
-  //     const selectedAdvisors = (formData.advisor as { value: number; label: string }[]) || []
-  //     const selectedCoAdvisors = (formData.co_advisor as { value: number; label: string }[]) || []
-  //     const selectedCommittee = (formData.committee as { value: number; label: string }[]) || []
-  //     const selectedExternalCommittee = (formData.external_committee as { value: number; label: string }[]) || []
-
-  //     // Create a set of all selected staff IDs except for the current field
-  //     const selectedStaffIds = new Set<number>()
-
-  //     if (field !== "advisor") {
-  //       selectedAdvisors.forEach((item) => selectedStaffIds.add(item.value))
-  //     }
-  //     if (field !== "co_advisor") {
-  //       selectedCoAdvisors.forEach((item) => selectedStaffIds.add(item.value))
-  //     }
-  //     if (field !== "committee") {
-  //       selectedCommittee.forEach((item) => selectedStaffIds.add(item.value))
-  //     }
-  //     if (field !== "external_committee") {
-  //       selectedExternalCommittee.forEach((item) => selectedStaffIds.add(item.value))
-  //     }
-
-  //     // Filter out options that are already selected in other roles
-  //     filteredOptions = optionsList.filter((option) => !selectedStaffIds.has(option.value))
-  //   }
-
-  //   return (
-  //     <div className="mb-4">
-  //       <label className="block mb-1 text-sm font-medium text-gray-700">
-  //         {label} {isRequired && <span className="text-red-500 ml-1">*</span>}
-  //       </label>
-  //       <Select
-  //         isMulti
-  //         name={field}
-  //         value={(formData[field] as { value: number; label: string }[]) || []}
-  //         onChange={(selectedOptions) =>
-  //           handleMultiSelectChange(selectedOptions as { value: number; label: string }[], field)
-  //         }
-  //         options={filteredOptions}
-  //         getOptionLabel={(e) => e.label}
-  //         getOptionValue={(e) => e.value.toString()}
-  //         className="w-full"
-  //       />
-  //     </div>
-  //   )
-  // }
-
-  const renderMultiSelectField = (
+    const renderMultiSelectField = (
     field: string,
     label: string,
     isRequired: boolean,

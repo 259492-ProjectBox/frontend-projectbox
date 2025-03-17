@@ -19,6 +19,7 @@ import EditIcon from "@mui/icons-material/Edit"
 import getAllProgram from "@/utils/getAllProgram"
 import type { AllProgram } from "@/models/AllPrograms"
 import { useAuth } from "@/hooks/useAuth"
+import updateProject from "@/app/api/projects/updateproject"
 
 interface EditProjectPageProps {
   params: {
@@ -184,7 +185,6 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
           }
         })
 
-        console.log("Initial Form Data:", initialFormData) // Debug log
         setFormData(initialFormData)
 
         // Always fetch resource configs for the program
@@ -640,14 +640,15 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
       })
 
       // Make the API request
-      await axios.put(`https://project-service.kunmhing.me/api/v1/projects`, formDataToSend, {
-        headers: {
-          Authorization:
-            "Bearer Pl6sXUmjwzNtwcA4+rkBP8jTmRttcNwgJqp1Zn1a+qCRaYXdYdwgJ9mM5glzHQD2FOsLilpELbmVSF2nGZCOwTO6u5CTsVpyIGDguXoMobSApgEsO3avovqWYDAEuznY/Vu4XMvHDkFqyuY1dQfN+QdB04t89/1O/w1cDnyilFU=",
-          "Content-Type": "multipart/form-data",
-        },
-      })
+      // await axios.put(`https://project-service.kunmhing.me/api/v1/projects`, formDataToSend, {
+      //   headers: {
+      //     Authorization:
+      //       "Bearer Pl6sXUmjwzNtwcA4+rkBP8jTmRttcNwgJqp1Zn1a+qCRaYXdYdwgJ9mM5glzHQD2FOsLilpELbmVSF2nGZCOwTO6u5CTsVpyIGDguXoMobSApgEsO3avovqWYDAEuznY/Vu4XMvHDkFqyuY1dQfN+QdB04t89/1O/w1cDnyilFU=",
+      //     "Content-Type": "multipart/form-data",
+      //   },
+      // })
 
+      await updateProject(formDataToSend) // Call the updateProject function with the form data
       alert("Form submitted successfully!")
       router.push("/dashboard") // Redirect to dashboard page
     } catch (error) {
