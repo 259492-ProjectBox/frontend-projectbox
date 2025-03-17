@@ -182,7 +182,7 @@ const SearchPage: React.FC = () => {
   };
 
   const handleKeywordSearch = async () => {
-    if(selectedKeyword === undefined){
+    if (selectedKeyword.keyword_id === 0) {
       alert("Please select a keyword.");
       return;
     }
@@ -505,48 +505,62 @@ const SearchPage: React.FC = () => {
         ) : searchMode === "keyword" ? (
           // KEYWORD SEARCH
           <div>
-            <div className="flex items-center mb-3">
-            <Autocomplete
-  options={(keywords ?? []).sort((a, b) => -b.keyword.localeCompare(a.keyword))}
-  groupBy={(option) => {
-    const programName = getProgramNameById(option.program_id, programOptions);
-    return programName ? programName : option.program_id.toString();
-  }}
-  getOptionLabel={(option) => option.keyword}
-  sx={{ width: 300 }}
-  onChange={(_event, value) => setSelectedKeyword({ keyword_id: value?.id ?? 0 })}
-  renderInput={(params) => (
-    <TextField
-      {...params}
-      label="With categories"
-      onKeyDown={(event) => {
-        if (event.key === "Enter") {
-          handleKeywordSearch();
+      <div className="flex items-center mb-2">
+      <Autocomplete
+      className="flex-grow"
+        options={(keywords ?? []).sort((a, b) => -b.keyword.localeCompare(a.keyword))}
+        groupBy={(option) => {
+          const programName = getProgramNameById(option.program_id, programOptions);
+          return programName ? programName : option.program_id.toString();
+        }}
+        getOptionLabel={(option) => option.keyword}
+        sx={{
+          width: 300,
+          "& .MuiInputBase-root": { height: 36 }, // Adjust input height
+          "& .MuiOutlinedInput-root": { padding: "4px" }, // Reduce padding inside input
+        }}
+        slotProps={
+          {
+            listbox: { sx: { maxHeight: "200px",  "& .MuiAutocomplete-option": { padding: "4px 8px", fontSize: "14px" },} },
+          }
         }
-      }}
-    />
-  )}
-/>
-            
-              {/* <input
-                type="text"
-                placeholder="Enter keyword..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyDown={handleKeyPress}
-                className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-button_focus text-sm"
-              />
-              <button
-                onClick={handleKeywordSearch} // Add this line
-                className="bg-primary_button text-white py-2 px-4 rounded-r-md hover:bg-button_hover focus:outline-none focus:bg-button_focus text-sm"
-              >
-                Search
-              </button> */}
+  
+        onChange={(_event, value) => setSelectedKeyword({ keyword_id: value?.id ?? 0 })}
+        renderGroup={(params) => (
+          <div key={params.key}>
+            <div
+              style={{
+                backgroundColor: "#f0f0f0",
+                fontWeight: "bold",
+                padding: "6px 10px",
+                fontSize: "14px",
+              }}
+            >
+              {params.group}
             </div>
-            <div className="text-sm text-gray-600 mb-4 px-2">
-              <p>Search projects by keyword. Results will show projects containing your search terms in their keywords.</p>
-            </div>
+            {params.children}
           </div>
+        )}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            placeholder="Enter keyword..."
+            className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-button_focus text-sm"
+          />
+        )}
+        />
+
+        <button
+          onClick={handleKeywordSearch}
+          className="bg-primary_button text-white py-2 px-4 rounded-r-md hover:bg-button_hover focus:outline-none focus:bg-button_focus text-sm"
+        >
+          Search
+        </button>
+      </div>
+      <div className="text-sm text-gray-600 mb-3 px-2">
+        <p>Search projects by keyword. Results will show projects containing your search terms in their keywords.</p>
+      </div>
+    </div>
         ) : (
           // QUICK SEARCH
           <div>
