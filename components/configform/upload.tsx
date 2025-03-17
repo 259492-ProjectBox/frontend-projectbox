@@ -1,7 +1,7 @@
 "use client"
 
-import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig"
-import updateResourceStatus from "@/utils/configform/updateProjectResourceConfig"
+import { getProjectResourceConfig } from "@/app/api/configform/getProjectResourceConfig"
+import updateResourceStatus from "@/app/api/configform/updateProjectResourceConfig"
 import type React from "react"
 import { useState, useEffect } from "react"
 import axios from "axios"

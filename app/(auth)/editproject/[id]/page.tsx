@@ -4,17 +4,17 @@ import type React from "react"
 import { useEffect, useState } from "react"
 import Spinner from "@/components/Spinner"
 import type { Project } from "@/models/Project"
-import getProjectById from "@/utils/projects/getProjectById"
+import getProjectById from "@/app/api/projects/getProjectById"
 import type { ProjectResourceConfig } from "@/models/ProjectResourceConfig" // Import ProjectResourceConfig type
 import Select from "react-select"
 import Image from "next/image"
 import axios from "axios" // Import axios for making API requests
 import { useRouter } from "next/navigation" // Import useRouter from next/navigation
-import getAllEmployees from "@/utils/advisorstats/getAllEmployee"
+import getAllEmployees from "@/app/api/advisorstats/getAllEmployee"
 import type { Advisor } from "@/models/Advisor"
-import { getStudentsByProgram } from "@/utils/createproject/getStudentsByProgram"
+import { getStudentsByProgram } from "@/app/api/createproject/getStudentsByProgram"
 import type { Student } from "@/models/Student" // Import the Student type
-import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig" // Import getProjectResourceConfig
+import { getProjectResourceConfig } from "@/app/api/configform/getProjectResourceConfig" // Import getProjectResourceConfig
 import EditIcon from "@mui/icons-material/Edit"
 import getAllProgram from "@/utils/getAllProgram"
 import type { AllProgram } from "@/models/AllPrograms"

@@ -1,6 +1,6 @@
 'use server'
 import axios from "axios"
-import type { Project } from "../../models/Project"
+import type { Project } from "../../../models/Project"
 import { apiConfig } from "@/config/apiConfig"
 
 interface QuickSearchPayload {

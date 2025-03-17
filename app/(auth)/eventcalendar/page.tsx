@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import getEventsByMajorId from "@/utils/calendar/getEventsByMajorId";
+import getEventsByMajorId from "@/app/api/calendar/getEventsByMajorId";
 import { Event } from "@/models/Event";
 import Spinner from "@/components/Spinner";
 

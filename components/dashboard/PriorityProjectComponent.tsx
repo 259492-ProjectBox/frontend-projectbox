@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from "react"
 import type { Project } from "@/models/Project"
 import ProjectComponent from "@/components/dashboard/ProjectComponent"
 import { useAuth } from "@/hooks/useAuth"
-import getAdvisorByEmail from "@/utils/advisorstats/getAdvisorByEmail"
+import getAdvisorByEmail from "@/app/api/advisorstats/getAdvisorByEmail"
 import type { Advisor } from "@/models/Advisor"
 
 interface PriorityProjectComponentProps {

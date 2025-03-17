@@ -2,26 +2,28 @@
 import type React from "react"
 import { useEffect, useState } from "react"
 import Spinner from "@/components/Spinner"
-import getProjectConfig from "@/utils/configform/getProjectConfig"
-import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig"
-import getAllEmployees from "@/utils/advisorstats/getAllEmployee"
+import getProjectConfig from "@/app/api/configform/getProjectConfig"
+import { getProjectResourceConfig } from "@/app/api/configform/getProjectResourceConfig"
+import getAllEmployees from "@/app/api/advisorstats/getAllEmployee"
 import type { Advisor } from "@/models/Advisor"
 import Select from "react-select"
 import Image from "next/image"
-import { getConfigProgram } from "@/utils/configprogram/configProgram"
+import { getConfigProgram } from "@/app/api/configprogram/configProgram"
 import { useAuth } from "@/hooks/useAuth"
-import { getStudentInfo } from "@/utils/createproject/getStudentInfo" // Import the new utility function
-import { getStudentsByProgram } from "@/utils/createproject/getStudentsByProgram"
+import { getStudentInfo } from "@/app/api/createproject/getStudentInfo" // Import the new utility function
+import { getStudentsByProgram } from "@/app/api/createproject/getStudentsByProgram"
 import type { Student } from "@/models/Student" // Import the new Student type
 import type { ConfigProgramSetting } from "@/models/ConfigProgram"
 import { useRouter } from "next/navigation" // Import useRouter from next/navigation
-import { getProjectRoles } from "@/utils/createproject/getProjectRoles" // Import the getProjectRoles function
+import { getProjectRoles } from "@/app/api/createproject/getProjectRoles" // Import the getProjectRoles function
 import type { ProjectRole } from "@/models/ProjectRoles" // Import the ProjectRole type
 import type { ProjectResourceConfig } from "@/models/ProjectResourceConfig"
 import getAllProgram from "@/utils/getAllProgram"
 import type { AllProgram } from "@/models/AllPrograms"
-import { createProjectCheckPermission } from "@/utils/dashboard/createProjectCheckPermission"
+import { createProjectCheckPermission } from "@/app/api/dashboard/createProjectCheckPermission"
 import { PostProject } from "@/app/actions/project-services"
+import { Keyword } from "@/dtos/Keyword"
+import getKeywordByProgramID from "@/app/api/keywords/getKeywordByProgramID"
 
 // Types
 
@@ -42,10 +44,11 @@ const CreateProject: React.FC = () => {
   const [data, setData] = useState<Student | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [projectRoles, setProjectRoles] = useState<ProjectRole[]>([]) // Store project roles
-  const [programs, setPrograms] = useState<AllProgram[]>([])
+  const [, setPrograms] = useState<AllProgram[]>([])
   const [fileErrors, setFileErrors] = useState<{ [key: string]: string }>({})
   const MAX_FILE_SIZE = 25 * 1024 * 1024 // 25MB in bytes
-  
+  const [keywords , setKeywords] = useState<Keyword[]>([])
+  const [selectedKeyword , setSelectedKeyword] = useState<number[] | null>(null)
   const { user, isLoading } = useAuth();
 const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 const router = useRouter();
@@ -67,10 +70,11 @@ useEffect(() => {
 }, [hasPermission, router]);
 
   const labels: Record<string, string> = {
-    course_id: "Course",
-    section_id: "Section",
-    semester: "Semester",
+    // course_id: "Course",
+    keywords: "Keywords",
     academic_year: "Academic Year",
+    semester: "Semester",
+    section_id: "Section",
     title_en: "Project Title (EN)",
     title_th: "Project Title (TH)",
     abstract_text: "Abstract",
@@ -82,7 +86,7 @@ useEffect(() => {
     upload_section: "Upload Section",
   }
 
-  const requiredFields: string[] = ["course_id", "title_en", "title_th", "student", "advisor"]
+  const requiredFields: string[] = [ "title_en", "title_th", "student", "advisor"]
 
   // Fetch data on mount
   useEffect(() => {
@@ -102,6 +106,8 @@ useEffect(() => {
           }, {})
           setFormConfig(activeFields)
 
+          const keywords = await getKeywordByProgramID(data.program_id);
+          setKeywords(keywords);
           const projectResourceConfigs = await getProjectResourceConfig(data.program_id) // Use program ID from student data
           if (projectResourceConfigs && projectResourceConfigs.length > 0) {
           setFormConfig((prevConfig) => ({
@@ -146,7 +152,7 @@ useEffect(() => {
           // Pre-fill course and section
           setFormData((prevData) => ({
             ...prevData,
-            course_id: data.course.course_no,
+            // course_id: data.course.course_no,
             section_id: data.sec_lab,
           }))
         }
@@ -415,47 +421,47 @@ useEffect(() => {
 
   const getStaffOptions = (staff: Advisor[]) => {
     return staff.map((staff) => {
-      const programAbbr = programs.find((p) => p.id === staff.program_id)?.abbreviation || staff.program_id
+      // const programAbbr = programs.find((p) => p.id === staff.program_id)?.abbreviation || staff.program_id
       return {
         value: staff.id,
-        label: `${programAbbr} / ${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
+        label: ` ${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
       }
     })
   }
 
   const handleSubmit = async () => {
-    if (isSubmitting) return
-
+    if (isSubmitting) return;
+  
     // Check required fields
     const missingFields = requiredFields.filter((field) => {
       if (field === "advisor" || field === "student") {
-        return !formData[field] || (formData[field] as { value: number; label: string }[]).length === 0
+        return !formData[field] || (formData[field] as { value: number; label: string }[]).length === 0;
       }
       if (field === "upload_section") {
-        const fileConfigs = formConfig["upload_section"] as ProjectResourceConfig[] | undefined
-        if (!fileConfigs) return true
-
+        const fileConfigs = formConfig["upload_section"] as ProjectResourceConfig[] | undefined;
+        if (!fileConfigs) return true;
+  
         // Check if at least one file or URL is provided for active configs
         return !fileConfigs.some((config) => {
-          if (!config.is_active) return true
-          const linkField = `file_link_${config.id}`
-          const fileField = `file_upload_${config.id}`
-          return formData[linkField] || (formData[fileField] as FileList)?.length > 0
-        })
+          if (!config.is_active) return true;
+          const linkField = `file_link_${config.id}`;
+          const fileField = `file_upload_${config.id}`;
+          return formData[linkField] || (formData[fileField] as FileList)?.length > 0;
+        });
       }
-      return !formData[field] || (formData[field] as string).trim() === ""
-    })
-
+      return !formData[field] || (formData[field] as string).trim() === "";
+    });
+  
     if (missingFields.length > 0) {
-      const missingFieldLabels = missingFields.map((field) => labels[field]).join(", ")
-      alert(`Please fill in all required fields: ${missingFieldLabels}`)
-      return
+      const missingFieldLabels = missingFields.map((field) => labels[field]).join(", ");
+      alert(`Please fill in all required fields: ${missingFieldLabels}`);
+      return;
     }
-
-    setIsSubmitting(true)
+  
+    setIsSubmitting(true);
     try {
-      const formDataToSend = new FormData()
-
+      const formDataToSend = new FormData();
+  
       const projectData = {
         title_th: formData.title_th,
         title_en: formData.title_en,
@@ -464,6 +470,9 @@ useEffect(() => {
         semester: Number.parseInt(formData.semester as string, 10),
         section_id: formData.section_id,
         program_id: data?.program_id,
+        keywords: (formData.keywords as { value: number; label: string }[]).map((keyword) => ({
+          id: keyword.value,
+        })), // Format keywords correctly
         // course_id: data?.course_id,
         staffs: [
           ...(formData.advisor
@@ -495,21 +504,21 @@ useEffect(() => {
         members: (formData.student as { value: number; label: string }[]).map((student) => ({
           id: student.value,
         })),
-      }
-
+      };
+  
       // 3. Append the JSON-serialized project object.
-      formDataToSend.append("project", JSON.stringify(projectData))
-
+      formDataToSend.append("project", JSON.stringify(projectData));
+  
       // 4. For each ProjectResourceConfig, decide if we have a URL or a file upload.
-      const fileConfigs = formConfig["upload_section"] as ProjectResourceConfig[] | undefined
+      const fileConfigs = formConfig["upload_section"] as ProjectResourceConfig[] | undefined;
       if (fileConfigs) {
         fileConfigs.forEach((fileConfig) => {
-          if (!fileConfig.is_active) return // skip if inactive
-
+          if (!fileConfig.is_active) return; // skip if inactive
+  
           // If the user entered a link (URL-based resource)
-          const linkField = `file_link_${fileConfig.id}`
-          const fileField = `file_upload_${fileConfig.id}`
-
+          const linkField = `file_link_${fileConfig.id}`;
+          const fileField = `file_upload_${fileConfig.id}`;
+  
           // If there's a text link, append it as a resource
           if (formData[linkField]) {
             formDataToSend.append(
@@ -517,43 +526,42 @@ useEffect(() => {
               JSON.stringify({
                 title: fileConfig.title,
                 url: formData[linkField],
-              }),
-            )
+              })
+            );
           }
-
+  
           // If the user selected files, append them
-          const selectedFiles = formData[fileField] as FileList | undefined
+          const selectedFiles = formData[fileField] as FileList | undefined;
           if (selectedFiles && selectedFiles.length > 0) {
             // First, append the resource metadata (e.g., just the title)
             formDataToSend.append(
               "projectResources[]",
               JSON.stringify({
                 title: fileConfig.title,
-              }),
-            )
-
+              })
+            );
+  
             // Then, each file in the FileList must be appended as a separate form-data part
             Array.from(selectedFiles).forEach((file) => {
-              formDataToSend.append("files", file, file.name)
-            })
+              formDataToSend.append("files", file, file.name);
+            });
           }
-        })
+        });
       }
-
+  
       // 5. Send the formData using axios
       // await axios.post("https://project-service.kunmhing.me/api/v1/projects", formDataToSend)
-      await PostProject(formDataToSend)
-
-      alert("Form submitted successfully!")
-      router.push("/dashboard") // Redirect to dashboard page
+      await PostProject(formDataToSend);
+  
+      alert("Form submitted successfully!");
+      router.push("/dashboard"); // Redirect to dashboard page
     } catch (error) {
-      console.error("Error submitting form:", error)
-      alert("Failed to submit the form.")
+      console.error("Error submitting form:", error);
+      alert("Failed to submit the form.");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
-
+  };
   if (loading) return <Spinner />
 
   return (
@@ -563,9 +571,15 @@ useEffect(() => {
         <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
           <h6 className="text-lg font-bold mb-4">Project Details</h6>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            {renderFields(["course_id", "section_id", "semester", "academic_year"])}
+            {renderFields(["academic_year", "semester","section_id" ])}
           </div>
           {renderFields(["title_en", "title_th"])}
+          {renderMultiSelectField("keywords", "Keywords", false, keywords.map((keyword) => ({
+            value: keyword.id,
+            label: keyword.keyword,
+          }))
+          )
+          }
           {renderFields(["abstract_text"])}
         </div>
         <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
