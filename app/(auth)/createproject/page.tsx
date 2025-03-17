@@ -464,7 +464,7 @@ useEffect(() => {
         semester: Number.parseInt(formData.semester as string, 10),
         section_id: formData.section_id,
         program_id: data?.program_id,
-        course_id: data?.course_id,
+        // course_id: data?.course_id,
         staffs: [
           ...(formData.advisor
             ? (formData.advisor as { value: number; label: string }[]).map((advisor) => ({
@@ -543,8 +543,8 @@ useEffect(() => {
       // 5. Send the formData using axios
       await axios.post("https://project-service.kunmhing.me/api/v1/projects", formDataToSend, {
         headers: {
-          Authorization:
-            "Bearer Pl6sXUmjwzNtwcA4+rkBP8jTmRttcNwgJqp1Zn1a+qCRaYXdYdwgJ9mM5glzHQD2FOsLilpELbmVSF2nGZCOwTO6u5CTsVpyIGDguXoMobSApgEsO3avovqWYDAEuznY/Vu4XMvHDkFqyuY1dQfN+QdB04t89/1O/w1cDnyilFU=",
+          // Authorization:
+          //   "Bearer Pl6sXUmjwzNtwcA4+rkBP8jTmRttcNwgJqp1Zn1a+qCRaYXdYdwgJ9mM5glzHQD2FOsLilpELbmVSF2nGZCOwTO6u5CTsVpyIGDguXoMobSApgEsO3avovqWYDAEuznY/Vu4XMvHDkFqyuY1dQfN+QdB04t89/1O/w1cDnyilFU=",
           "Content-Type": "multipart/form-data",
         },
       })
