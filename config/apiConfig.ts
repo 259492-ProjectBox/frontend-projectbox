@@ -66,6 +66,7 @@ export const apiConfig = {
 
       // create project
       CreateProject: `${PROJECT_SERVICE_URL}/api/v1/projects`,
+      GetAllKeyWord: `${PROJECT_SERVICE_URL}/api/v1/keywords/all`,
     },
   
     // Search Service
