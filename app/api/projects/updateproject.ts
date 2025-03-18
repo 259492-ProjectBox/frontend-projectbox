@@ -5,6 +5,10 @@ import { apiConfig } from "@/config/apiConfig"
 
 const updateProject = async (formData : FormData): Promise<Project> => {
   try {
+    // console.log("FormData Contents:");
+    //   for (const [key, value] of formData.entries()) {
+    //     console.log(`${key}:`, value);
+    //   }
     const response = await axios.put<Project>(apiConfig.ProjectService.Projects,formData, {
       headers: {  "Content-Type": "multipart/form-data" },
     })

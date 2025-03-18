@@ -20,6 +20,8 @@ import getAllProgram from "@/utils/getAllProgram"
 import type { AllProgram } from "@/models/AllPrograms"
 import { useAuth } from "@/hooks/useAuth"
 import updateProject from "@/app/api/projects/updateproject"
+import { Keyword } from "@/dtos/Keyword"
+import getKeywordByProgramID from "@/app/api/keywords/getKeywordByProgramID"
 
 interface EditProjectPageProps {
   params: {
@@ -37,7 +39,8 @@ interface FormData {
     | Blob
     | undefined
   academicYear?: string
-  courseNo?: string
+  // courseNo?: string
+  keywords?: { value: number; label: string }[]
   section?: string
   semester?: string
   title_en?: string
@@ -55,7 +58,8 @@ const labels: { [key: string]: string } = {
   title_th: "Title (Thai)",
   abstract_text: "Abstract",
   academicYear: "Academic Year",
-  courseNo: "Course No",
+  // courseNo: "Course No",
+  keywords: "Keywords",
   section: "Section",
   semester: "Semester",
   student: "Students",
@@ -71,7 +75,7 @@ const requiredFields: string[] = [
   "title_th",
   "abstract_text",
   "academicYear",
-  "courseNo",
+  // "courseNo",
   "section",
   "semester",
 ] // Define required fields
@@ -92,6 +96,7 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
   const [fileErrors, setFileErrors] = useState<{ [key: string]: string }>({})
   const MAX_FILE_SIZE = 25 * 1024 * 1024 // 25MB in bytes
   const [isDisabled, setIsDisabled] = useState(true); // Add state for isDisabled
+  const [keywordList, setKeywordList] = useState<Keyword[]>([]); // Add state for keywordList
   const user = useAuth();
 
   useEffect(() => {
@@ -106,6 +111,9 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
         } else {
           setIsDisabled(true);
         }
+
+        const keywordList: Keyword[] = await getKeywordByProgramID(projectData.program.id); // Fetch keywords by program ID
+        setKeywordList(keywordList); 
 
         // Fetch file blobs for existing resources
         const blobPromises = projectData?.projectResources
@@ -145,6 +153,10 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
           abstract_text: projectData.abstractText,
           academicYear: projectData.academicYear?.toString(),
           // courseNo: projectData.course?.courseNo,
+          keywords: projectData.keywords?.map((keyword) => ({
+            value: keyword.id,
+            label: keyword.keyword,
+          })),
           section: projectData.sectionId,
           semester: projectData.semester?.toString(),
           student: projectData.members.map((member) => ({
@@ -210,6 +222,7 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
       }
     }
 
+   
     loadProject()
   }, [id, user.user?.isAdmin])
 
@@ -318,6 +331,15 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
       filteredOptions = optionsList.filter((option) => !selectedStaffIds.includes(option.value))
     }
 
+    if(field === 'keywords'){
+      let filteredOptions = [...keywordList]
+
+      const selectedKeywords = (formData[field] as { value: number; label: string }[]) || [] // Get selected keywords
+      // Filter out selected keywords from the options
+      const selectedKeywordIds = selectedKeywords.map((keyword) => keyword.value);
+      filteredOptions = filteredOptions.filter((option) => !selectedKeywordIds.includes(option.id))
+
+    }
     return (
       <div className="mb-4">
         <label className="block mb-1 text-sm font-medium text-gray-700">
@@ -524,6 +546,8 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
         academic_year: Number.parseInt(formData.academicYear as string, 10),
         semester: Number.parseInt(formData.semester as string, 10),
         section_id: formData.section,
+        // keywords: formData.keywords?.map((keyword) => keyword.value),
+        keywords: formData.keywords?.map((keyword) => ({ id: keyword.value })) || [], 
         // course_id: project?.course?.id,
         program_id: project?.program?.id,
         staffs: [
@@ -639,14 +663,11 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
         }
       })
 
-      // Make the API request
-      // await axios.put(`https://project-service.kunmhing.me/api/v1/projects`, formDataToSend, {
-      //   headers: {
-      //     Authorization:
-      //       "Bearer Pl6sXUmjwzNtwcA4+rkBP8jTmRttcNwgJqp1Zn1a+qCRaYXdYdwgJ9mM5glzHQD2FOsLilpELbmVSF2nGZCOwTO6u5CTsVpyIGDguXoMobSApgEsO3avovqWYDAEuznY/Vu4XMvHDkFqyuY1dQfN+QdB04t89/1O/w1cDnyilFU=",
-      //     "Content-Type": "multipart/form-data",
-      //   },
-      // })
+      // console.log("FormData Contents:");
+      // for (const [key, value] of formDataToSend.entries()) {
+      //   console.log(`${key}:`, value);
+      // }
+      
 
       await updateProject(formDataToSend) // Call the updateProject function with the form data
       alert("Form submitted successfully!")
@@ -670,9 +691,11 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
         <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
           <h6 className="text-lg font-bold mb-4">Project Details</h6>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            {renderFields(["courseNo", "section", "semester", "academicYear"])}
+            {renderFields([ "academicYear", "semester","section" ])}
           </div>
           {renderFields(["title_en", "title_th"])}
+          {renderMultiSelectField("keywords", "Keywords", false, keywordList.map((keyword) => ({ value: keyword.id, label: keyword.keyword })))
+}
           {renderFields(["abstract_text"])}
         </div>
 
