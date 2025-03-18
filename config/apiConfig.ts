@@ -76,7 +76,7 @@ export const apiConfig = {
       GetKeywordByProgramID : (id: number) => `${PROJECT_SERVICE_URL}/api/v1/keywords?program_id=${id}`,
       GETKeywordByID : (id: number) => `${PROJECT_SERVICE_URL}/api/v1/keywords/${id}`,
       CreateKeyword : `${PROJECT_SERVICE_URL}/api/v1/keywords`,
-      UpdateKeyword : (id: number) => `${PROJECT_SERVICE_URL}/api/v1/keywords/${id}`,
+      UpdateKeyword : `${PROJECT_SERVICE_URL}/api/v1/keywords`,
       DeleteKeyword : (id: number) => `${PROJECT_SERVICE_URL}/api/v1/keywords/${id}`,
 
     },
