@@ -29,7 +29,7 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
     { text: "Manage Student", icon: <ChecklistRtlIcon className="w-4 h-4 text-green-500" />, path: "/configprogram" },
     
     { text: "Manage Submission", icon: <EditNoteIcon className="w-4 h-4 text-indigo-500" />, path: "/configform" },
-    {text : "Manage Keyword", icon: <KeyIcon className="w-4 h-4 text-yellow -500  " />, path: "/configkeyword"},
+    {text : "Manage Keyword", icon: <KeyIcon className="w-4 h-4 text-yellow-500  " />, path: "/configkeyword"},
     { text: "Manage Staff", icon: <ManageAccountsIcon className="w-4 h-4 text-cyan-500" />, path: "/configemployee" },
   ];
 

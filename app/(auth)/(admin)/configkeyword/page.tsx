@@ -9,6 +9,8 @@ import Pagination from '@/components/Pagination';
 import getKeywordByProgramID from '@/app/api/keywords/getKeywordByProgramID';
 import deleteKeywordByProgramID from '@/app/api/keywords/deleteKeyword';
 import { createKeyword } from '@/app/api/keywords/createKeyword';
+import { editKeyword } from '@/app/api/keywords/editKeyword';
+  // Import the editKeyword function
 
 const ConfigKeywordPage = () => {
   const { selectedMajor } = useProgram();
@@ -20,6 +22,9 @@ const ConfigKeywordPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+  const [editKeywordData, setEditKeywordData] = useState<{ id: number; keyword: string }>({ id: 0, keyword: '' });
+  const [editKeywordInput, setEditKeywordInput] = useState<string>('');
   const itemsPerPage = 10;
 
   const fetchKeywords = useCallback(async () => {
@@ -44,7 +49,6 @@ const ConfigKeywordPage = () => {
   const handleAddKeyword = async () => {
     try {
       for (const keyword of newKeywords) {
-        
         await createKeyword(keyword, selectedMajor);
       }
       setNewKeywords(['']);
@@ -55,9 +59,21 @@ const ConfigKeywordPage = () => {
     }
   };
 
-//   const handleEditKeyword = async (id: number, updatedKeyword: string, programID: number) => {
-//     // Add logic to edit a keyword
-//   };
+  const handleEditKeyword = async () => {
+    try {
+      await editKeyword(editKeywordData.id, editKeywordInput, selectedMajor);
+      setIsEditModalOpen(false);
+      fetchKeywords();
+    } catch (error) {
+      console.error('Error editing keyword:', error);
+    }
+  };
+
+  const openEditModal = (id: number, keyword: string) => {
+    setEditKeywordData({ id, keyword });
+    setEditKeywordInput(keyword);
+    setIsEditModalOpen(true);
+  };
 
   const handleDeleteKeyword = async (id: number) => {
     try {
@@ -134,7 +150,7 @@ const ConfigKeywordPage = () => {
           placeholder="Filter keywords"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="mb-4 w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
+          className="mb-4 w-full px-4 py-2 border border-gray-400 rounded-lg text-sm focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
         />
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -147,7 +163,7 @@ const ConfigKeywordPage = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Keyword
                 </th>
-                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
+                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-3/12">
                   Actions
                 </th>
               </tr>
@@ -155,7 +171,7 @@ const ConfigKeywordPage = () => {
             <tbody className="divide-y divide-gray-100">
               {currentKeywords.length > 0 ? (
                 currentKeywords.map((keyword, index) => (
-                  <tr key={keyword.id} className="hover:bg-gray-200/50 transition-colors">
+                  <tr key={keyword.id} className="hover:bg-gray-300/50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {index + 1 + (currentPage - 1) * itemsPerPage}
                     </td>
@@ -165,7 +181,7 @@ const ConfigKeywordPage = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="flex gap-3 justify-center" style={{color: '#ffa000'}}>
                         <button
-                        //   onClick={() => handleEditKeyword(keyword.id, keyword.keyword, selectedMajor)}
+                          onClick={() => openEditModal(keyword.id, keyword.keyword)}
                           className="text-sm font-medium text-primary-DEFAULT hover:text-primary-dark transition-colors"
                         >
                           Edit
@@ -204,20 +220,19 @@ const ConfigKeywordPage = () => {
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Add Keywords</h2>
             {newKeywords.map((keyword, index) => (
-                <div key={index} className="flex items-center gap-2">
-              <input
-                key={index}
-                type="text"
-                value={keyword}
-                onChange={(e) => handleKeywordChange(index, e.target.value)}
-                className="mb-2 w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
-                placeholder={`Keyword ${index + 1}`}
-              />
-               <button
-                onClick={() => removeKeywordInput(index)}
-                className="text-red-600 hover:text-red-700 font-medium text-sm"
+              <div key={index} className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={keyword}
+                  onChange={(e) => handleKeywordChange(index, e.target.value)}
+                  className="mb-2 w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
+                  placeholder={`Keyword ${index + 1}`}
+                />
+                <button
+                  onClick={() => removeKeywordInput(index)}
+                  className="text-red-600 hover:text-red-700 font-medium text-sm"
                 >
-                Remove
+                  Remove
                 </button>
               </div>
             ))}
@@ -239,6 +254,46 @@ const ConfigKeywordPage = () => {
                 className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 focus:outline-none"
               >
                 Save Keywords
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Edit Keyword</h2>
+            <div className="mb-4">
+              <label className="block mb-1 text-sm font-medium text-gray-700">Previous Keyword</label>
+              <input
+                type="text"
+                value={editKeywordData.keyword}
+                disabled
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm bg-gray-100"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block mb-1 text-sm font-medium text-gray-700">New Keyword</label>
+              <input
+                type="text"
+                value={editKeywordInput}
+                onChange={(e) => setEditKeywordInput(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setIsEditModalOpen(false)}
+                className="text-gray-700 hover:text-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 focus:outline-none"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleEditKeyword}
+                className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 focus:outline-none"
+              >
+                Save Changes
               </button>
             </div>
           </div>

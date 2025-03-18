@@ -264,7 +264,7 @@ export default function ConfigAdvisorPage() {
           placeholder="Filter by name or email"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="mb-4 w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
+          className="mb-4 w-full px-4 py-2 border border-gray-400 rounded-lg text-sm focus:ring-2 focus:ring-primary-light focus:border-primary-light transition-colors"
         />
 
         {/* Table of Advisors */}
