@@ -79,6 +79,7 @@ export interface Project {
   programId: number;
   program: Program;
   highlightedContents: string | null;
+  isPublic: boolean;
   // courseId: number;
   // course: Course;
   keywords: Keyword[];

@@ -13,7 +13,7 @@ import { getAcademicYears } from "@/app/api/configprogram/getAcademicYears"; // 
 import { AcademicYear } from "@/models/AcademicYear"; // Import AcademicYear
 import keywordSearchProjects, { KeywordSearchFields } from "@/app/api/search/keywordSearch"; // Import keywordSearchProjects
 import { Keyword } from "@/dtos/Keyword";
-import getAllKeyWord from "@/app/api/keywords/getAllKeyWord";
+import getAllKeyWord from "@/app/api/keywords/getAllKeyword";
 import { Autocomplete, TextField } from "@mui/material";
 import { getProgramNameById } from "@/utils/programHelpers";
 
@@ -455,7 +455,8 @@ const SearchPage: React.FC = () => {
                           [key]: e.target.value,
                         })
                       }
-                      onKeyPress={handleKeyPress} // Add this line
+                      // onKeyPress={handleKeyPress} // Add this line
+                      onKeyDown={handleKeyPress} // Change this line
                       className="w-full p-1.5 border border-gray-300 rounded focus:outline-none focus:border-button_focus text-sm"
                     />
                   )}
@@ -480,7 +481,8 @@ const SearchPage: React.FC = () => {
                 placeholder="Enter search term..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={handleKeyPress} // Add this line
+                // onKeyPress={handleKeyPress} // Add this line
+                onKeyDown={handleKeyPress}
                 className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-button_focus text-sm"
               />
               <button

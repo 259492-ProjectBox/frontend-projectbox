@@ -14,6 +14,7 @@ import Image from "next/image";
 import { ProjectResourceConfig } from "@/models/ProjectResourceConfig";
 import createProjectResource from "@/app/api/configform/createProjectResource";
 import ResourceIconGallery from "@/components/ResourceIconGallery";
+import { IconDto } from "@/dtos/ProjectResource";
 
 const ConfigSubmission: React.FC = () => {
   const { selectedMajor } = useProgram();
@@ -190,7 +191,7 @@ const ConfigSubmission: React.FC = () => {
   };
 
   const handleResourceSubmit = async () => {
-    const data = {
+    const data: IconDto = {
       icon_name: iconName,
       is_active: true,
       program_id: selectedMajor,

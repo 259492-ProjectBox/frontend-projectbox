@@ -1,5 +1,7 @@
 // Centralized API configuration
 
+import { Delete } from "@mui/icons-material";
+
 // const PROJECT_SERVICE_URL = "https://project-service.kunmhing.me" ;
 // const SEARCH_SERVICE_URL = "https://search-service.kunmhing.me";
 // const AUTH_SERVICE_URL = "https://auth-service.kunmhing.me";
@@ -54,7 +56,9 @@ export const apiConfig = {
       ProjectRolesByProgram: (id: number) => `${PROJECT_SERVICE_URL}/api/v1/projectRoles/program/${id}`,
   
       //Project 
-      Projects: `${PROJECT_SERVICE_URL}/api/v1/projects`,
+      UpdateProjects: `${PROJECT_SERVICE_URL}/api/v1/projects`,
+      CreateProject: `${PROJECT_SERVICE_URL}/api/v1/projects`,
+      
       // Uploads
       UploadStudentEnrollment: (id: number) =>
         `${PROJECT_SERVICE_URL}/api/v1/uploads/program/${id}/student-enrollment`,
@@ -66,10 +70,15 @@ export const apiConfig = {
       Calendar: `${PROJECT_SERVICE_URL}/calendar`,
       CalendarByMajorId: (id: number) => `${PROJECT_SERVICE_URL}/calendar/GetByMajorID/${id}`,
 
-      // create project
-      CreateProject: `${PROJECT_SERVICE_URL}/api/v1/projects`,
+      
+      //Keywords 
       GetAllKeyWord: `${PROJECT_SERVICE_URL}/api/v1/keywords/all`,
       GetKeywordByProgramID : (id: number) => `${PROJECT_SERVICE_URL}/api/v1/keywords?program_id=${id}`,
+      GETKeywordByID : (id: number) => `${PROJECT_SERVICE_URL}/api/v1/keywords/${id}`,
+      CreateKeyword : `${PROJECT_SERVICE_URL}/api/v1/keywords`,
+      UpdateKeyword : (id: number) => `${PROJECT_SERVICE_URL}/api/v1/keywords/${id}`,
+      DeleteKeyword : (id: number) => `${PROJECT_SERVICE_URL}/api/v1/keywords/${id}`,
+
     },
   
     // Search Service

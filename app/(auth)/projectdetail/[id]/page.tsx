@@ -112,12 +112,13 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
                       <span className="text-xs font-medium text-gray-500 block mb-1">Section</span>
                       <span className="text-sm text-gray-900">{project.sectionId || "No Data"}</span>
                     </div>
-                    <div>
+                    
+                    {/* <div>
                       <span className="text-xs font-medium text-gray-500 block mb-1">Course</span>
                       <span className="text-sm text-gray-900">
                         {project.course?.courseNo || "No Data"} - {project.course?.courseName || "No Data"}
                       </span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 

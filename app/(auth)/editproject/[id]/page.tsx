@@ -8,7 +8,6 @@ import getProjectById from "@/app/api/projects/getProjectById"
 import type { ProjectResourceConfig } from "@/models/ProjectResourceConfig" // Import ProjectResourceConfig type
 import Select from "react-select"
 import Image from "next/image"
-import axios from "axios" // Import axios for making API requests
 import { useRouter } from "next/navigation" // Import useRouter from next/navigation
 import getAllEmployees from "@/app/api/advisorstats/getAllEmployee"
 import type { Advisor } from "@/models/Advisor"
@@ -20,6 +19,9 @@ import getAllProgram from "@/utils/getAllProgram"
 import type { AllProgram } from "@/models/AllPrograms"
 import { useAuth } from "@/hooks/useAuth"
 import updateProject from "@/app/api/projects/updateproject"
+import { Keyword } from "@/dtos/Keyword"
+import getKeywordByProgramID from "@/app/api/keywords/getKeywordByProgramID"
+import {  Button, Switch } from "@mui/material"; // Import Modal, Button, and Switch components
 
 interface EditProjectPageProps {
   params: {
@@ -35,9 +37,11 @@ interface FormData {
     | { value: number; label: string }[]
     | FileList
     | Blob
+    | boolean
     | undefined
   academicYear?: string
-  courseNo?: string
+  // courseNo?: string
+  keywords?: { value: number; label: string }[]
   section?: string
   semester?: string
   title_en?: string
@@ -55,7 +59,8 @@ const labels: { [key: string]: string } = {
   title_th: "Title (Thai)",
   abstract_text: "Abstract",
   academicYear: "Academic Year",
-  courseNo: "Course No",
+  // courseNo: "Course No",
+  keywords: "Keywords",
   section: "Section",
   semester: "Semester",
   student: "Students",
@@ -71,7 +76,7 @@ const requiredFields: string[] = [
   "title_th",
   "abstract_text",
   "academicYear",
-  "courseNo",
+  // "courseNo",
   "section",
   "semester",
 ] // Define required fields
@@ -92,7 +97,31 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
   const [fileErrors, setFileErrors] = useState<{ [key: string]: string }>({})
   const MAX_FILE_SIZE = 25 * 1024 * 1024 // 25MB in bytes
   const [isDisabled, setIsDisabled] = useState(true); // Add state for isDisabled
+  const [keywordList, setKeywordList] = useState<Keyword[]>([]); // Add state for keywordList
   const user = useAuth();
+  const [isPublic, setIsPublic] = useState<boolean>(false); // State for is_public
+  const [openModal, setOpenModal] = useState<boolean>(false); // State for modal
+
+  const handleOpenModal = () => setOpenModal(true);
+  const handleCloseModal = () => setOpenModal(false);
+
+  const handleConfirmPublic = () => {
+    setIsPublic(true);
+    handleCloseModal();
+  };
+
+  const handleCancelPublic = () => {
+    setIsPublic(false);
+    handleCloseModal();
+  };
+
+  const handleTogglePublic = () => {
+    if (isPublic) {
+      setIsPublic(false);
+    } else {
+      handleOpenModal();
+    }
+  };
 
   useEffect(() => {
     const loadProject = async () => {
@@ -106,6 +135,11 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
         } else {
           setIsDisabled(true);
         }
+
+        setIsPublic(projectData.isPublic); 
+
+        const keywordList: Keyword[] = await getKeywordByProgramID(projectData.program.id); // Fetch keywords by program ID
+        setKeywordList(keywordList); 
 
         // Fetch file blobs for existing resources
         const blobPromises = projectData?.projectResources
@@ -143,8 +177,13 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
           title_en: projectData.titleEN || "",
           title_th: projectData.titleTH,
           abstract_text: projectData.abstractText,
+          isPublic: projectData.isPublic,
           academicYear: projectData.academicYear?.toString(),
           // courseNo: projectData.course?.courseNo,
+          keywords: projectData.keywords?.map((keyword) => ({
+            value: keyword.id,
+            label: keyword.keyword,
+          })),
           section: projectData.sectionId,
           semester: projectData.semester?.toString(),
           student: projectData.members.map((member) => ({
@@ -210,6 +249,7 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
       }
     }
 
+   
     loadProject()
   }, [id, user.user?.isAdmin])
 
@@ -318,6 +358,15 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
       filteredOptions = optionsList.filter((option) => !selectedStaffIds.includes(option.value))
     }
 
+    if(field === 'keywords'){
+      // let filteredOptions = [...keywordList]
+
+      const selectedKeywords = (formData[field] as { value: number; label: string }[]) || [] // Get selected keywords
+      // Filter out selected keywords from the options
+      const selectedKeywordIds = selectedKeywords.map((keyword) => keyword.value);
+      filteredOptions = filteredOptions.filter((option) => !selectedKeywordIds.includes(option.value))
+
+    }
     return (
       <div className="mb-4">
         <label className="block mb-1 text-sm font-medium text-gray-700">
@@ -524,6 +573,8 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
         academic_year: Number.parseInt(formData.academicYear as string, 10),
         semester: Number.parseInt(formData.semester as string, 10),
         section_id: formData.section,
+        keywords: formData.keywords?.map((keyword) => ({ id: keyword.value })) || [], 
+        is_public: isPublic, // Add is_public field
         // course_id: project?.course?.id,
         program_id: project?.program?.id,
         staffs: [
@@ -637,16 +688,7 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
             formDataToSend.append("files", existingBlob)
           }
         }
-      })
-
-      // Make the API request
-      // await axios.put(`https://project-service.kunmhing.me/api/v1/projects`, formDataToSend, {
-      //   headers: {
-      //     Authorization:
-      //       "Bearer Pl6sXUmjwzNtwcA4+rkBP8jTmRttcNwgJqp1Zn1a+qCRaYXdYdwgJ9mM5glzHQD2FOsLilpELbmVSF2nGZCOwTO6u5CTsVpyIGDguXoMobSApgEsO3avovqWYDAEuznY/Vu4XMvHDkFqyuY1dQfN+QdB04t89/1O/w1cDnyilFU=",
-      //     "Content-Type": "multipart/form-data",
-      //   },
-      // })
+      })      
 
       await updateProject(formDataToSend) // Call the updateProject function with the form data
       alert("Form submitted successfully!")
@@ -670,9 +712,11 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
         <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
           <h6 className="text-lg font-bold mb-4">Project Details</h6>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            {renderFields(["courseNo", "section", "semester", "academicYear"])}
+            {renderFields([ "academicYear", "semester","section" ])}
           </div>
           {renderFields(["title_en", "title_th"])}
+          {renderMultiSelectField("keywords", "Keywords", false, keywordList.map((keyword) => ({ value: keyword.id, label: keyword.keyword })))
+}
           {renderFields(["abstract_text"])}
         </div>
 
@@ -699,20 +743,53 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
         </div>
 
         <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
+          <div className="flex justify-between items-center mb-6">
           <h6 className="text-lg font-bold mb-4">Uploads</h6>
+          <div className="flex items-center">
+            <Switch checked={isPublic} onChange={handleTogglePublic} />
+            <span className="ml-2">{isPublic ? "Public" : "Make Public"}</span>
+          </div>
+          </div>
           {renderFileUploadSections()}
         </div>
 
-        <button
-          onClick={handleSubmit}
-          className={`bg-blue-500 text-white px-4 py-2 rounded ${
-            isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"
-          }`}
-          disabled={isSubmitting}
-        >
-          Submit
-        </button>
+        <div className="flex justify-end">
+          
+          <button
+            onClick={handleSubmit}
+            className={`bg-blue-500 text-white px-4 py-2 rounded ${isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"}`}
+            disabled={isSubmitting}
+          >
+            Submit
+          </button>
+        </div>
       </div>
+      {openModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-lg m-4 max-h-[90vh] overflow-y-auto">
+            <div className="p-6 space-y-6">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-900">Confirmation</h3>
+                <button onClick={handleCloseModal} className="text-gray-400 hover:text-gray-500">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <p className="text-sm text-gray-600 mb-4">This is to confirm that the document/project/information will be public.</p>
+              <p className="text-sm text-gray-600 mb-4">ยืนยันว่าเอกสาร/โครงการ/ข้อมูลจะถูกเปิดเผยเป็นสาธารณะ</p>
+              <div className="flex justify-end gap-3">
+                <Button variant="contained" color="primary" onClick={handleConfirmPublic}>
+                  Confirm
+                </Button>
+                <Button variant="outlined" color="secondary" onClick={handleCancelPublic}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

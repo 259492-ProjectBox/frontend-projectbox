@@ -11,6 +11,7 @@ import ChecklistRtlIcon from "@mui/icons-material/ChecklistRtl";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import KeyIcon from '@mui/icons-material/Key';
 
 export default function Sidebar({ children }: React.PropsWithChildren) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -26,11 +27,10 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
 
   const configMenuItems = [
     { text: "Manage Student", icon: <ChecklistRtlIcon className="w-4 h-4 text-green-500" />, path: "/configprogram" },
-    // { text: "Config Calendar", icon: <EditCalendarIcon className="w-4 h-4 text-yellow-500" />, path: "/configcalendar" },
+    
     { text: "Manage Submission", icon: <EditNoteIcon className="w-4 h-4 text-indigo-500" />, path: "/configform" },
+    {text : "Manage Keyword", icon: <KeyIcon className="w-4 h-4 text-yellow -500  " />, path: "/configkeyword"},
     { text: "Manage Staff", icon: <ManageAccountsIcon className="w-4 h-4 text-cyan-500" />, path: "/configemployee" },
-    // { text: "Config Assets", icon: <SettingsIcon className="w-4 h-4 text-cyan-500" />, path: "/configassets" },
-    // { text: "Admin Manage", icon: <SupervisorAccountIcon className="w-4 h-4 text-rose-500" />, path: "/adminmanage" },
   ];
 
   const superAdminMenuItems = [

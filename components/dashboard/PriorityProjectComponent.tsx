@@ -64,7 +64,7 @@ const PriorityProjectComponent: React.FC<PriorityProjectComponentProps> = ({ pro
         project.titleTH?.toLowerCase().includes(searchLower) ||
         project.abstractText?.toLowerCase().includes(searchLower) ||
         project.academicYear.toString().includes(searchLower) ||
-        project.courseId.toString().includes(searchLower) ||
+        project.projectNo.toString().includes(searchLower) ||
         project.members.some((member) =>
           `${member.firstName} ${member.lastName}`.toLowerCase().includes(searchLower),
         ) ||
