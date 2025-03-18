@@ -38,6 +38,7 @@ const ProjectComponent = ({ project }: { project: Project }) => {
     loadResourceConfigs();
   }, [project.program?.id]);
 
+  
   return (
     <div className="relative mb-4  rounded-md bg-white shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-300">
       <div className="p-4">
@@ -75,7 +76,7 @@ const ProjectComponent = ({ project }: { project: Project }) => {
         </div>
 
         {/* Resource Icons */}
-        {user && (project.projectResources?.length ?? 0) > 0 && (
+        {(user || project.isPublic) && (project.projectResources?.length ?? 0) > 0 && (
           <div className="flex flex-wrap gap-2 mb-3">
             {project.projectResources?.map((resource) => {
               // Find matching resource config

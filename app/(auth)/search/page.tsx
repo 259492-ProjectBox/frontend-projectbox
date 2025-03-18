@@ -455,7 +455,8 @@ const SearchPage: React.FC = () => {
                           [key]: e.target.value,
                         })
                       }
-                      onKeyPress={handleKeyPress} // Add this line
+                      // onKeyPress={handleKeyPress} // Add this line
+                      onKeyDown={handleKeyPress} // Change this line
                       className="w-full p-1.5 border border-gray-300 rounded focus:outline-none focus:border-button_focus text-sm"
                     />
                   )}
@@ -480,7 +481,8 @@ const SearchPage: React.FC = () => {
                 placeholder="Enter search term..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={handleKeyPress} // Add this line
+                // onKeyPress={handleKeyPress} // Add this line
+                onKeyDown={handleKeyPress}
                 className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-button_focus text-sm"
               />
               <button

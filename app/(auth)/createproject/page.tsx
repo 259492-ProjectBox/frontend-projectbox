@@ -24,6 +24,7 @@ import { createProjectCheckPermission } from "@/app/api/dashboard/createProjectC
 import { PostProject } from "@/app/actions/project-services"
 import { Keyword } from "@/dtos/Keyword"
 import getKeywordByProgramID from "@/app/api/keywords/getKeywordByProgramID"
+import { Button, Switch } from "@mui/material"; // Import Modal, Button, and Switch components
 
 // Types
 
@@ -53,6 +54,30 @@ const CreateProject: React.FC = () => {
 const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 const router = useRouter();
 const studentID = user?.studentId;
+const [isPublic, setIsPublic] = useState<boolean>(false); // State for is_public
+const [openModal, setOpenModal] = useState<boolean>(false); // State for modal
+
+const handleOpenModal = () => setOpenModal(true);
+const handleCloseModal = () => setOpenModal(false);
+
+const handleConfirmPublic = () => {
+  setIsPublic(true);
+  handleCloseModal();
+};
+
+const handleCancelPublic = () => {
+  setIsPublic(false);
+  handleCloseModal();
+};
+
+const handleTogglePublic = () => {
+  if (isPublic) {
+    setIsPublic(false);
+  } else {
+    handleOpenModal();
+  }
+};
+
 useEffect(() => {
   if (!isLoading && studentID !== undefined) {
     const checkPermission = async () => {
@@ -63,11 +88,11 @@ useEffect(() => {
   }
 }, [studentID, isLoading]); // ✅ Only depend on specific values, not entire `user` object
 
-useEffect(() => {
-  if (hasPermission === false) {
-    router.push("/dashboard");
-  }
-}, [hasPermission, router]);
+// useEffect(() => {
+//   if (hasPermission === false) {
+//     router.push("/dashboard");
+//   }
+// }, [hasPermission, router]);
 
   const labels: Record<string, string> = {
     // course_id: "Course",
@@ -189,37 +214,7 @@ useEffect(() => {
     setFormData((prevData) => ({ ...prevData, [name]: value }))
   }
 
-  // const handleMultiSelectChange = (selectedOptions: { value: number; label: string }[], field: string) => {
-  //   setFormData((prevData) => {
-  //     const newData = { ...prevData, [field]: selectedOptions }
-
-  //     // Only apply validation for advisor roles, not for students
-  //     if (field === "student") {
-  //       return newData
-  //     }
-
-  //     // If this is an advisor role, check for duplicates in other roles
-  //     const advisorRoles = ["advisor", "co_advisor", "committee", "external_committee"]
-  //     const selectedValues = new Set(selectedOptions.map((option) => option.value))
-
-  //     // For each advisor role that's not the current field
-  //     advisorRoles.forEach((role) => {
-  //       if (role !== field) {
-  //         const currentRoleSelections = (newData[role] as { value: number; label: string }[]) || []
-
-  //         // Filter out any options that are now selected in the current field
-  //         const filteredSelections = currentRoleSelections.filter((option) => !selectedValues.has(option.value))
-
-  //         // Update the data if we removed any duplicates
-  //         if (filteredSelections.length !== currentRoleSelections.length) {
-  //           newData[role] = filteredSelections
-  //         }
-  //       }
-  //     })
-
-  //     return newData
-  //   })
-  // }
+ 
   const handleMultiSelectChange = (selectedOptions: { value: number; label: string }[], field: string) => {
     setFormData((prevData) => {
       const newData = { ...prevData, [field]: selectedOptions };
@@ -505,6 +500,7 @@ useEffect(() => {
         section_id: formData.section_id,
         program_id: data?.program_id,
         keywords: selectedKeyword ? selectedKeyword.map(id => ({ id })) : [], // Ensure keywords are correctly populated
+        is_public: isPublic, // Add is_public field
         // course_id: data?.course_id,
         staffs: [
           ...(formData.advisor
@@ -637,17 +633,52 @@ useEffect(() => {
           )}
         </div>
         <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
+        <div className="flex justify-between items-center mb-6">
           <h6 className="text-lg font-bold mb-4">Uploads</h6>
+          <div className="flex items-center">
+            <Switch checked={isPublic} onChange={handleTogglePublic} />
+            <span className="ml-2">{isPublic ? "Public" : "Make Public"}</span>
+          </div>
+        </div>
           {renderFileUploadSections()}
         </div>
-        <button
-          onClick={handleSubmit}
-          className={`bg-blue-500 text-white px-4 py-2 rounded ${isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"}`}
-          disabled={isSubmitting}
-        >
-          Submit
-        </button>
+        <div className="flex justify-end">
+          
+          <button
+            onClick={handleSubmit}
+            className={`bg-blue-500 text-white px-4 py-2 rounded ${isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"}`}
+            disabled={isSubmitting}
+          >
+            Submit
+          </button>
+        </div>
       </div>
+      {openModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-lg m-4 max-h-[90vh] overflow-y-auto">
+            <div className="p-6 space-y-6">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-900">Confirmation</h3>
+                <button onClick={handleCloseModal} className="text-gray-400 hover:text-gray-500">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <p className="text-sm text-gray-600 mb-4">This is to confirm that the document/project/information will be public.</p>
+              <p className="text-sm text-gray-600 mb-4">ยืนยันว่าเอกสาร/โครงการ/ข้อมูลจะถูกเปิดเผยเป็นสาธารณะ</p>
+              <div className="flex justify-end gap-3">
+                <Button variant="contained" color="primary" onClick={handleConfirmPublic}>
+                  Confirm
+                </Button>
+                <Button variant="outlined" color="secondary" onClick={handleCancelPublic}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
