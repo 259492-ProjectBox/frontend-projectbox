@@ -8,7 +8,6 @@ import getProjectById from "@/app/api/projects/getProjectById"
 import type { ProjectResourceConfig } from "@/models/ProjectResourceConfig" // Import ProjectResourceConfig type
 import Select from "react-select"
 import Image from "next/image"
-import axios from "axios" // Import axios for making API requests
 import { useRouter } from "next/navigation" // Import useRouter from next/navigation
 import getAllEmployees from "@/app/api/advisorstats/getAllEmployee"
 import type { Advisor } from "@/models/Advisor"
@@ -22,7 +21,7 @@ import { useAuth } from "@/hooks/useAuth"
 import updateProject from "@/app/api/projects/updateproject"
 import { Keyword } from "@/dtos/Keyword"
 import getKeywordByProgramID from "@/app/api/keywords/getKeywordByProgramID"
-import { Modal, Button, Switch } from "@mui/material"; // Import Modal, Button, and Switch components
+import {  Button, Switch } from "@mui/material"; // Import Modal, Button, and Switch components
 
 interface EditProjectPageProps {
   params: {
@@ -360,12 +359,12 @@ const EditProjectPage: React.FC<EditProjectPageProps> = ({ params }) => {
     }
 
     if(field === 'keywords'){
-      let filteredOptions = [...keywordList]
+      // let filteredOptions = [...keywordList]
 
       const selectedKeywords = (formData[field] as { value: number; label: string }[]) || [] // Get selected keywords
       // Filter out selected keywords from the options
       const selectedKeywordIds = selectedKeywords.map((keyword) => keyword.value);
-      filteredOptions = filteredOptions.filter((option) => !selectedKeywordIds.includes(option.id))
+      filteredOptions = filteredOptions.filter((option) => !selectedKeywordIds.includes(option.value))
 
     }
     return (

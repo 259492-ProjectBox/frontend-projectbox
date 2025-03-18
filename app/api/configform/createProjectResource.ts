@@ -1,8 +1,9 @@
 'use server'
 import axios from "axios"
 import { apiConfig } from "@/config/apiConfig"
+import { IconDto } from "@/dtos/ProjectResource"
 
-const createProjectResource = async (iconFile: File, data: any) => {
+const createProjectResource = async (iconFile: File, data: IconDto) => {
   const formData = new FormData()
   formData.append("icon", iconFile)
   formData.append("projectResourceConfig", JSON.stringify(data))

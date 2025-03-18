@@ -1,7 +1,5 @@
 'use client'
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
-import { apiConfig } from '@/config/apiConfig';
 import { Keyword } from '@/dtos/Keyword';
 import { useProgram } from '@/context/ProgramContext';
 import getAllProgram from '@/utils/getAllProgram';
@@ -57,9 +55,9 @@ const ConfigKeywordPage = () => {
     }
   };
 
-  const handleEditKeyword = async (id: number, updatedKeyword: string, programID: number) => {
-    // Add logic to edit a keyword
-  };
+//   const handleEditKeyword = async (id: number, updatedKeyword: string, programID: number) => {
+//     // Add logic to edit a keyword
+//   };
 
   const handleDeleteKeyword = async (id: number) => {
     try {
@@ -167,7 +165,7 @@ const ConfigKeywordPage = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="flex gap-3 justify-center" style={{color: '#ffa000'}}>
                         <button
-                          onClick={() => handleEditKeyword(keyword.id, keyword.keyword, selectedMajor)}
+                        //   onClick={() => handleEditKeyword(keyword.id, keyword.keyword, selectedMajor)}
                           className="text-sm font-medium text-primary-DEFAULT hover:text-primary-dark transition-colors"
                         >
                           Edit
