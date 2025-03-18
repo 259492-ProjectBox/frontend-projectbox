@@ -86,13 +86,13 @@ useEffect(() => {
     };
     checkPermission();
   }
-}, [studentID, isLoading]); // ✅ Only depend on specific values, not entire `user` object
+}, [studentID, isLoading]); 
 
-// useEffect(() => {
-//   if (hasPermission === false) {
-//     router.push("/dashboard");
-//   }
-// }, [hasPermission, router]);
+useEffect(() => {
+  if (hasPermission === false) {
+    router.push("/dashboard");
+  }
+}, [hasPermission, router]);
 
   const labels: Record<string, string> = {
     // course_id: "Course",

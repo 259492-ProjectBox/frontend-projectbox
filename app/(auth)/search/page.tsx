@@ -13,7 +13,7 @@ import { getAcademicYears } from "@/app/api/configprogram/getAcademicYears"; // 
 import { AcademicYear } from "@/models/AcademicYear"; // Import AcademicYear
 import keywordSearchProjects, { KeywordSearchFields } from "@/app/api/search/keywordSearch"; // Import keywordSearchProjects
 import { Keyword } from "@/dtos/Keyword";
-import getAllKeyWord from "@/app/api/keywords/getAllKeyWord";
+import getAllKeyWord from "@/app/api/keywords/getAllKeyword";
 import { Autocomplete, TextField } from "@mui/material";
 import { getProgramNameById } from "@/utils/programHelpers";
 
