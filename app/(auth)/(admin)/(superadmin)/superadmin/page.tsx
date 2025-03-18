@@ -1,10 +1,10 @@
 "use client";
 import getAllProgram from "@/utils/getAllProgram";
-import postCreateProgram from "@/utils/platformadmin/postCreateProgram";
-import { getAdmins } from "@/utils/superadmin/getAdmin";
-import { createAdmin } from "@/utils/superadmin/createAdmin"; // Import the createAdmin function
-import { deleteAdmin } from "@/utils/superadmin/deleteAdmin"; // Import the deleteAdmin function
-import putEditProgram from "@/utils/superadmin/putEditProgram"; // Import the putEditProgram function
+import postCreateProgram from "@/app/api/platformadmin/postCreateProgram";
+import { getAdmins } from "@/app/api/superadmin/getAdmin";
+import { createAdmin } from "@/app/api/superadmin/createAdmin"; // Import the createAdmin function
+import { deleteAdmin } from "@/app/api/superadmin/deleteAdmin"; // Import the deleteAdmin function
+import putEditProgram from "@/app/api/superadmin/putEditProgram"; // Import the putEditProgram function
 import { useAuth } from "@/hooks/useAuth"; // Importing useAuth hook
 import React, { useCallback, useEffect, useState } from "react";
 import Select, { MultiValue } from "react-select"; // Importing MultiValue from react-select

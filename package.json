@@ -16,6 +16,7 @@
     "@types/jsonwebtoken": "^9.0.7",
     "airtable": "^0.12.2",
     "axios": "^1.7.7",
+    "html-react-parser": "^5.2.2",
     "jsonwebtoken": "^9.0.2",
     "next": "14.2.16",
     "react": "^18",

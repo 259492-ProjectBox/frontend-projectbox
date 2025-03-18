@@ -5,15 +5,16 @@ import NoProgramSelected from "@/components/NoProgramSelected";
 import Spinner from "@/components/Spinner";
 import { FormData } from "@/models/configform";
 import Section from "@/components/configform/Section";
-import getProjectConfig from "@/utils/configform/getProjectConfig";
-import updateProjectConfigs from "@/utils/configform/updateProjectConfigs";
+import getProjectConfig from "@/app/api/configform/getProjectConfig";
+import updateProjectConfigs from "@/app/api/configform/updateProjectConfigs";
 import { ProjectConfig } from "@/models/ProjectConfig";
-import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig";
-import updateResourceStatus from "@/utils/configform/updateProjectResourceConfig";
+import { getProjectResourceConfig } from "@/app/api/configform/getProjectResourceConfig";
+import updateResourceStatus from "@/app/api/configform/updateProjectResourceConfig";
 import Image from "next/image";
 import { ProjectResourceConfig } from "@/models/ProjectResourceConfig";
-import createProjectResource from "@/utils/configform/createProjectResource";
+import createProjectResource from "@/app/api/configform/createProjectResource";
 import ResourceIconGallery from "@/components/ResourceIconGallery";
+import { IconDto } from "@/dtos/ProjectResource";
 
 const ConfigSubmission: React.FC = () => {
   const { selectedMajor } = useProgram();
@@ -190,7 +191,7 @@ const ConfigSubmission: React.FC = () => {
   };
 
   const handleResourceSubmit = async () => {
-    const data = {
+    const data: IconDto = {
       icon_name: iconName,
       is_active: true,
       program_id: selectedMajor,

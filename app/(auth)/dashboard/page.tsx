@@ -1,14 +1,14 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import getProjectByStudentId from "@/utils/dashboard/getProjectByStudentId";
-import getProjectByName from "@/utils/dashboard/getProjectByName"; // Import the new utility function
+import getProjectByStudentId from "@/app/api/dashboard/getProjectByStudentId";
+import getProjectByName from "@/app/api/dashboard/getProjectByName"; // Import the new utility function
 import { Project } from "@/models/Project";
 import Spinner from "@/components/Spinner";
 import AddIcon from "@mui/icons-material/Add";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { createProjectCheckPermission } from "@/utils/dashboard/createProjectCheckPermission"; // Import the new utility function
+import { createProjectCheckPermission } from "@/app/api/dashboard/createProjectCheckPermission"; // Import the new utility function
 import ProjectComponent from "@/components/dashboard/ProjectComponent"; // Import the new ProjectComponent
 import PriorityProjectComponent from "@/components/dashboard/PriorityProjectComponent"; // Import the new PriorityProjectComponent
 

@@ -3,11 +3,11 @@
 import React, { useEffect, useState } from "react";
 import Spinner from "@/components/Spinner";
 import { Project } from "@/models/Project";
-import getProjectById from "@/utils/projects/getProjectById";
+import getProjectById from "@/app/api/projects/getProjectById";
 import Image from "next/image";
 import { deobfuscateId} from "@/utils/encodePath";
 import Avatar from "@/components/Avatar";
-import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig";
+import { getProjectResourceConfig } from "@/app/api/configform/getProjectResourceConfig";
 import { ProjectResourceConfig } from "@/models/ProjectResourceConfig";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -112,12 +112,13 @@ const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
                       <span className="text-xs font-medium text-gray-500 block mb-1">Section</span>
                       <span className="text-sm text-gray-900">{project.sectionId || "No Data"}</span>
                     </div>
-                    <div>
+                    
+                    {/* <div>
                       <span className="text-xs font-medium text-gray-500 block mb-1">Course</span>
                       <span className="text-sm text-gray-900">
                         {project.course?.courseNo || "No Data"} - {project.course?.courseName || "No Data"}
                       </span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 

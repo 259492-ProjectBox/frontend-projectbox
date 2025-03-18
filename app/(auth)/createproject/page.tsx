@@ -2,26 +2,29 @@
 import type React from "react"
 import { useEffect, useState } from "react"
 import Spinner from "@/components/Spinner"
-import getProjectConfig from "@/utils/configform/getProjectConfig"
-import { getProjectResourceConfig } from "@/utils/configform/getProjectResourceConfig"
-import getAllEmployees from "@/utils/advisorstats/getAllEmployee"
+import getProjectConfig from "@/app/api/configform/getProjectConfig"
+import { getProjectResourceConfig } from "@/app/api/configform/getProjectResourceConfig"
+import getAllEmployees from "@/app/api/advisorstats/getAllEmployee"
 import type { Advisor } from "@/models/Advisor"
 import Select from "react-select"
 import Image from "next/image"
-import { getConfigProgram } from "@/utils/configprogram/configProgram"
+import { getConfigProgram } from "@/app/api/configprogram/configProgram"
 import { useAuth } from "@/hooks/useAuth"
-import { getStudentInfo } from "@/utils/createproject/getStudentInfo" // Import the new utility function
-import { getStudentsByProgram } from "@/utils/createproject/getStudentsByProgram"
+import { getStudentInfo } from "@/app/api/createproject/getStudentInfo" // Import the new utility function
+import { getStudentsByProgram } from "@/app/api/createproject/getStudentsByProgram"
 import type { Student } from "@/models/Student" // Import the new Student type
 import type { ConfigProgramSetting } from "@/models/ConfigProgram"
-import axios from "axios" // Import axios for making API requests
 import { useRouter } from "next/navigation" // Import useRouter from next/navigation
-import { getProjectRoles } from "@/utils/createproject/getProjectRoles" // Import the getProjectRoles function
+import { getProjectRoles } from "@/app/api/createproject/getProjectRoles" // Import the getProjectRoles function
 import type { ProjectRole } from "@/models/ProjectRoles" // Import the ProjectRole type
 import type { ProjectResourceConfig } from "@/models/ProjectResourceConfig"
 import getAllProgram from "@/utils/getAllProgram"
 import type { AllProgram } from "@/models/AllPrograms"
-import { createProjectCheckPermission } from "@/utils/dashboard/createProjectCheckPermission"
+import { createProjectCheckPermission } from "@/app/api/dashboard/createProjectCheckPermission"
+import { PostProject } from "@/app/actions/project-services"
+import { Keyword } from "@/dtos/Keyword"
+import getKeywordByProgramID from "@/app/api/keywords/getKeywordByProgramID"
+import { Button, Switch } from "@mui/material"; // Import Modal, Button, and Switch components
 
 // Types
 
@@ -42,14 +45,39 @@ const CreateProject: React.FC = () => {
   const [data, setData] = useState<Student | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [projectRoles, setProjectRoles] = useState<ProjectRole[]>([]) // Store project roles
-  const [programs, setPrograms] = useState<AllProgram[]>([])
+  const [, setPrograms] = useState<AllProgram[]>([])
   const [fileErrors, setFileErrors] = useState<{ [key: string]: string }>({})
   const MAX_FILE_SIZE = 25 * 1024 * 1024 // 25MB in bytes
-  
+  const [keywords , setKeywords] = useState<Keyword[]>([])
+  const [selectedKeyword , setSelectedKeyword] = useState<number[] | null>(null)
   const { user, isLoading } = useAuth();
 const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 const router = useRouter();
 const studentID = user?.studentId;
+const [isPublic, setIsPublic] = useState<boolean>(false); // State for is_public
+const [openModal, setOpenModal] = useState<boolean>(false); // State for modal
+
+const handleOpenModal = () => setOpenModal(true);
+const handleCloseModal = () => setOpenModal(false);
+
+const handleConfirmPublic = () => {
+  setIsPublic(true);
+  handleCloseModal();
+};
+
+const handleCancelPublic = () => {
+  setIsPublic(false);
+  handleCloseModal();
+};
+
+const handleTogglePublic = () => {
+  if (isPublic) {
+    setIsPublic(false);
+  } else {
+    handleOpenModal();
+  }
+};
+
 useEffect(() => {
   if (!isLoading && studentID !== undefined) {
     const checkPermission = async () => {
@@ -58,7 +86,7 @@ useEffect(() => {
     };
     checkPermission();
   }
-}, [studentID, isLoading]); // ✅ Only depend on specific values, not entire `user` object
+}, [studentID, isLoading]); 
 
 useEffect(() => {
   if (hasPermission === false) {
@@ -67,10 +95,11 @@ useEffect(() => {
 }, [hasPermission, router]);
 
   const labels: Record<string, string> = {
-    course_id: "Course",
-    section_id: "Section",
-    semester: "Semester",
+    // course_id: "Course",
+    keywords: "Keywords",
     academic_year: "Academic Year",
+    semester: "Semester",
+    section_id: "Section",
     title_en: "Project Title (EN)",
     title_th: "Project Title (TH)",
     abstract_text: "Abstract",
@@ -82,7 +111,7 @@ useEffect(() => {
     upload_section: "Upload Section",
   }
 
-  const requiredFields: string[] = ["course_id", "title_en", "title_th", "student", "advisor"]
+  const requiredFields: string[] = [ "title_en", "title_th", "student", "advisor"]
 
   // Fetch data on mount
   useEffect(() => {
@@ -102,6 +131,8 @@ useEffect(() => {
           }, {})
           setFormConfig(activeFields)
 
+          const keywords = await getKeywordByProgramID(data.program_id);
+          setKeywords(keywords);
           const projectResourceConfigs = await getProjectResourceConfig(data.program_id) // Use program ID from student data
           if (projectResourceConfigs && projectResourceConfigs.length > 0) {
           setFormConfig((prevConfig) => ({
@@ -146,7 +177,7 @@ useEffect(() => {
           // Pre-fill course and section
           setFormData((prevData) => ({
             ...prevData,
-            course_id: data.course.course_no,
+            // course_id: data.course.course_no,
             section_id: data.sec_lab,
           }))
         }
@@ -183,38 +214,43 @@ useEffect(() => {
     setFormData((prevData) => ({ ...prevData, [name]: value }))
   }
 
+ 
   const handleMultiSelectChange = (selectedOptions: { value: number; label: string }[], field: string) => {
     setFormData((prevData) => {
-      const newData = { ...prevData, [field]: selectedOptions }
-
-      // Only apply validation for advisor roles, not for students
-      if (field === "student") {
-        return newData
+      const newData = { ...prevData, [field]: selectedOptions };
+  
+      // Only apply validation for advisor roles, not for students or keywords
+      if (field === "student" || field === "keywords") {
+        return newData;
       }
-
+  
       // If this is an advisor role, check for duplicates in other roles
-      const advisorRoles = ["advisor", "co_advisor", "committee", "external_committee"]
-      const selectedValues = new Set(selectedOptions.map((option) => option.value))
-
+      const advisorRoles = ["advisor", "co_advisor", "committee", "external_committee"];
+      const selectedValues = new Set(selectedOptions.map((option) => option.value));
+  
       // For each advisor role that's not the current field
       advisorRoles.forEach((role) => {
         if (role !== field) {
-          const currentRoleSelections = (newData[role] as { value: number; label: string }[]) || []
-
+          const currentRoleSelections = (newData[role] as { value: number; label: string }[]) || [];
+  
           // Filter out any options that are now selected in the current field
-          const filteredSelections = currentRoleSelections.filter((option) => !selectedValues.has(option.value))
-
+          const filteredSelections = currentRoleSelections.filter((option) => !selectedValues.has(option.value));
+  
           // Update the data if we removed any duplicates
           if (filteredSelections.length !== currentRoleSelections.length) {
-            newData[role] = filteredSelections
+            newData[role] = filteredSelections;
           }
         }
-      })
-
-      return newData
-    })
-  }
-
+      });
+  
+      return newData;
+    });
+  
+    // Update the selectedKeyword state for the keywords field
+    if (field === "keywords") {
+      setSelectedKeyword(selectedOptions.map((option) => option.value));
+    }
+  };
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
     const { files } = e.target
     if (files && files.length > 0) {
@@ -291,44 +327,44 @@ useEffect(() => {
       return null
     })
 
-  const renderMultiSelectField = (
+    const renderMultiSelectField = (
     field: string,
     label: string,
     isRequired: boolean,
     optionsList: { value: number; label: string }[],
   ) => {
-    if (!formConfig[field]) return null
-
-    // Only apply filtering for advisor roles, not for students
-    let filteredOptions = optionsList
-
-    if (field !== "student") {
+    if (!formConfig[field]) return null;
+  
+    // Only apply filtering for advisor roles, not for students or keywords
+    let filteredOptions = optionsList;
+  
+    if (field !== "student" && field !== "keywords") {
       // Get all selected staff across all advisor roles
-      const selectedAdvisors = (formData.advisor as { value: number; label: string }[]) || []
-      const selectedCoAdvisors = (formData.co_advisor as { value: number; label: string }[]) || []
-      const selectedCommittee = (formData.committee as { value: number; label: string }[]) || []
-      const selectedExternalCommittee = (formData.external_committee as { value: number; label: string }[]) || []
-
+      const selectedAdvisors = (formData.advisor as { value: number; label: string }[]) || [];
+      const selectedCoAdvisors = (formData.co_advisor as { value: number; label: string }[]) || [];
+      const selectedCommittee = (formData.committee as { value: number; label: string }[]) || [];
+      const selectedExternalCommittee = (formData.external_committee as { value: number; label: string }[]) || [];
+  
       // Create a set of all selected staff IDs except for the current field
-      const selectedStaffIds = new Set<number>()
-
+      const selectedStaffIds = new Set<number>();
+  
       if (field !== "advisor") {
-        selectedAdvisors.forEach((item) => selectedStaffIds.add(item.value))
+        selectedAdvisors.forEach((item) => selectedStaffIds.add(item.value));
       }
       if (field !== "co_advisor") {
-        selectedCoAdvisors.forEach((item) => selectedStaffIds.add(item.value))
+        selectedCoAdvisors.forEach((item) => selectedStaffIds.add(item.value));
       }
       if (field !== "committee") {
-        selectedCommittee.forEach((item) => selectedStaffIds.add(item.value))
+        selectedCommittee.forEach((item) => selectedStaffIds.add(item.value));
       }
       if (field !== "external_committee") {
-        selectedExternalCommittee.forEach((item) => selectedStaffIds.add(item.value))
+        selectedExternalCommittee.forEach((item) => selectedStaffIds.add(item.value));
       }
-
+  
       // Filter out options that are already selected in other roles
-      filteredOptions = optionsList.filter((option) => !selectedStaffIds.has(option.value))
+      filteredOptions = optionsList.filter((option) => !selectedStaffIds.has(option.value));
     }
-
+  
     return (
       <div className="mb-4">
         <label className="block mb-1 text-sm font-medium text-gray-700">
@@ -347,9 +383,8 @@ useEffect(() => {
           className="w-full"
         />
       </div>
-    )
-  }
-
+    );
+  };
   const renderFileUploadSections = () => {
     const fileConfigs = formConfig["upload_section"] as ProjectResourceConfig[] | undefined
 
@@ -415,10 +450,10 @@ useEffect(() => {
 
   const getStaffOptions = (staff: Advisor[]) => {
     return staff.map((staff) => {
-      const programAbbr = programs.find((p) => p.id === staff.program_id)?.abbreviation || staff.program_id
+      // const programAbbr = programs.find((p) => p.id === staff.program_id)?.abbreviation || staff.program_id
       return {
         value: staff.id,
-        label: `${programAbbr} / ${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
+        label: ` ${staff.prefix_en} ${staff.first_name_en} ${staff.last_name_en} / ${staff.prefix_th} ${staff.first_name_th} ${staff.last_name_th}`,
       }
     })
   }
@@ -464,7 +499,9 @@ useEffect(() => {
         semester: Number.parseInt(formData.semester as string, 10),
         section_id: formData.section_id,
         program_id: data?.program_id,
-        course_id: data?.course_id,
+        keywords: selectedKeyword ? selectedKeyword.map(id => ({ id })) : [], // Ensure keywords are correctly populated
+        is_public: isPublic, // Add is_public field
+        // course_id: data?.course_id,
         staffs: [
           ...(formData.advisor
             ? (formData.advisor as { value: number; label: string }[]).map((advisor) => ({
@@ -541,13 +578,8 @@ useEffect(() => {
       }
 
       // 5. Send the formData using axios
-      await axios.post("https://project-service.kunmhing.me/api/v1/projects", formDataToSend, {
-        headers: {
-          Authorization:
-            "Bearer Pl6sXUmjwzNtwcA4+rkBP8jTmRttcNwgJqp1Zn1a+qCRaYXdYdwgJ9mM5glzHQD2FOsLilpELbmVSF2nGZCOwTO6u5CTsVpyIGDguXoMobSApgEsO3avovqWYDAEuznY/Vu4XMvHDkFqyuY1dQfN+QdB04t89/1O/w1cDnyilFU=",
-          "Content-Type": "multipart/form-data",
-        },
-      })
+      // await axios.post("https://project-service.kunmhing.me/api/v1/projects", formDataToSend)
+      await PostProject(formDataToSend)
 
       alert("Form submitted successfully!")
       router.push("/dashboard") // Redirect to dashboard page
@@ -568,9 +600,15 @@ useEffect(() => {
         <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
           <h6 className="text-lg font-bold mb-4">Project Details</h6>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            {renderFields(["course_id", "section_id", "semester", "academic_year"])}
+            {renderFields(["academic_year", "semester","section_id" ])}
           </div>
           {renderFields(["title_en", "title_th"])}
+          {renderMultiSelectField("keywords", "Keywords", false, keywords.map((keyword) => ({
+            value: keyword.id,
+            label: keyword.keyword,
+          }))
+          )
+          }
           {renderFields(["abstract_text"])}
         </div>
         <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
@@ -595,17 +633,52 @@ useEffect(() => {
           )}
         </div>
         <div className="p-6 mb-6 rounded-lg border border-gray-300 bg-white">
+        <div className="flex justify-between items-center mb-6">
           <h6 className="text-lg font-bold mb-4">Uploads</h6>
+          <div className="flex items-center">
+            <Switch checked={isPublic} onChange={handleTogglePublic} />
+            <span className="ml-2">{isPublic ? "Public" : "Make Public"}</span>
+          </div>
+        </div>
           {renderFileUploadSections()}
         </div>
-        <button
-          onClick={handleSubmit}
-          className={`bg-blue-500 text-white px-4 py-2 rounded ${isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"}`}
-          disabled={isSubmitting}
-        >
-          Submit
-        </button>
+        <div className="flex justify-end">
+          
+          <button
+            onClick={handleSubmit}
+            className={`bg-blue-500 text-white px-4 py-2 rounded ${isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"}`}
+            disabled={isSubmitting}
+          >
+            Submit
+          </button>
+        </div>
       </div>
+      {openModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-lg m-4 max-h-[90vh] overflow-y-auto">
+            <div className="p-6 space-y-6">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-900">Confirmation</h3>
+                <button onClick={handleCloseModal} className="text-gray-400 hover:text-gray-500">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <p className="text-sm text-gray-600 mb-4">This is to confirm that the document/project/information will be public.</p>
+              <p className="text-sm text-gray-600 mb-4">ยืนยันว่าเอกสาร/โครงการ/ข้อมูลจะถูกเปิดเผยเป็นสาธารณะ</p>
+              <div className="flex justify-end gap-3">
+                <Button variant="contained" color="primary" onClick={handleConfirmPublic}>
+                  Confirm
+                </Button>
+                <Button variant="outlined" color="secondary" onClick={handleCancelPublic}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -4,9 +4,9 @@ import { useProgram } from "@/context/ProgramContext";
 import NoProgramSelected from "@/components/NoProgramSelected";
 import { Advisor } from "@/models/Advisor";
 import Spinner from "@/components/Spinner";
-import postCreateEmployee, { uploadStaffFromExcel } from "@/utils/configemployee/postCreateEmployee";
-import getEmployeeByProgramId from "@/utils/advisorstats/getEmployeebyProgramId";
-import putUpdateEmployee from "@/utils/configemployee/putEditEmployee";
+import postCreateEmployee, { uploadStaffFromExcel } from "@/app/api/configemployee/postCreateEmployee";
+import getEmployeeByProgramId from "@/app/api/advisorstats/getEmployeebyProgramId";
+import putUpdateEmployee from "@/app/api/configemployee/putEditEmployee";
 import ExcelTemplateSection from "@/components/ExcelTemplateSection";
 import { isAxiosError } from "axios";
 import Pagination from "@/components/Pagination";
@@ -57,7 +57,7 @@ export default function ConfigAdvisorPage() {
       const data: Advisor[] = await getEmployeeByProgramId(selectedMajor);
       setAdvisors(data);
     } catch (err) {
-      console.error("Error fetching advisors:", err);
+      console.error("Error fetching advisors: 1", err);
       setError("Failed to load advisors.");
     } finally {
       setLoading(false);

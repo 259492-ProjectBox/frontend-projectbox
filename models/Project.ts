@@ -1,3 +1,5 @@
+import { Keyword } from "@/dtos/Keyword";
+
 export interface Program {
   id: number;
   abbreviation: string;
@@ -76,8 +78,11 @@ export interface Project {
   sectionId: string;
   programId: number;
   program: Program;
-  courseId: number;
-  course: Course;
+  highlightedContents: string | null;
+  isPublic: boolean;
+  // courseId: number;
+  // course: Course;
+  keywords: Keyword[];
   staffs: Employee[];
   members: Member[];
   projectResources: ProjectResource[] | null;

@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from "react"
 import type { Project } from "@/models/Project"
 import ProjectComponent from "@/components/dashboard/ProjectComponent"
 import { useAuth } from "@/hooks/useAuth"
-import getAdvisorByEmail from "@/utils/advisorstats/getAdvisorByEmail"
+import getAdvisorByEmail from "@/app/api/advisorstats/getAdvisorByEmail"
 import type { Advisor } from "@/models/Advisor"
 
 interface PriorityProjectComponentProps {
@@ -26,9 +26,10 @@ const PriorityProjectComponent: React.FC<PriorityProjectComponentProps> = ({ pro
       if (user?.cmuAccount) {
         try {
           const advisorData = await getAdvisorByEmail(user.cmuAccount)
+          
           setAdvisor(advisorData)
         } catch (error) {
-          console.error("Error fetching advisor:", error)
+          console.error("Error fetching advisor: 3", error)
         }
       }
     }
@@ -63,7 +64,7 @@ const PriorityProjectComponent: React.FC<PriorityProjectComponentProps> = ({ pro
         project.titleTH?.toLowerCase().includes(searchLower) ||
         project.abstractText?.toLowerCase().includes(searchLower) ||
         project.academicYear.toString().includes(searchLower) ||
-        project.courseId.toString().includes(searchLower) ||
+        project.projectNo.toString().includes(searchLower) ||
         project.members.some((member) =>
           `${member.firstName} ${member.lastName}`.toLowerCase().includes(searchLower),
         ) ||

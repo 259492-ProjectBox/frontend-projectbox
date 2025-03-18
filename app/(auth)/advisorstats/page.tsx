@@ -2,13 +2,13 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
-import getEmployeeByMajorId from "@/utils/advisorstats/getEmployeebyProgramId"
+import getEmployeeByMajorId from "@/app/api/advisorstats/getEmployeebyProgramId"
 import type { Advisor } from "@/models/Advisor" // Import the Advisor interface
 import Spinner from "@/components/Spinner" // Import the Spinner component
 import Link from "next/link" // Import Link for navigation
 import getAllProgram from "@/utils/getAllProgram"
 import type { AllProgram } from "@/models/AllPrograms"
-import { getAllEmployeesNew } from "@/utils/advisorstats/getAllEmployee" // Import the getAllEmployees function
+import { getAllEmployeesNew } from "@/app/api/advisorstats/getAllEmployee" // Import the getAllEmployees function
 import Avatar from "@/components/Avatar"
 import Pagination from "@/components/Pagination" // Import Pagination component
 
@@ -53,7 +53,7 @@ export default function AdvisorStatsPage() {
           setSearchTerm("")
         }
       } catch (error) {
-        console.error("Error fetching advisor data:", error)
+        console.error("Error fetching advisor data: 2", error)
       } finally {
         setLoading(false)
       }
