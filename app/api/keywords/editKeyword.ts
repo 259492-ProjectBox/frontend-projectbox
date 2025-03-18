@@ -17,13 +17,12 @@ export const editKeyword = async (id :number,keyword: string, programID: number)
             program_id: programID
         }
 
-        var result = await axios.put(apiConfig.ProjectService.UpdateKeyword, payload, {
+        const result = await axios.put(apiConfig.ProjectService.UpdateKeyword, payload, {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             }
         });
-        console.log("editKeyword result", result.data);
         
         return result.data
 
