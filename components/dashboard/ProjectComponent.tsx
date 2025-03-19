@@ -70,10 +70,11 @@ const ProjectComponent = ({ project }: { project: Project }) => {
             </Link>
           </h4>
         </div>
-        <div className="bg-gray-100 p-3 rounded-md text-sm font-medium">
-        
-        <StyledText text={project.highlightedContents}/>
-        </div>
+        {project.highlightedContents && (
+          <div className="bg-gray-100 p-3 rounded-md text-sm font-medium">
+            <StyledText text={project.highlightedContents} />
+          </div>
+        )}
 
         {/* Resource Icons */}
         {(user || project.isPublic) && (project.projectResources?.length ?? 0) > 0 && (
