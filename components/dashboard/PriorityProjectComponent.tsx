@@ -25,6 +25,7 @@ const PriorityProjectComponent: React.FC<PriorityProjectComponentProps> = ({ pro
     const fetchAdvisor = async () => {
       if (user?.cmuAccount) {
         try {
+          
           const advisorData = await getAdvisorByEmail(user.cmuAccount)
           
           setAdvisor(advisorData)
